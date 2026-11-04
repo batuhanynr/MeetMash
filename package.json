@@ -1,0 +1,31 @@
+{
+  "name": "meetmesh",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MeetMesh mobile and reference agent monorepo",
+  "engines": {
+    "node": ">=26 <27",
+    "npm": ">=11 <12"
+  },
+  "workspaces": [
+    "apps/hub",
+    "apps/agent-node",
+    "packages/protocol"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "doctor": "node scripts/doctor.ts",
+    "check:mobile": "cd apps/mobile && flutter analyze && flutter test"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/ws": "8.18.2",
+    "typescript": "5.9.3"
+  }
+}
