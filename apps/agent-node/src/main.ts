@@ -4,7 +4,7 @@ import { createInterface } from 'node:readline';
 import { ProtocolError, type MessageType, type Payloads } from '../../../packages/protocol/src/index.ts';
 import { integer, options, requireLoopbackUrl } from '../../../packages/runtime/src/config.ts';
 import { jsonLogger } from '../../../packages/runtime/src/log.ts';
-import { Agent } from './agent.ts';
+import { Agent, type AgentConfig } from './agent.ts';
 import { SqliteAgentStore } from './sqlite-store.ts';
 import { WebSocketTransport } from './websocket-transport.ts';
 
@@ -30,18 +30,21 @@ try {
   if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(agentId) || agentId === '.' || agentId === '..') throw new Error('--id must be a protocol agent ID');
   const url = requireLoopbackUrl(args.hub ?? process.env.HUB_URL ?? 'ws://127.0.0.1:8787');
   url.searchParams.set('agentId', agentId);
-  const directory = resolve(args['state-root'] ?? process.env.STATE_ROOT ?? '.state/local', agentId);
-  store = new SqliteAgentStore(directory, agentId);
-  transport = new WebSocketTransport(url, log);
-  agent = new Agent({
+  const pause = args['pause-after-persist'] ?? 'false';
+  if (!['true', 'false'].includes(pause)) throw new Error('pause-after-persist must be true or false');
+  const config: AgentConfig = {
     agentId,
     ackTimeoutMs: integer(args['ack-timeout-ms'] ?? '1000', 'ack timeout', 10, 8000),
     maxRetries: integer(args['max-retries'] ?? '5', 'max retries', 0, 10),
     maxBackoffMs: integer(args['max-backoff-ms'] ?? '8000', 'max backoff', 10, 8000),
     dropAckCount: integer(args['drop-acks'] ?? '0', 'drop acks', 0, 1000),
     dropMessageCount: integer(args['drop-messages'] ?? '0', 'drop messages', 0, 1000),
-    pauseAfterPersist: (args['pause-after-persist'] ?? 'false') === 'true',
-  }, store, transport, log);
+    pauseAfterPersist: pause === 'true',
+  };
+  const directory = resolve(args['state-root'] ?? process.env.STATE_ROOT ?? '.state/local', agentId);
+  store = new SqliteAgentStore(directory, agentId);
+  transport = new WebSocketTransport(url, log);
+  agent = new Agent(config, store, transport, log);
   await transport.connect(raw => agent!.receive(raw), () => {
     log('agent.offline', { outcome: 'hub_disconnected' });
     // M1 resumes durable work by restarting the process; session reconnection belongs to M2.

@@ -49,11 +49,14 @@ export const scenarios: Scenario[] = [
       }
       const b = await cluster.agent('agent-b').status();
       const c = await cluster.agent('agent-c').status();
+      const a = await cluster.agent('agent-a').status();
       assert.equal(b.inbox.length, 2);
       assert.equal(c.inbox.length, 2);
       assert.ok(b.inbox.every(row => !c.inbox.some(other => other.messageId === row.messageId)));
       assert.equal((await cluster.health()).agentIds.length, 3);
-      return { independentProcesses: pids.length, domainEffects: 8, scripted: true };
+      const domainEffects = a.effectCount + b.effectCount + c.effectCount;
+      assert.equal(domainEffects, 8);
+      return { independentProcesses: pids.length, domainEffects, scripted: true };
     },
   },
   {
@@ -201,14 +204,16 @@ export const scenarios: Scenario[] = [
         new ManagedProcess('hub', ['--port', String(cluster.port)]),
         new ManagedProcess('agent-node', ['--id', 'agent-a', '--hub', `ws://127.0.0.1:${cluster.port}`, '--state-root', join(cluster.options.stateRoot, 'other')]),
         new ManagedProcess('agent-node', ['--id', 'agent-a', '--hub', `ws://127.0.0.1:${cluster.port}`, '--state-root', cluster.options.stateRoot]),
+        new ManagedProcess('agent-node', ['--id', 'agent-a', '--ack-timeout-ms', 'bad']),
       ];
       try {
         await Promise.all(duplicates.map(async process => assert.rejects(process.ready)));
         await event(cluster, 'connection.rejected', 'DUPLICATE_AGENT');
         await waitFor(() => duplicates[2]!.records, records => records.some(record => record.outcome === 'STATE_IN_USE'), 'state collision error');
         assert.ok(duplicates[0]!.records.some(record => String(record.outcome).includes('EADDRINUSE')));
+        assert.ok(duplicates[3]!.records.some(record => String(record.outcome).includes('ack timeout must be an integer')));
         assert.equal((await cluster.health()).agentIds.length, 3);
-        return { portCollision: true, identityCollision: true, stateCollision: true };
+        return { portCollision: true, identityCollision: true, stateCollision: true, invalidConfigRejected: true };
       } finally { for (const process of duplicates) await process.stop(); }
     },
   },
