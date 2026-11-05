@@ -1,0 +1,8 @@
+{
+  "codeCommit": "a982afe3b930d64b1ccfb436b81f5dd67a32646a",
+  "command": "npm run test:gate:m1",
+  "mutation": "Temporarily changed the expected M1-100 effect count from 100 to 101",
+  "exitCode": 1,
+  "failedScenario": "M1-100",
+  "sourceRestored": true
+}
