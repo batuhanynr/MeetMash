@@ -20,11 +20,16 @@
     "doctor": "node scripts/doctor.ts",
     "check:mobile": "cd apps/mobile && flutter analyze && flutter test",
     "hub": "node --env-file-if-exists=.env apps/hub/src/main.ts",
-    "test:protocol": "node --test tests/protocol/*.test.ts"
-  },
-  "dependencies": {
-    "ajv": "8.20.0",
-    "ws": "8.22.0"
+    "test:protocol": "node --test tests/protocol/*.test.ts",
+    "agent": "node --env-file-if-exists=.env apps/agent-node/src/main.ts",
+    "local": "node --env-file-if-exists=.env scripts/local.ts",
+    "local:reset": "node --env-file-if-exists=.env scripts/reset-local.ts",
+    "demo:m1": "node scripts/m1.ts",
+    "test": "node --test --test-reporter=spec tests/protocol/*.test.ts tests/unit/*.test.ts tests/integration/*.test.ts",
+    "test:unit": "node --test tests/unit/*.test.ts",
+    "test:integration": "node --test tests/integration/*.test.ts",
+    "test:gate:m1": "node scripts/gate-m1.ts",
+    "test:regression": "npm run test:gate:m1"
   },
   "devDependencies": {
     "@types/node": "26.6.5",

@@ -146,6 +146,16 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
     };
   }
 
+  reset(): void {
+    this.transaction(() => this.database.exec(`
+      DELETE FROM effects;
+      DELETE FROM work_queue;
+      DELETE FROM inbox;
+      DELETE FROM outbox;
+      DELETE FROM sequences;
+    `));
+  }
+
   close(): void {
     if (this.closed) return;
     this.closed = true;

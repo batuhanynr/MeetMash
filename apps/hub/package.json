@@ -2,5 +2,10 @@
   "name": "@meetmesh/hub",
   "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@meetmesh/protocol": "0.1.0",
+    "@meetmesh/runtime": "0.1.0",
+    "ws": "8.22.0"
+  }
 }

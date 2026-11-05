@@ -89,3 +89,20 @@ test('expired new delivery creates neither inbox nor work', () => {
     assert.equal(store.snapshot().pendingWork, 0);
   } finally { store.close(); rmSync(directory, { recursive: true }); }
 });
+
+test('local reset clears only synthetic state and keeps the identity owner', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'meetmesh-reset-'));
+  const store = new SqliteAgentStore(directory, 'agent-a');
+  try {
+    const message = request();
+    store.persist(message);
+    store.completePending();
+    store.enqueue(message);
+    store.nextSequence('agent-b', 'meeting-store');
+    store.reset();
+    assert.deepEqual(store.snapshot(), { inbox: [], outbox: [], effectCount: 0, pendingWork: 0 });
+    assert.equal(store.nextSequence('agent-b', 'meeting-store'), 1);
+    store.close();
+    assert.throws(() => new SqliteAgentStore(directory, 'agent-b'), { code: 'STATE_OWNER_MISMATCH' });
+  } finally { store.close(); rmSync(directory, { recursive: true }); }
+});

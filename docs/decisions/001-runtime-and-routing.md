@@ -4,7 +4,7 @@ Status: accepted for M1.
 
 ## Runtime and repository
 
-- npm workspaces manage `apps/hub`, `apps/agent-node`, and `packages/protocol`.
+- npm workspaces manage `apps/hub`, `apps/agent-node`, `packages/protocol`, and the small shared CLI/logging package `packages/runtime`.
 - Flutter owns `apps/mobile` and its pub lockfile. It is not an npm workspace.
 - Node 26 provides SQLite, the test runner, and direct TypeScript execution. TypeScript also emits JavaScript for a build check.
 - The installed Flutter SDK and npm/pub caches are reused. No SDK upgrade is part of M1.

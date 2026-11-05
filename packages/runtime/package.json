@@ -2,5 +2,8 @@
   "name": "@meetmesh/runtime",
   "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@meetmesh/protocol": "0.1.0"
+  }
 }
