@@ -1,0 +1,610 @@
+[
+  {
+    "name": "REQUEST valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "REQUEST missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "REQUEST invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {}
+    }
+  },
+  {
+    "name": "PROPOSE valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-propose",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "PROPOSE",
+      "payload": {
+        "phase": "AVAILABILITY",
+        "slots": [
+          {
+            "start": "2026-11-10T11:00:00+03:00",
+            "end": "2026-11-10T12:00:00+03:00"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "PROPOSE missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-propose",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "PROPOSE",
+      "payload": {
+        "phase": "AVAILABILITY",
+        "slots": [
+          {
+            "start": "2026-11-10T11:00:00+03:00",
+            "end": "2026-11-10T12:00:00+03:00"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "PROPOSE invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-propose",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "PROPOSE",
+      "payload": {}
+    }
+  },
+  {
+    "name": "ACCEPT valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-accept",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACCEPT",
+      "payload": {
+        "proposalMessageId": "fixture-propose"
+      }
+    }
+  },
+  {
+    "name": "ACCEPT missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-accept",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACCEPT",
+      "payload": {
+        "proposalMessageId": "fixture-propose"
+      }
+    }
+  },
+  {
+    "name": "ACCEPT invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-accept",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACCEPT",
+      "payload": {}
+    }
+  },
+  {
+    "name": "REJECT valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-reject",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REJECT",
+      "payload": {
+        "reasonCode": "DECLINED"
+      }
+    }
+  },
+  {
+    "name": "REJECT missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-reject",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REJECT",
+      "payload": {
+        "reasonCode": "DECLINED"
+      }
+    }
+  },
+  {
+    "name": "REJECT invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-reject",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REJECT",
+      "payload": {}
+    }
+  },
+  {
+    "name": "CONFIRM valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-confirm",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "CONFIRM",
+      "payload": {
+        "phase": "COMMIT",
+        "decisionId": "decision-fixture",
+        "slot": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "CONFIRM missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-confirm",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "CONFIRM",
+      "payload": {
+        "phase": "COMMIT",
+        "decisionId": "decision-fixture",
+        "slot": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "CONFIRM invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-confirm",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "CONFIRM",
+      "payload": {}
+    }
+  },
+  {
+    "name": "ACK valid",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-ack",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACK",
+      "payload": {
+        "ackForMessageId": "fixture-request",
+        "scope": "recipient.persisted"
+      }
+    }
+  },
+  {
+    "name": "ACK missing receiver",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-ack",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACK",
+      "payload": {
+        "ackForMessageId": "fixture-request",
+        "scope": "recipient.persisted"
+      }
+    }
+  },
+  {
+    "name": "ACK invalid payload",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-ack",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACK",
+      "payload": {}
+    }
+  },
+  {
+    "name": "PROPOSE SELECTION",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-variant",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "PROPOSE",
+      "payload": {
+        "phase": "SELECTION",
+        "slot": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "CONFIRM PREPARE",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-variant",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "CONFIRM",
+      "payload": {
+        "phase": "PREPARE",
+        "proposalMessageId": "fixture-propose",
+        "slot": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "CONFIRM APPLIED",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-variant",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "CONFIRM",
+      "payload": {
+        "phase": "APPLIED",
+        "decisionId": "decision-fixture"
+      }
+    }
+  },
+  {
+    "name": "ACK relay.persisted",
+    "valid": true,
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-variant",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "ACK",
+      "payload": {
+        "ackForMessageId": "fixture-request",
+        "scope": "relay.persisted"
+      }
+    }
+  },
+  {
+    "name": "unknown version",
+    "valid": false,
+    "code": "UNSUPPORTED_VERSION",
+    "message": {
+      "protocolVersion": "2",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "reversed envelope time",
+    "valid": false,
+    "code": "INVALID_TIME_RANGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:00:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        }
+      }
+    }
+  },
+  {
+    "name": "payload leak",
+    "valid": false,
+    "code": "INVALID_MESSAGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T12:00:00+03:00"
+        },
+        "calendarTitle": "private"
+      }
+    }
+  },
+  {
+    "name": "reversed request window",
+    "valid": false,
+    "code": "INVALID_TIME_RANGE",
+    "message": {
+      "protocolVersion": "1",
+      "messageId": "fixture-request",
+      "meetingId": "meeting-fixture",
+      "fromAgentId": "agent-a",
+      "toAgentId": "agent-b",
+      "sequence": 1,
+      "createdAt": "2026-11-05T06:00:00Z",
+      "expiresAt": "2026-11-05T06:03:00Z",
+      "nonce": "nonce-fixture",
+      "auth": {},
+      "type": "REQUEST",
+      "payload": {
+        "participantAgentIds": [
+          "agent-a",
+          "agent-b",
+          "agent-c"
+        ],
+        "durationMinutes": 30,
+        "window": {
+          "start": "2026-11-10T12:00:00+03:00",
+          "end": "2026-11-10T11:00:00+03:00"
+        }
+      }
+    }
+  }
+]

@@ -11,13 +11,16 @@
   "workspaces": [
     "apps/hub",
     "apps/agent-node",
-    "packages/protocol"
+    "packages/protocol",
+    "packages/runtime"
   ],
   "scripts": {
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "doctor": "node scripts/doctor.ts",
-    "check:mobile": "cd apps/mobile && flutter analyze && flutter test"
+    "check:mobile": "cd apps/mobile && flutter analyze && flutter test",
+    "hub": "node --env-file-if-exists=.env apps/hub/src/main.ts",
+    "test:protocol": "node --test tests/protocol/*.test.ts"
   },
   "dependencies": {
     "ajv": "8.20.0",

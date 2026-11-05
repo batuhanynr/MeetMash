@@ -1,0 +1,353 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://meetmesh.local/protocol/v1/message.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "protocolVersion": {
+      "const": "1"
+    },
+    "messageId": {
+      "$ref": "#/definitions/identifier"
+    },
+    "meetingId": {
+      "$ref": "#/definitions/identifier"
+    },
+    "fromAgentId": {
+      "$ref": "#/definitions/identifier"
+    },
+    "toAgentId": {
+      "$ref": "#/definitions/identifier"
+    },
+    "type": {
+      "enum": [
+        "REQUEST",
+        "PROPOSE",
+        "ACCEPT",
+        "REJECT",
+        "CONFIRM",
+        "ACK"
+      ]
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nonce": {
+      "$ref": "#/definitions/identifier"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    }
+  },
+  "required": [
+    "protocolVersion",
+    "messageId",
+    "meetingId",
+    "fromAgentId",
+    "toAgentId",
+    "type",
+    "sequence",
+    "createdAt",
+    "expiresAt",
+    "nonce",
+    "payload",
+    "auth"
+  ],
+  "definitions": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "REQUEST"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "participantAgentIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/identifier"
+                },
+                "minItems": 1,
+                "uniqueItems": true,
+                "maxItems": 32
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1440
+              },
+              "window": {
+                "$ref": "#/definitions/slot"
+              }
+            },
+            "required": [
+              "participantAgentIds",
+              "durationMinutes",
+              "window"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "PROPOSE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "const": "AVAILABILITY"
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/slot"
+                    },
+                    "maxItems": 128
+                  }
+                },
+                "required": [
+                  "phase",
+                  "slots"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "const": "SELECTION"
+                  },
+                  "slot": {
+                    "$ref": "#/definitions/slot"
+                  }
+                },
+                "required": [
+                  "phase",
+                  "slot"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "ACCEPT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "proposalMessageId": {
+                "$ref": "#/definitions/identifier"
+              }
+            },
+            "required": [
+              "proposalMessageId"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "REJECT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reasonCode": {
+                "enum": [
+                  "NO_AVAILABILITY",
+                  "DECLINED",
+                  "INVALID_REQUEST"
+                ]
+              }
+            },
+            "required": [
+              "reasonCode"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "CONFIRM"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "const": "PREPARE"
+                  },
+                  "proposalMessageId": {
+                    "$ref": "#/definitions/identifier"
+                  },
+                  "slot": {
+                    "$ref": "#/definitions/slot"
+                  }
+                },
+                "required": [
+                  "phase",
+                  "proposalMessageId",
+                  "slot"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "const": "COMMIT"
+                  },
+                  "decisionId": {
+                    "$ref": "#/definitions/identifier"
+                  },
+                  "slot": {
+                    "$ref": "#/definitions/slot"
+                  }
+                },
+                "required": [
+                  "phase",
+                  "decisionId",
+                  "slot"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "phase": {
+                    "const": "APPLIED"
+                  },
+                  "decisionId": {
+                    "$ref": "#/definitions/identifier"
+                  }
+                },
+                "required": [
+                  "phase",
+                  "decisionId"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "ACK"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ackForMessageId": {
+                "$ref": "#/definitions/identifier"
+              },
+              "scope": {
+                "enum": [
+                  "relay.persisted",
+                  "recipient.persisted"
+                ]
+              }
+            },
+            "required": [
+              "ackForMessageId",
+              "scope"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

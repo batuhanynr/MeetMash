@@ -1,0 +1,16 @@
+{
+  "INVALID_JSON": "Frame is not valid JSON.",
+  "UNSUPPORTED_VERSION": "Only protocolVersion 1 is supported.",
+  "INVALID_MESSAGE": "Envelope or type-specific payload violates the schema.",
+  "INVALID_TIME_RANGE": "expiresAt or a slot/window end must be after its start.",
+  "UNKNOWN_AGENT": "Agent is outside the fixed M1 allowlist.",
+  "DUPLICATE_AGENT": "Only one active connection per agent ID is allowed.",
+  "SENDER_MISMATCH": "Envelope sender must match the connection ID.",
+  "RECIPIENT_OFFLINE": "M1 relay has no durable mailbox; sender retains the outbox.",
+  "MESSAGE_ID_CONFLICT": "A logical message ID was reused with different content.",
+  "MESSAGE_EXPIRED": "An expired new message cannot start domain work.",
+  "INVALID_ACK": "ACK sender, meeting, scope, or referenced message is incorrect.",
+  "DELIVERY_UNCONFIRMED": "Recipient persistence was not acknowledged within the retry budget.",
+  "STATE_IN_USE": "Another live process owns this agent state directory.",
+  "STATE_OWNER_MISMATCH": "A state directory belongs to another agent."
+}
