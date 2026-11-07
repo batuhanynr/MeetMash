@@ -1,0 +1,190 @@
+{
+  "milestone": "M1",
+  "runId": "a25b1236-35f3-40be-bba8-d16d8dfa4c44",
+  "codeCommit": "a982afe3b930d64b1ccfb436b81f5dd67a32646a",
+  "worktreeDirty": false,
+  "startedAt": "2026-11-05T08:36:07.731Z",
+  "finishedAt": "2026-11-05T08:36:17.248Z",
+  "status": "passed",
+  "environment": {
+    "node": "v26.12.1",
+    "npm": "11.20.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "packages": {
+      "version": "0.1.0",
+      "name": "meetmesh",
+      "dependencies": {
+        "@meetmesh/agent-node": {
+          "version": "0.1.0",
+          "resolved": "file:../../apps/agent-node",
+          "overridden": false,
+          "dependencies": {
+            "@meetmesh/protocol": {
+              "version": "0.1.0"
+            },
+            "@meetmesh/runtime": {
+              "version": "0.1.0"
+            },
+            "ws": {
+              "version": "8.22.0",
+              "resolved": "https://registry.npmjs.org/ws/-/ws-8.22.0.tgz",
+              "overridden": false
+            }
+          }
+        },
+        "@meetmesh/hub": {
+          "version": "0.1.0",
+          "resolved": "file:../../apps/hub",
+          "overridden": false,
+          "dependencies": {
+            "@meetmesh/protocol": {
+              "version": "0.1.0"
+            },
+            "@meetmesh/runtime": {
+              "version": "0.1.0"
+            },
+            "ws": {
+              "version": "8.22.0"
+            }
+          }
+        },
+        "@meetmesh/protocol": {
+          "version": "0.1.0",
+          "resolved": "file:../../packages/protocol",
+          "overridden": false,
+          "dependencies": {
+            "ajv": {
+              "version": "8.20.0",
+              "resolved": "https://registry.npmjs.org/ajv/-/ajv-8.20.0.tgz",
+              "overridden": false
+            }
+          }
+        },
+        "@meetmesh/runtime": {
+          "version": "0.1.0",
+          "resolved": "file:../../packages/runtime",
+          "overridden": false,
+          "dependencies": {
+            "@meetmesh/protocol": {
+              "version": "0.1.0"
+            }
+          }
+        },
+        "@types/node": {
+          "version": "26.6.5",
+          "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.5.tgz",
+          "overridden": false
+        },
+        "@types/ws": {
+          "version": "8.18.2",
+          "resolved": "https://registry.npmjs.org/@types/ws/-/ws-8.18.2.tgz",
+          "overridden": false
+        },
+        "typescript": {
+          "version": "5.9.3",
+          "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+          "overridden": false
+        }
+      }
+    }
+  },
+  "testData": "Synthetic protocol messages only; scripted slots, no scheduler, calendar, or LLM",
+  "transport": "Real loopback TCP/WebSocket; one hub and three separate Node agent processes per scenario",
+  "retryConfig": {
+    "ackTimeoutMs": 100,
+    "maxBackoffMs": 150,
+    "maxRetries": 5,
+    "overrides": "M1-UNCONFIRMED: 2 retries; M1-OUTBOX first sender: 1000ms timeout/backoff"
+  },
+  "results": [
+    {
+      "id": "M1-T1",
+      "description": "scripted REQUEST / PROPOSE / ACCEPT / CONFIRM over three agent processes",
+      "status": "passed",
+      "durationMs": 929,
+      "independentProcesses": 4,
+      "domainEffects": 8,
+      "scripted": true
+    },
+    {
+      "id": "M1-T2",
+      "description": "REJECT is delivered as a rejection",
+      "status": "passed",
+      "durationMs": 697,
+      "rejected": true,
+      "domainEffects": 1
+    },
+    {
+      "id": "M1-T3",
+      "description": "lost first recipient ACK causes retry and one effect",
+      "status": "passed",
+      "durationMs": 795,
+      "attempts": 2,
+      "domainEffects": 1
+    },
+    {
+      "id": "M1-T4",
+      "description": "invalid frames and routing errors are visible without crashing",
+      "status": "passed",
+      "durationMs": 812,
+      "invalidFrames": 7,
+      "processesHealthy": true
+    },
+    {
+      "id": "M1-T5",
+      "description": "SIGKILL after inbox persistence recovers acknowledged pending work",
+      "status": "passed",
+      "durationMs": 885,
+      "acknowledgedBeforeCrash": true,
+      "recoveredEffects": 1
+    },
+    {
+      "id": "M1-100",
+      "description": "100 distinct messages arrive only at their intended recipients",
+      "status": "passed",
+      "durationMs": 764,
+      "uniqueMessages": 100,
+      "deliveredMessages": 100,
+      "domainEffects": 100
+    },
+    {
+      "id": "M1-DUPLICATE",
+      "description": "ten wire deliveries produce one effect; ID reuse with changed content fails",
+      "status": "passed",
+      "durationMs": 763,
+      "wireDeliveries": 10,
+      "domainEffects": 1,
+      "conflictingContentRejected": true
+    },
+    {
+      "id": "M1-UNCONFIRMED",
+      "description": "retry exhaustion stays explicit; group ACKs remain independent",
+      "status": "passed",
+      "durationMs": 1111,
+      "attempts": 3,
+      "bStatus": "DELIVERY_UNCONFIRMED",
+      "cStatus": "ACKED",
+      "bEffects": 1
+    },
+    {
+      "id": "M1-OUTBOX",
+      "description": "persisted outbox and sequence resume after sender SIGKILL",
+      "status": "passed",
+      "durationMs": 1735,
+      "restoredOutbox": true,
+      "persistedSequence": 2,
+      "domainEffects": 2
+    },
+    {
+      "id": "M1-COLLISION",
+      "description": "duplicate port, active agent ID, and state ownership fail clearly",
+      "status": "passed",
+      "durationMs": 841,
+      "portCollision": true,
+      "identityCollision": true,
+      "stateCollision": true,
+      "invalidConfigRejected": true
+    }
+  ]
+}

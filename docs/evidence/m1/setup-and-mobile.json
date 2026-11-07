@@ -1,0 +1,58 @@
+{
+  "codeCommit": "a982afe3b930d64b1ccfb436b81f5dd67a32646a",
+  "recordedAt": "2026-11-05T08:37:26.848934+00:00",
+  "source": "Commands run during the implementation session; SDKs and cached packages were reused",
+  "initializationCommands": [
+    "npm init -y",
+    "npm init -y --workspace apps/hub --workspace apps/agent-node --workspace packages/protocol",
+    "npm init -y --workspace packages/runtime",
+    "flutter create --no-pub --platforms=android,ios --org com.meetmesh --project-name meetmesh apps/mobile"
+  ],
+  "restoreChecks": [
+    {
+      "command": "npm ci --offline --ignore-scripts --no-audit --no-fund",
+      "exitCode": 0
+    },
+    {
+      "command": "flutter pub get --offline --enforce-lockfile",
+      "cwd": "apps/mobile",
+      "exitCode": 0
+    }
+  ],
+  "flutter": {
+    "frameworkVersion": "3.38.7",
+    "frameworkRevision": "3b62efc2a3da49882f43c372e0bc53daef7295a6",
+    "dartSdkVersion": "3.10.7",
+    "channel": "stable"
+  },
+  "mobileChecks": [
+    {
+      "command": "flutter analyze",
+      "exitCode": 0,
+      "result": "No issues found"
+    },
+    {
+      "command": "flutter test",
+      "exitCode": 0,
+      "testsPassed": 1
+    }
+  ],
+  "compiledDemo": {
+    "command": "node dist/scripts/m1.js",
+    "exitCode": 0,
+    "scenariosPassed": 10
+  },
+  "observedDoctorFindings": [
+    "Android cmdline-tools component is missing",
+    "Xcode cannot enumerate installed simulator runtimes"
+  ],
+  "binaryBuilds": {
+    "android": "not verified",
+    "ios": "not verified"
+  },
+  "hostedCI": "Workflow committed; no hosted run claimed",
+  "humanAcceptance": {
+    "secondTeamMemberDemo": "pending",
+    "reviewAndMerge": "pending"
+  }
+}
