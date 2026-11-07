@@ -18,6 +18,9 @@
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "doctor": "node scripts/doctor.ts",
+    "certs": "node scripts/dev-certs.ts",
+    "db:up": "docker compose -f infra/local/docker-compose.yml up -d --wait",
+    "db:down": "docker compose -f infra/local/docker-compose.yml down",
     "check:mobile": "cd apps/mobile && flutter analyze && flutter test",
     "hub": "node --env-file-if-exists=.env apps/hub/src/main.ts",
     "test:protocol": "node --test tests/protocol/*.test.ts",
@@ -33,6 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "26.6.5",
+    "@types/pg": "8.11.10",
     "@types/ws": "8.18.2",
     "typescript": "5.9.3"
   }
