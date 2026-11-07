@@ -43,6 +43,9 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
           attempts INTEGER NOT NULL DEFAULT 0, next_attempt_at INTEGER NOT NULL DEFAULT 0,
           status TEXT NOT NULL DEFAULT 'PENDING'
         );
+        CREATE TABLE IF NOT EXISTS seen_nonces (
+          nonce TEXT PRIMARY KEY, hash TEXT NOT NULL, expires_at INTEGER NOT NULL
+        );
       `);
       const owner = this.database.prepare('SELECT value FROM metadata WHERE key = ?').get('agentId');
       if (owner && owner.value !== agentId) throw new ProtocolError('STATE_OWNER_MISMATCH', 'State directory belongs to another agent');
@@ -117,6 +120,21 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
     });
   }
 
+  // Replay guard: a new nonce is accepted, the same nonce with identical content is a legitimate retransmit
+  // (not reprocessed), and the same nonce with different content is rejected as a replay or forgery.
+  rememberNonce(nonce: string, hash: string, expiresAt: number): boolean {
+    return this.transaction(() => {
+      const existing = this.database.prepare('SELECT hash FROM seen_nonces WHERE nonce = ?').get(nonce);
+      if (existing) {
+        if (existing.hash !== hash) throw new ProtocolError('REPLAY_DETECTED', 'Nonce was reused with different content');
+        return false;
+      }
+      this.database.prepare('DELETE FROM seen_nonces WHERE expires_at <= ?').run(Date.now());
+      this.database.prepare('INSERT INTO seen_nonces (nonce, hash, expires_at) VALUES (?, ?, ?)').run(nonce, hash, expiresAt);
+      return true;
+    });
+  }
+
   completePending(): Message[] {
     return this.transaction(() => {
       const pending = this.database.prepare('SELECT inbox.content FROM work_queue JOIN inbox USING (message_id)').all();
@@ -153,6 +171,7 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
       DELETE FROM inbox;
       DELETE FROM outbox;
       DELETE FROM sequences;
+      DELETE FROM seen_nonces;
     `));
   }
 

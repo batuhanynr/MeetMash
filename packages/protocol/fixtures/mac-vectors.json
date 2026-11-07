@@ -1,0 +1,31 @@
+{
+  "note": "Shared HMAC-SHA256 vectors. Node and Dart must produce identical mac/hash over signingString.",
+  "key": "pair-key-ab-000000000000000000000000",
+  "keyId": "agent-a:agent-b",
+  "message": {
+    "protocolVersion": "1",
+    "messageId": "m-0001",
+    "meetingId": "meeting-1",
+    "fromAgentId": "agent-a",
+    "toAgentId": "agent-b",
+    "type": "REQUEST",
+    "sequence": 1,
+    "createdAt": "2026-11-10T06:00:00Z",
+    "expiresAt": "2026-11-10T06:03:00Z",
+    "nonce": "nonce-0001",
+    "payload": {
+      "participantAgentIds": [
+        "agent-b"
+      ],
+      "durationMinutes": 60,
+      "window": {
+        "start": "2026-11-10T09:00:00Z",
+        "end": "2026-11-10T17:00:00Z"
+      }
+    },
+    "auth": {}
+  },
+  "signingString": "{\"createdAt\":\"2026-11-10T06:00:00Z\",\"expiresAt\":\"2026-11-10T06:03:00Z\",\"fromAgentId\":\"agent-a\",\"meetingId\":\"meeting-1\",\"messageId\":\"m-0001\",\"nonce\":\"nonce-0001\",\"payload\":{\"durationMinutes\":60,\"participantAgentIds\":[\"agent-b\"],\"window\":{\"end\":\"2026-11-10T17:00:00Z\",\"start\":\"2026-11-10T09:00:00Z\"}},\"protocolVersion\":\"1\",\"sequence\":1,\"toAgentId\":\"agent-b\",\"type\":\"REQUEST\"}",
+  "mac": "c39b55929cef51c99a5abdb6b850a5a04680ce9e1a9ff64c22e4b92e06facec7",
+  "messageHash": "e0602979a0bfb9a3f50c1f34533100aa15b7cf8a67b21c9cb6f402b84a726bfa"
+}

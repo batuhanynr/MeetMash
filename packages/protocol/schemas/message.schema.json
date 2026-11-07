@@ -51,7 +51,15 @@
     "auth": {
       "type": "object",
       "additionalProperties": false,
-      "properties": {},
+      "properties": {
+        "mac": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "keyId": {
+          "$ref": "#/definitions/identifier"
+        }
+      },
       "required": []
     }
   },
