@@ -1,5 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import { canonicalJson, ProtocolError, type Message } from './index.ts';
+import { canonicalJson, type Message } from './index.ts';
 
 // The signed bytes cover every envelope field except auth itself. Key order is canonical so Node and a
 // future Dart agent sign the same string. auth is excluded because it carries the signature.
@@ -23,10 +23,6 @@ export function verifyMessage(message: Message, key: string): boolean {
   const a = Buffer.from(expected, 'hex');
   const b = Buffer.from(presented, 'hex');
   return a.length === b.length && timingSafeEqual(a, b);
-}
-
-export function requireValidMac(message: Message, key: string): void {
-  if (!verifyMessage(message, key)) throw new ProtocolError('MAC_INVALID', 'Message MAC does not match the signed content');
 }
 
 // Binds a nonce to the exact content it was first seen with, so a legitimate retransmit matches but a
