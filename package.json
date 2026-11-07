@@ -31,6 +31,7 @@
     "test": "node --test --test-reporter=spec tests/protocol/*.test.ts tests/unit/*.test.ts tests/integration/*.test.ts",
     "test:unit": "node --test tests/unit/*.test.ts",
     "test:integration": "node --test tests/integration/*.test.ts",
+    "test:hub": "node --env-file-if-exists=.env --test tests/hub/*.test.ts",
     "test:gate:m1": "node scripts/gate-m1.ts",
     "test:regression": "npm run test:gate:m1"
   },
