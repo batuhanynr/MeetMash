@@ -1,4 +1,4 @@
-name: M1 checks
+name: CI checks
 
 on:
   push:
@@ -25,6 +25,32 @@ jobs:
           name: m1-evidence
           path: .state/evidence/m1/
           include-hidden-files: true
+  hub-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: meetmesh
+          POSTGRES_PASSWORD: meetmesh
+          POSTGRES_DB: meetmesh
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U meetmesh -d meetmesh"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm run test:hub
+        env:
+          DATABASE_URL: postgres://meetmesh:meetmesh@127.0.0.1:5432/meetmesh
   flutter-shell:
     runs-on: ubuntu-latest
     timeout-minutes: 10

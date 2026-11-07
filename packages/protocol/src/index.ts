@@ -17,8 +17,11 @@ export type MessageType = keyof Payloads;
 export type Message = { [T in MessageType]: {
   protocolVersion: '1'; messageId: string; meetingId: string;
   fromAgentId: string; toAgentId: string; type: T; sequence: number;
-  createdAt: string; expiresAt: string; nonce: string; payload: Payloads[T]; auth: Record<string, never>;
+  createdAt: string; expiresAt: string; nonce: string; payload: Payloads[T]; auth: Auth;
 } }[MessageType];
+
+// Populated by MM-204 message signing. Empty for unsigned M1 messages; mac is an HMAC-SHA256 hex digest.
+export type Auth = { mac?: string; keyId?: string };
 
 export class ProtocolError extends Error {
   readonly code: string;
