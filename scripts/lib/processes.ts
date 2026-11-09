@@ -25,9 +25,9 @@ export class ManagedProcess {
   stderr = '';
   private readonly pending = new Map<string, { resolve(value: LogRecord): void; reject(error: Error): void }>();
 
-  constructor(app: 'hub' | 'agent-node', args: string[], echo = false) {
+  constructor(app: 'hub' | 'agent-node', args: string[], echo = false, entryName = 'main') {
     const extension = import.meta.url.endsWith('.ts') ? 'ts' : 'js';
-    const entry = fileURLToPath(new URL(`../../apps/${app}/src/main.${extension}`, import.meta.url));
+    const entry = fileURLToPath(new URL(`../../apps/${app}/src/${entryName}.${extension}`, import.meta.url));
     this.child = fork(entry, args, { execArgv: [], stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
     createInterface({ input: this.child.stdout! }).on('line', line => {
       try { this.records.push(JSON.parse(line) as LogRecord); } catch { /* Node diagnostic, not an application event. */ }

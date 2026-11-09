@@ -1,6 +1,6 @@
 import { createMessage, parseMessage, ProtocolError, validateMessage, type Message, type MessageType, type Payloads } from '../../../packages/protocol/src/index.ts';
 import { messageFields, type Logger } from '../../../packages/runtime/src/log.ts';
-import type { InboxStore, OutboxStore, SequenceStore, Transport } from './ports.ts';
+import type { AgentSecurity, InboxStore, OutboxStore, SequenceStore, Transport } from './ports.ts';
 
 export type AgentConfig = {
   agentId: string; ackTimeoutMs: number; maxRetries: number; maxBackoffMs: number;
@@ -12,15 +12,17 @@ export class Agent {
   private readonly store: InboxStore & OutboxStore & SequenceStore;
   private readonly transport: Transport;
   private readonly log: Logger;
+  private readonly security: AgentSecurity | undefined;
   private timer: ReturnType<typeof setInterval> | undefined;
   private dropAcks: number;
   private dropMessages: number;
 
-  constructor(config: AgentConfig, store: InboxStore & OutboxStore & SequenceStore, transport: Transport, log: Logger) {
+  constructor(config: AgentConfig, store: InboxStore & OutboxStore & SequenceStore, transport: Transport, log: Logger, security?: AgentSecurity) {
     this.config = config;
     this.store = store;
     this.transport = transport;
     this.log = log;
+    this.security = security;
     this.dropAcks = config.dropAckCount;
     this.dropMessages = config.dropMessageCount;
   }
@@ -39,8 +41,15 @@ export class Agent {
       fromAgentId: this.config.agentId, toAgentId, meetingId, type, payload,
       sequence: this.store.nextSequence(toAgentId, meetingId),
     });
-    this.queue(message);
-    return message;
+    const signed = this.security ? this.security.sign(message) : message;
+    this.queue(signed);
+    return signed;
+  }
+
+  // The hub acknowledged durable custody of this message; stop retransmitting and await the recipient ACK.
+  onRelayAck(messageId: string): void {
+    this.store.relayAck(messageId);
+    this.log('message.relay_acked', { messageId, direction: 'inbound', outcome: 'relay.persisted' });
   }
 
   queue(value: unknown): void {
@@ -55,6 +64,7 @@ export class Agent {
     try {
       const message = parseMessage(raw);
       if (message.toAgentId !== this.config.agentId) throw new ProtocolError('UNKNOWN_AGENT', 'Message was routed to the wrong recipient');
+      if (this.security) this.security.verify(message); // MAC and, for domain messages, replay protection
       if (message.type === 'ACK') {
         this.store.acknowledge(message);
         this.log('message.acked', { ...messageFields(message), direction: 'inbound', ackForMessageId: message.payload.ackForMessageId, outcome: 'recipient.persisted' });
@@ -67,10 +77,11 @@ export class Agent {
         type: 'ACK', payload: { ackForMessageId: message.messageId, scope: 'recipient.persisted' },
         sequence: this.store.nextSequence(message.fromAgentId, message.meetingId),
       });
+      const signedAck = this.security ? this.security.sign(ack) : ack;
       if (this.dropAcks > 0) {
         this.dropAcks--;
-        this.log('fault.ack_dropped', { ...messageFields(ack), direction: 'outbound', ackForMessageId: message.messageId, outcome: 'injected' });
-      } else this.transmit(ack);
+        this.log('fault.ack_dropped', { ...messageFields(signedAck), direction: 'outbound', ackForMessageId: message.messageId, outcome: 'injected' });
+      } else this.transmit(signedAck);
       this.processWork(false);
     } catch (error) {
       if (!(error instanceof ProtocolError)) throw error;
