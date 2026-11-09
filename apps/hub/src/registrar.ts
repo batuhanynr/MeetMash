@@ -47,6 +47,11 @@ export class Registrar {
     await this.store.touchSession(agentId, generation, this.now());
   }
 
+  // Used by an already-authenticated connection to refresh its liveness without re-presenting the token.
+  async keepAlive(agentId: string, generation: number): Promise<boolean> {
+    return this.store.touchSession(agentId, generation, this.now());
+  }
+
   async isOnline(agentId: string): Promise<boolean> {
     const session = await this.store.getSession(agentId);
     return !!session && session.state === 'online' && this.now() - session.lastSeen <= this.offlineAfterMs;
