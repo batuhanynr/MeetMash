@@ -59,7 +59,10 @@ const code = await new Promise<string>((done, fail) => {
 const token = await exchangeGoogleToken(oauth, { grant_type: 'authorization_code', code, redirect_uri: redirect, code_verifier: verifier });
 if (!token.refresh_token) throw new Error('Google did not issue offline access. Repeat authorization.');
 const scopes = new Set(token.scope?.split(' '));
-if (!calendarScopes.slice(1).every(scope => scopes.has(scope))) throw new Error('All three Calendar permissions are required.');
+const missingScopes = calendarScopes.slice(1).filter(scope => !scopes.has(scope));
+if (missingScopes.length) {
+  throw new Error('Missing Google Calendar permissions: ' + missingScopes.map(scope => scope.split('/').at(-1)).join(', '));
+}
 const calendarId = await findTestCalendar(token.access_token, email);
 
 mkdirSync(dirname(catalog), { recursive: true, mode: 0o700 });
