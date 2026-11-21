@@ -1,6 +1,6 @@
 # MeetMesh mobile
 
-Flutter screens and the headless Dart client use the same foreground meeting agent. The app keeps the provisioned account in platform secure storage. A local file holds the agent's inbox, outbox, reservations, decisions and applied events. Open the app again with the same account to recover a meeting.
+Flutter screens and the headless Dart client use the same foreground meeting agent. The app keeps the provisioned account in platform secure storage. A local file holds the agent's inbox, outbox, reservations, decisions and applied events. The app retries a broken hub connection while it is open and recovers pending meetings from local storage when reopened.
 
 ## Connect two devices
 
@@ -22,7 +22,7 @@ GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.YOUR_IOS_CLIENT_ID
 
 Supply the iOS client ID to the corresponding Flutter build with `--dart-define=GOOGLE_IOS_CLIENT_ID=...`. Use `--dart-define=GOOGLE_WEB_CLIENT_ID=...` for the web client ID associated with the Android project. Both accounts must come from the same demo provisioning configuration; set `M5_GOOGLE_A` and `M5_GOOGLE_B` to their distinct email addresses before starting the device hub. Use fresh app installations for this live run so no previous fixture identity or reservations carry over.
 
-Each account holder opens “Takvim”, chooses “Google hesabına izin ver” and signs in with the assigned account. Schedule a **future** test window. Free/busy queries and the local reservation check run before voting. Calendar contents can still change outside MeetMesh after a vote. After COMMIT, the client looks up a stable per-agent event ID and reconciles a lost write response. A missing grant or failed write leaves the meeting pending. “Google iznini kaldır” revokes the grant.
+Each account holder opens “Takvim”, chooses “Google hesabına izin ver” and signs in with the assigned account. Schedule a **future** test window. Free/busy queries and the local reservation check run before voting. Calendar contents can still change outside MeetMesh after a vote. After COMMIT, the client looks up a stable per-agent event ID and reconciles a lost write response. A missing grant or failed write leaves the meeting pending. The organizer sees which participant has not written. On that participant's device, a missing grant prompts them to authorize again under “Takvim”. Restoring access lets the same write resume. “Google iznini kaldır” revokes the grant.
 
 ## Verification
 
