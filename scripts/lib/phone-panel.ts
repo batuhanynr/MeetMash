@@ -105,7 +105,12 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
       } else if ((event === 'message.queued' || event === 'message.forwarded') &&
         typeof fromAgentId === 'string' && hubAgents.has(fromAgentId) && typeof toAgentId === 'string' && hubAgents.has(toAgentId) &&
         typeof messageType === 'string' && typeof meetingId === 'string') {
-        events.push({ seq: ++seq, at, kind: event === 'message.queued' ? 'queued' : 'forwarded',
+        const kind = event === 'message.queued' ? 'queued' : 'forwarded';
+        const previous = events.findLast(item => item.kind === kind && item.meeting === meetingId &&
+          item.from === fromAgentId && item.to === toAgentId && item.type === messageType && item.phase === phase);
+        // The planner retries while a person is deciding. Keep those pulses from hiding later stages.
+        if (previous && Date.parse(at) - Date.parse(previous.at) < 5000) return;
+        events.push({ seq: ++seq, at, kind,
           from: fromAgentId, to: toAgentId, type: messageType, meeting: meetingId,
           ...(typeof phase === 'string' ? { phase } : {}),
         });
