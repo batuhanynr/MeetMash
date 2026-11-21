@@ -1,6 +1,6 @@
-import type { Message } from '../../../packages/protocol/src/index.ts';
+import { ProtocolError, type Message } from '../../../packages/protocol/src/index.ts';
 import type { Database } from './db.ts';
-import type { MailboxStore, MailItem, MailStatus } from './mailbox.ts';
+import type { MailboxStore, MailItem, MailStatus, DeliveryReceipt } from './mailbox.ts';
 
 type MailRow = {
   message_key: string; recipient_agent_id: string; sender_agent_id: string;
@@ -25,7 +25,13 @@ export class PgMailboxStore implements MailboxStore {
        VALUES ($1, $2, $3, $4, $5, $6, 'QUEUED', $7)
        ON CONFLICT (message_key) DO NOTHING`,
       [message.messageId, message.toAgentId, message.fromAgentId, message.meetingId, message.messageId, message, message.expiresAt]);
-    return result.rowCount === 1;
+    if (result.rowCount === 1) return true;
+    const existing = await this.database.query(
+      'SELECT 1 FROM mailbox WHERE message_key = $1 AND content = $2::jsonb',
+      [message.messageId, message],
+    );
+    if (!existing.rowCount) throw new ProtocolError('MESSAGE_ID_CONFLICT', 'Mailbox ID belongs to different content');
+    return false;
   }
 
   // Locks due rows atomically so two drains never deliver the same item; a crashed lock is reclaimed once it expires.
@@ -46,10 +52,13 @@ export class PgMailboxStore implements MailboxStore {
     return result.rows.map(toItem);
   }
 
-  async markDelivered(messageKey: string, now: number): Promise<boolean> {
+  async markDelivered(receipt: DeliveryReceipt, now: number): Promise<boolean> {
     const result = await this.database.query(
-      `UPDATE mailbox SET status = 'DELIVERED', delivered_at = to_timestamp($2 / 1000.0)
-       WHERE message_key = $1 AND status IN ('QUEUED', 'SENT')`, [messageKey, now]);
+      `UPDATE mailbox SET status = 'DELIVERED', delivered_at = COALESCE(delivered_at, to_timestamp($2 / 1000.0))
+       WHERE message_key = $1 AND recipient_agent_id = $3 AND sender_agent_id = $4 AND meeting_id = $5
+         AND status IN ('SENT', 'DELIVERED')`,
+      [receipt.payload.ackForMessageId, now, receipt.fromAgentId, receipt.toAgentId, receipt.meetingId],
+    );
     return result.rowCount === 1;
   }
 
