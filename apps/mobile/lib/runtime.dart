@@ -25,10 +25,18 @@ class MobileRuntime extends ChangeNotifier {
   Timer? _tick;
   bool _working = false;
   bool _disposed = false;
+  bool _foreground = true;
+  int _connectionFailures = 0;
+  DateTime? _retryConnectionAt;
   Future<void>? _starting;
   String? error;
   void _changed() {
     if (!_disposed) notifyListeners();
+  }
+
+  void setForeground(bool foreground) {
+    _foreground = foreground;
+    if (foreground) _retryConnectionAt = null;
   }
 
   Future<void> restore() async {
@@ -90,6 +98,7 @@ class MobileRuntime extends ChangeNotifier {
       store: store,
       calendar: calendar,
       transmit: conn.send,
+      canTransmit: () => conn.online && !conn.displaced,
       changed: _changed,
     );
     conn.agent = a;
@@ -116,9 +125,20 @@ class MobileRuntime extends ChangeNotifier {
     connection = conn;
     agent = a;
     _tick = Timer.periodic(const Duration(milliseconds: 500), (_) async {
-      if (_working || !conn.online) return;
+      if (_working || !_foreground || conn.displaced) return;
       _working = true;
       try {
+        if (!conn.online) {
+          if (_retryConnectionAt?.isAfter(DateTime.now()) ?? false) return;
+          try {
+            await reconnect();
+          } catch (_) {
+            final delay = 1 << _connectionFailures.clamp(0, 4);
+            _retryConnectionAt = DateTime.now().add(Duration(seconds: delay));
+            _connectionFailures++;
+          }
+          return;
+        }
         await a.tick();
       } catch (_) {
         error = 'İşlem yeniden denenecek';
@@ -138,8 +158,12 @@ class MobileRuntime extends ChangeNotifier {
     }
     if (connection != null && connection!.online == false) {
       await connection!.connect();
-      error = null;
-      _changed();
+      if (connection!.online) {
+        _connectionFailures = 0;
+        _retryConnectionAt = null;
+        error = null;
+        _changed();
+      }
     }
   }
 

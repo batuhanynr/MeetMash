@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'agent/protocol.dart';
+import 'calendar/calendar.dart';
 import 'runtime.dart';
 
 class MeetMeshApp extends StatelessWidget {
@@ -54,11 +55,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed &&
-        rt.connection != null &&
-        !rt.connection!.online) {
-      unawaited(run(rt.reconnect));
-    }
+    rt.setForeground(state == AppLifecycleState.resumed);
   }
 
   @override
@@ -82,7 +79,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   }
 
   Future<void> run(Future<void> Function() action) async {
-    if (busy) return;
+    if (busy || !mounted) return;
     setState(() {
       busy = true;
       notice = null;
@@ -90,7 +87,9 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     try {
       await action();
     } catch (e) {
-      notice = e is StateError
+      notice = e is CalendarAuthorizationRequired
+          ? CalendarAuthorizationRequired.message
+          : e is StateError
           ? e.message
           : e is FormatException
           ? 'Girdiyi kontrol et.'
@@ -125,6 +124,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: TextField(
       controller: c,
+      enabled: !busy,
       keyboardType: keyboard,
       autocorrect: false,
       enableSuggestions: !secret,
@@ -162,15 +162,33 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     return utc(result);
   }
 
+  void selectZone(String nextZone) {
+    String? instant(String value) {
+      try {
+        return absolute(value);
+      } on FormatException {
+        return null;
+      }
+    }
+
+    final begin = instant(start.text);
+    final finish = instant(end.text);
+    zone = nextZone;
+    if (begin != null) start.text = localInput(begin);
+    if (finish != null) end.text = localInput(finish);
+  }
+
   Widget dropdown(
     String value,
     List<String> values,
     void Function(String) change,
   ) => DropdownButton<String>(
     value: value,
-    onChanged: (v) {
-      if (v != null) setState(() => change(v));
-    },
+    onChanged: busy
+        ? null
+        : (v) {
+            if (v != null) setState(() => change(v));
+          },
     items: [for (final v in values) DropdownMenuItem(value: v, child: Text(v))],
   );
   @override
@@ -256,13 +274,14 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                         ListTile(
                           title: Text((m['participants'] as List).join(', ')),
                         ),
-                        if (m['decision'] == 'COMMIT' &&
+                        if (m['status'] == 'COMMIT_PENDING' &&
                             m['coordinator'] == rt.config!.id)
                           Text(
                             'Yazımı beklenen: ${(m['participants'] as List).where((v) => m['applied'][v] != true).join(', ')}',
                           ),
                         if (m['error'] != null) Text(m['error']),
-                        if (m['status'] == 'AWAITING_USER')
+                        if (m['status'] == 'AWAITING_USER' &&
+                            rt.connection?.displaced != true)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -345,7 +364,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                       ),
                   ],
                 ),
-                dropdown(zone, ['Europe/Istanbul', 'UTC'], (v) => zone = v),
+                dropdown(zone, ['Europe/Istanbul', 'UTC'], selectZone),
                 field('Başlangıç · YYYY-MM-DDTHH:MM', start),
                 field('Bitiş · YYYY-MM-DDTHH:MM', end),
                 field(
@@ -354,10 +373,22 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   keyboard: TextInputType.number,
                 ),
                 button('Onayla ve toplantıyı başlat', () async {
-                  await rt.agent!.schedule(people.toList(), {
+                  if (rt.connection?.displaced == true) {
+                    throw StateError('Bu oturum başka cihaza geçti.');
+                  }
+                  final window = {
                     'start': absolute(start.text),
                     'end': absolute(end.text),
-                  }, int.parse(duration.text));
+                  };
+                  if (rt.config!.provider == 'google' &&
+                      startOf(window).isBefore(DateTime.now())) {
+                    throw StateError(
+                      'Google takvimi için gelecekte bir aralık seç.',
+                    );
+                  }
+                  await rt.agent!.schedule(
+                    people.toList(), window, int.parse(duration.text),
+                  );
                   tab = 0;
                 }),
               ],
@@ -369,8 +400,14 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (rt.google != null) ...[
-                  button('Google hesabına izin ver', rt.google!.authorize),
-                  button('Google iznini kaldır', rt.google!.revoke),
+                  button('Google hesabına izin ver', () async {
+                    await rt.google!.authorize();
+                    await rt.agent!.retryCalendarWrites();
+                  }),
+                  button('Google iznini kaldır', () async {
+                    await rt.google!.revoke();
+                    notice = 'Google takvim izni kaldırıldı.';
+                  }),
                 ],
                 if (events.isEmpty) const Text('Kaydedilmiş toplantı yok.'),
                 for (final e in events.entries)
@@ -381,6 +418,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
               ],
               if (tab == 3) ...[
                 Text(rt.config!.id),
+                if (connected) button('Profili yenile', profile),
                 field('Görünen ad', name),
                 field('Yetenekler (virgülle)', capabilities),
                 dropdown(vis, ['private', 'friends', 'public'], (v) => vis = v),

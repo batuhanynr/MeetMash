@@ -17,6 +17,25 @@ abstract interface class MeetingCalendar {
   Future<void> ensureEvent(String meeting, String agent, Json slot);
 }
 
+void validateWindow(Json window, int duration) {
+  final length = parseWireTime(window['end']).difference(
+    parseWireTime(window['start']),
+  );
+  if (duration < 1 ||
+      duration > 1440 ||
+      length < Duration(minutes: duration) ||
+      length > const Duration(hours: 64)) {
+    throw const FormatException(
+      'Aralık toplantı süresinden kısa veya 64 saatten uzun olamaz.',
+    );
+  }
+}
+
+class CalendarAuthorizationRequired implements Exception {
+  const CalendarAuthorizationRequired();
+  static const message = 'Takvimden Google hesabına yeniden izin ver.';
+}
+
 List<Json> generate(
   Json window,
   int duration,
@@ -24,13 +43,7 @@ List<Json> generate(
   List<Json> busy,
   List<Json> preferences,
 ) {
-  if (duration <= 0 ||
-      duration > 1440 ||
-      (!endOf(window).isAfter(startOf(window)) ||
-          endOf(window).difference(startOf(window)) >
-              const Duration(hours: 64))) {
-    throw const FormatException('Use a window of up to 64 hours');
-  }
+  validateWindow(window, duration);
   final results = <Json>[];
   for (
     var start = startOf(window);
@@ -114,11 +127,12 @@ class GoogleCalendar implements MeetingCalendar {
       'content-type': 'application/json',
     });
     if (body != null) request.body = jsonEncode(body);
-    final res = await http.Response.fromStream(
-      await client.send(request).timeout(const Duration(seconds: 12)),
-    );
+    final res = await client
+        .send(request)
+        .then(http.Response.fromStream)
+        .timeout(const Duration(seconds: 12));
     if (res.statusCode == 401 || res.statusCode == 403) {
-      throw StateError('Calendar authorization required');
+      throw const CalendarAuthorizationRequired();
     }
     return res;
   }
@@ -129,6 +143,11 @@ class GoogleCalendar implements MeetingCalendar {
     int duration,
     List<Json> reserved,
   ) async {
+    validateWindow(window, duration);
+    final now = DateTime.now();
+    if (!endOf(window).isAfter(now)) {
+      throw const FormatException('Geçmiş takvim aralığı');
+    }
     final res = await _call('POST', 'freeBusy', {
       'timeMin': window['start'],
       'timeMax': window['end'],
@@ -146,7 +165,12 @@ class GoogleCalendar implements MeetingCalendar {
     return generate(
       window,
       duration,
-      [window],
+      [
+        {
+          'start': startOf(window).isBefore(now) ? utc(now) : window['start'],
+          'end': window['end'],
+        },
+      ],
       [...List<Json>.from(cal['busy']), ...reserved],
       [],
     );

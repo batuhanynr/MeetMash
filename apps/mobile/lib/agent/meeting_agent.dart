@@ -13,6 +13,7 @@ class MeetingAgent {
   final MeetingCalendar calendar;
   final bool automatic;
   final void Function(Json) transmit;
+  final bool Function()? canTransmit;
   final void Function() changed;
   final DateTime Function() now;
   Future<void> _tail = Future.value();
@@ -23,6 +24,7 @@ class MeetingAgent {
     required this.store,
     required this.calendar,
     required this.transmit,
+    this.canTransmit,
     required this.changed,
     this.automatic = false,
     DateTime Function()? clock,
@@ -81,6 +83,7 @@ class MeetingAgent {
   }
 
   void _flush() {
+    if (canTransmit?.call() == false) return;
     final s = store.copy();
     final due = <Json>[];
     final t = now().millisecondsSinceEpoch;
@@ -154,6 +157,7 @@ class MeetingAgent {
     Duration timeout = const Duration(seconds: 120),
     String? meetingId,
   }) => _serial(() async {
+    validateWindow(window, duration);
     final peers = {id, ...participants}.toList()..sort();
     if (peers.length < 2 ||
         peers
@@ -269,12 +273,24 @@ class MeetingAgent {
         msg['decisionVersion'],
         p['deadline'],
       );
-      m['offers'][id] = await calendar.candidates(
-        m['window'],
-        m['duration'],
-        _reserved(s, meeting),
-      );
       s['meetings'][meeting] = m;
+      try {
+        validateWindow(m['window'], m['duration']);
+        m['offers'][id] = await calendar.candidates(
+          m['window'],
+          m['duration'],
+          _reserved(s, meeting),
+        );
+      } on CalendarAuthorizationRequired {
+        m['status'] = 'DECLINED';
+        m['error'] = CalendarAuthorizationRequired.message;
+        _queue(s, m, peer, 'REJECT', {'reasonCode': 'DECLINED'});
+        return;
+      } on FormatException {
+        m['status'] = 'DECLINED';
+        _queue(s, m, peer, 'REJECT', {'reasonCode': 'INVALID_REQUEST'});
+        return;
+      }
       _queue(s, m, peer, 'PROPOSE', {
         'phase': 'AVAILABILITY',
         'slots': m['offers'][id],
@@ -308,7 +324,12 @@ class MeetingAgent {
           return;
         }
         m['selected'] = times(ranked.first);
-        if (!await _available(s, m)) {
+        final available = await _available(s, m);
+        if (!DateTime.parse(m['deadline']).isAfter(now())) {
+          _decide(s, m, false, 'TIMEOUT');
+          return;
+        }
+        if (!available) {
           _decide(s, m, false, 'DECLINED');
           return;
         }
@@ -410,9 +431,9 @@ class MeetingAgent {
 
   Future<void> _vote(Json s, Json m, bool yes) async {
     if (m['status'] != 'AWAITING_USER') return;
-    if (yes &&
-        DateTime.parse(m['deadline']).isAfter(now()) &&
-        await _available(s, m)) {
+    final deadline = DateTime.parse(m['deadline']);
+    final available = yes && deadline.isAfter(now()) && await _available(s, m);
+    if (available && deadline.isAfter(now())) {
       m['held'] = true;
       m['status'] = 'PENDING_RECOVERY';
       _queue(s, m, m['coordinator'], 'ACCEPT', {
@@ -420,13 +441,22 @@ class MeetingAgent {
       });
     } else {
       m['status'] = 'DECLINED';
+      if (yes) {
+        m['error'] = deadline.isAfter(now())
+            ? 'Önerilen saat artık müsait değil.'
+            : 'Onay süresi doldu.';
+      }
       _queue(s, m, m['coordinator'], 'REJECT', {'reasonCode': 'DECLINED'});
     }
   }
 
   Future<void> vote(String meeting, bool yes) => _serial(() async {
     final s = store.copy();
-    await _vote(s, s['meetings'][meeting], yes);
+    final Json? proposal = s['meetings'][meeting];
+    if (proposal == null || proposal['status'] != 'AWAITING_USER') {
+      throw StateError('Bu toplantıda bekleyen bir onay yok.');
+    }
+    await _vote(s, proposal, yes);
     _save(s);
     _flush();
   });
@@ -456,6 +486,19 @@ class MeetingAgent {
       m['status'] = 'CONFIRMED';
     }
   }
+
+  Future<void> retryCalendarWrites() => _serial(() async {
+    final s = store.copy();
+    var changed = false;
+    for (final Json m in (s['meetings'] as Map).values) {
+      if (m['status'] == 'COMMIT_PENDING' && m['applied'][id] != true) {
+        m.remove('retryWriteAt');
+        m.remove('writeAttempts');
+        changed = true;
+      }
+    }
+    if (changed) _save(s);
+  });
 
   Future<void> tick() => _serial(() async {
     for (final e
@@ -496,7 +539,9 @@ class MeetingAgent {
             });
           }
         } catch (e) {
-          m['error'] = e is StateError ? e.message : 'Calendar write pending';
+          m['error'] = e is CalendarAuthorizationRequired
+              ? CalendarAuthorizationRequired.message
+              : 'Takvime yazılamadı. Tekrar denenecek.';
           final attempts = (m['writeAttempts'] as int? ?? 0) + 1;
           m['writeAttempts'] = attempts;
           m['retryWriteAt'] = t + 1000 * (1 << (attempts > 6 ? 6 : attempts));
