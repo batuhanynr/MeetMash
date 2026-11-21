@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0c1218">
+  <link rel="icon" type="image/svg+xml" href="/brand/meetmesh-icon.svg">
   <title>MeetMesh · Test paneli</title>
   <style>
     :root {
@@ -34,8 +35,7 @@
     .skip-link:focus-visible { transform: none; }
     header, .title, .panel-head, .controls, .buttons { display: flex; align-items: center; gap: 12px; }
     header { justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px; }
-    .brand { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid #407a70; border-radius: 14px; background: #1b3636; }
-    .brand::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--green); border-radius: 4px; rotate: 45deg; box-shadow: 0 0 14px #78e6b34d; }
+    .brand { display: block; flex: none; border-radius: 14px; background: #fff; }
     .title small { display: block; margin-bottom: 3px; }
     .status { display: inline-flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums; }
     .status::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
@@ -127,7 +127,7 @@
   <main id="main" tabindex="-1">
     <header>
       <div class="title">
-        <span class="brand" aria-hidden="true"></span>
+        <img class="brand" src="/brand/meetmesh-mark.svg" width="48" height="48" alt="">
         <div><small translate="no">MeetMesh</small><h1>Tek telefon test paneli</h1></div>
       </div>
       <span id="coverage" class="status" role="status">Hub bekleniyor</span>

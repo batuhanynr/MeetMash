@@ -21,6 +21,11 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
   const port = 8790;
   const origin = `http://${host}:${port}`;
   const html = readFileSync(new URL('../phone-panel.html', import.meta.url));
+  const icons = new Map(
+    ['meetmesh-icon.svg', 'meetmesh-mark.svg'].map(name => [
+      `/brand/${name}`, readFileSync(new URL(`../../assets/brand/${name}`, import.meta.url)),
+    ]),
+  );
   const hubAgents = new Set(phoneAgents.map(agent => String(agent.id)));
   const online = new Set<string>();
   const events: PanelEvent[] = [];
@@ -51,6 +56,12 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
       response.end(JSON.stringify(body));
     };
     if (request.headers.host !== `${host}:${port}`) return json(403, { error: 'Panel yalnızca Mac üzerinden açılabilir.' });
+    const icon = request.method === 'GET' ? icons.get(request.url ?? '') : undefined;
+    if (icon) {
+      response.writeHead(200, { 'content-type': 'image/svg+xml', 'cache-control': 'no-cache' });
+      response.end(icon);
+      return;
+    }
     if (request.method === 'GET' && request.url === '/') {
       response.writeHead(200, {
         'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store',

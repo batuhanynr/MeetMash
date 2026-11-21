@@ -229,7 +229,19 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
             as Map<String, dynamic>;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MeetMesh'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/brand/meetmesh-mark.png',
+              width: 34,
+              height: 34,
+              excludeFromSemantics: true,
+            ),
+            const SizedBox(width: 6),
+            const Text('MeetMesh'),
+          ],
+        ),
         actions: [
           if (rt.config != null)
             Padding(
