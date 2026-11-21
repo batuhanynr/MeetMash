@@ -16,10 +16,15 @@ class AccountConfig {
       provider = data['calendar'] ?? 'fixture',
       googleEmail = data['googleEmail'],
       keys = Map<String, String>.from(data['pairKeys']) {
+    final url = Uri.tryParse(hub);
     if (!RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$').hasMatch(id) ||
         secret.isEmpty ||
         keys.isEmpty ||
-        Uri.parse(hub).scheme != 'wss' ||
+        url == null ||
+        url.scheme != 'wss' ||
+        url.host.isEmpty ||
+        url.userInfo.isNotEmpty ||
+        url.hasFragment ||
         !['google', 'fixture'].contains(provider) ||
         (provider == 'google' && (googleEmail ?? '').isEmpty) ||
         keys.entries.any(
@@ -76,7 +81,12 @@ class AgentConnection {
       client.close(force: true);
       rethrow;
     }
+    if (_client != client) {
+      await socket.close();
+      return;
+    }
     _socket = socket;
+    socket.pingInterval = const Duration(seconds: 10);
     final ready = Completer<void>();
     void end() {
       if (_socket != socket) return;
@@ -96,6 +106,7 @@ class AgentConnection {
 
     socket.listen(
       (raw) async {
+        if (_socket != socket || displaced) return;
         try {
           final frame = jsonDecode(raw as String) as Json;
           switch (frame['kind']) {
@@ -107,7 +118,9 @@ class AgentConnection {
               break;
             case 'displaced':
               displaced = true;
-              lastError = 'Session moved to another device';
+              online = false;
+              lastError = 'Oturum başka cihaza geçti.';
+              changed();
               await socket.close();
               break;
             case 'relay.ack':
@@ -156,8 +169,8 @@ class AgentConnection {
     final requestId = newId();
     final c = Completer<Json>();
     pending[requestId] = c;
-    send({...frame, 'requestId': requestId});
     try {
+      send({...frame, 'requestId': requestId});
       final res = await c.future.timeout(const Duration(seconds: 65));
       if (res['error'] != null) throw StateError(res['error']);
       return res;
@@ -168,7 +181,14 @@ class AgentConnection {
 
   Future<void> close() async {
     _heartbeat?.cancel();
-    await _socket?.close();
-    _client?.close(force: true);
+    final client = _client;
+    _client = null;
+    try {
+      await _socket?.close().timeout(const Duration(seconds: 2));
+    } on TimeoutException {
+      // The transport may be unreachable. Force close the HTTP client below.
+    } finally {
+      client?.close(force: true);
+    }
   }
 }

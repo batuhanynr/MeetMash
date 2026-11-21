@@ -1,5 +1,7 @@
 import type { Message } from '../../../packages/protocol/src/index.ts';
 
+export type DeliveryReceipt = Extract<Message, { type: 'ACK' }>;
+
 export type MailStatus = 'QUEUED' | 'SENT' | 'DELIVERED' | 'EXPIRED';
 export type MailItem = {
   messageKey: string; recipientAgentId: string; senderAgentId: string;
@@ -10,7 +12,7 @@ export type MailItem = {
 export interface MailboxStore {
   enqueue(message: Message): Promise<boolean>;
   claimDue(recipientAgentId: string, now: number, lockMs: number, limit: number): Promise<MailItem[]>;
-  markDelivered(messageKey: string, now: number): Promise<boolean>;
+  markDelivered(receipt: DeliveryReceipt, now: number): Promise<boolean>;
   expireOverdue(now: number): Promise<{ messageKey: string; senderAgentId: string }[]>;
   list(recipientAgentId?: string): Promise<MailItem[]>;
 }
@@ -43,8 +45,9 @@ export class Mailbox {
     return attempted;
   }
 
-  async confirm(messageKey: string): Promise<boolean> {
-    return this.store.markDelivered(messageKey, this.now());
+  async confirm(receipt: DeliveryReceipt): Promise<boolean> {
+    if (receipt.payload.scope !== 'recipient.persisted') return false;
+    return this.store.markDelivered(receipt, this.now());
   }
 
   async sweepExpired(): Promise<{ messageKey: string; senderAgentId: string }[]> {

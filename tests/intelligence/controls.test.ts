@@ -18,7 +18,7 @@ test('model draft resolves visible unique names and local times into a preview',
 });
 test('unknown names, ambiguous profiles, invalid windows and model-supplied IDs require clarification', async () => {
   for (const value of [{ ...draft, names: ['a'] }, { ...draft, participantAgentIds: ['someone'] },
-    { ...draft, endLocal: draft.startLocal }, { ...draft, durationMinutes: -1 }]) {
+    { ...draft, endLocal: draft.startLocal }, { ...draft, endLocal: '2026-11-10T15:00' }, { ...draft, durationMinutes: -1 }]) {
     assert.equal((await preview(value)).status, 'clarify');
   }
   assert.equal((await preview(draft, [])).status, 'clarify');

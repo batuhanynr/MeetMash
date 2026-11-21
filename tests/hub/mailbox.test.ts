@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, beforeEach, test } from 'node:test';
 import { createMessage, type Message } from '../../packages/protocol/src/index.ts';
 import type { Database } from '../../apps/hub/src/db.ts';
-import { Mailbox } from '../../apps/hub/src/mailbox.ts';
+import { Mailbox, type DeliveryReceipt } from '../../apps/hub/src/mailbox.ts';
 import { PgMailboxStore } from '../../apps/hub/src/pg-mailbox.ts';
 import { freshDatabase } from './helper.ts';
 
@@ -36,6 +36,7 @@ test('the same message sent ten times produces a single queue row', async () => 
   for (let i = 0; i < 10; i++) results.push((await mailbox.accept(message)).queued);
   assert.deepEqual(results, [true, false, false, false, false, false, false, false, false, false]);
   assert.equal((await mailbox.snapshot('agent-c')).length, 1);
+  await assert.rejects(mailbox.accept({ ...message, nonce: 'different-nonce' }), { code: 'MESSAGE_ID_CONFLICT' });
 });
 
 test('the queue and message id survive a hub restart', async () => {
@@ -55,7 +56,14 @@ test('delivery becomes DELIVERED only after the recipient acknowledges', async (
   const count = await mailbox.drain('agent-c', async m => { delivered.push(m.messageId); });
   assert.equal(count, 1);
   assert.equal((await mailbox.snapshot('agent-c'))[0]?.status, 'SENT');
-  assert.equal(await mailbox.confirm(message.messageId), true);
+  const receipt = createMessage({
+    fromAgentId: message.toAgentId, toAgentId: message.fromAgentId, meetingId: message.meetingId,
+    type: 'ACK', sequence: 1, payload: { ackForMessageId: message.messageId, scope: 'recipient.persisted' },
+  }) as DeliveryReceipt;
+  assert.equal(await mailbox.confirm({ ...receipt, meetingId: 'other-meeting' }), false);
+  assert.equal((await mailbox.snapshot('agent-c'))[0]?.status, 'SENT');
+  assert.equal(await mailbox.confirm(receipt), true);
+  assert.equal(await mailbox.confirm(receipt), true);
   assert.equal((await mailbox.snapshot('agent-c'))[0]?.status, 'DELIVERED');
 });
 

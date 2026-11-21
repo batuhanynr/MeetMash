@@ -1,5 +1,6 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
+import 'calendar.dart';
 
 class CalendarAccount {
   final String email;
@@ -21,20 +22,21 @@ class CalendarAccount {
     final account = await signIn.signIn();
     if (account == null || account.email.toLowerCase() != email.toLowerCase()) {
       await signIn.signOut();
-      throw StateError('Choose the configured test calendar account');
+      throw StateError('Bu cihaz için atanmış Google hesabını seç.');
     }
     if (!await signIn.requestScopes(scopes)) {
-      throw StateError('Calendar permission declined');
+      await signIn.signOut();
+      throw StateError('Takvim izni verilmedi.');
     }
   }
 
   Future<String> token() async {
     final account = signIn.currentUser ?? await signIn.signInSilently();
     if (account?.email.toLowerCase() != email.toLowerCase()) {
-      throw StateError('Calendar authorization required');
+      throw const CalendarAuthorizationRequired();
     }
     final token = (await account!.authentication).accessToken;
-    if (token == null) throw StateError('Calendar authorization required');
+    if (token == null) throw const CalendarAuthorizationRequired();
     return token;
   }
 

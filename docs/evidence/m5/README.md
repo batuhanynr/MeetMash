@@ -10,6 +10,16 @@ The unsigned iOS device build succeeded during development. iOS installation and
 
 ## Run the remaining acceptance checks serially
 
-Arrange an Air lab with four Linux targets and two Google OAuth test accounts before starting. Once the accounts are available, finish the platform builds and record each app opening. Run the Google case on two assigned test calendars and use the same meeting ID to compare the two results. Revoke either grant and check that its client reports the pending write.
+Use a clean checkout and keep the revision checked out until the session finishes. Set up the disposable PostgreSQL databases, Flutter dependencies, development certificates and demo credentials as described above. Make sure Docker is available for the Linux phases and your local Ollama server has the [models installed](../../m5-intelligence.md).
 
-Use `npm run bench:network` with its one-topology default for the local Linux matrix. The [Air guide](../../../infra/air/README.md) describes the separate Air verification. Then pass the Linux Dart binary to `npm run bench:network -- --dart-agent <path>` for the mixed N0/N3/N4 series. Run the model preview demo and the mobile UI recording after the network bench exits.
+```sh
+npm run verify:acceptance -- --session=release-check
+```
+
+The runner executes one phase at a time. It runs the software gate, M4 link and round smoke checks, the full Node network matrix, a Linux Dart build for the Docker architecture, the mixed N0/N3/N4 matrix, the two model evaluations and the model preview meeting. Both matrices use one Docker topology, with their existing profile rules and repetition counts. The software and preview phases use the Dart source from the checkout.
+
+Each attempt has its own directory under `.state/evidence/verification/<session>/`. A failed or interrupted attempt stays there with its status and any data already collected. The runner stops at the first failure. Fix the environment and resume on the same clean commit with `npm run verify:acceptance -- --session=release-check --resume`. It reuses a success only if the saved artifacts still match their hashes. A new code revision requires a new session.
+
+Use `--list` for phase names. Repeat `--phase` to run only the named phases in the normal order. Select `dart-linux` before `m5-network` unless the session already has a verified binary. Use `--session=release-check --status` to read saved progress without starting anything. Pending phases and earlier failed attempts stay visible. Only one suite can run across the repository’s worktrees. After a hard kill, remove `meetmesh-verification.lock` from the path reported by `git rev-parse --git-common-dir` once its recorded process and any test children have stopped.
+
+The automated results cover synthetic calendars and local Linux. Separately, follow the [Air guide](../../../infra/air/README.md) on the assigned four Linux targets. Finish the [platform builds and device setup](../../../apps/mobile/README.md), then record the app opening on both platforms. Run the Google Calendar case on two consenting test accounts and compare the same meeting ID in both calendars. Revoke either grant and check that its client reports the pending write. Attach those manual results with the checked commit. The serial runner leaves all four external checks pending even if every automated phase passes.

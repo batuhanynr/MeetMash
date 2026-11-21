@@ -82,13 +82,14 @@ export class HubCore {
       const profiles = value.by === 'capability' ? await this.directory.searchByCapability(agentId, term)
         : value.by === 'id' ? [await this.directory.lookup(agentId, term)].filter(p => p !== undefined)
         : await this.directory.searchByName(agentId, term);
+      if (this.connections.get(agentId)?.generation !== generation) return;
       this.send(agentId, { kind: 'directory.result', requestId: value.requestId, agents: profiles.map(p => ({ agentId: p.agentId, displayName: p.displayName })) });
     }
   }
 
   private async route(sender: string, message: Message): Promise<void> {
     if (message.type === 'ACK') {
-      if (message.payload.scope === 'recipient.persisted') await this.mailbox.confirm(message.payload.ackForMessageId);
+      if (!await this.mailbox.confirm(message)) throw new ProtocolError('INVALID_ACK', 'Receipt must match a sent mailbox item');
       this.send(message.toAgentId, message); // forward the receipt to the original sender if it is online
       return;
     }
