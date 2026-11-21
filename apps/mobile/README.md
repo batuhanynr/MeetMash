@@ -45,6 +45,32 @@ The bundled synthetic calendars cover November 10, 2026. For a fixture run use t
 
 ## Use Google test calendars
 
+### Sign in with a MeetMesh email and password
+
+Use a dedicated M2 hub for the Google test accounts. Give each person a distinct agent ID. For example, use `batuhan` and `fatma`. Each person creates a secondary calendar named **Meetmash Takvimim** in their own Google account. Add the consenting accounts as OAuth test users and register `http://127.0.0.1:8791/google/callback` as an authorized redirect URI for the web OAuth client. Keep the downloaded client JSON at `~/.config/meetmash/google-oauth-web.json` (mode `600`), or set `MEETMESH_GOOGLE_OAUTH_FILE` to its private path.
+
+On the Mac, run the setup command for each person and open the URL it prints. The person approves access from the matching Google account. Setup selects the one secondary calendar they own with the exact name above. It saves that calendar's ID and the offline Google authorization on the Mac. A new person's generated MeetMesh password is written to `~/.config/meetmash/meetmesh-password-<agent-id>.txt` (mode `600`). Share it privately with that person. Running setup again renews Google authorization and keeps their MeetMesh password.
+
+```sh
+export MEETMESH_ACCOUNTS_FILE="$HOME/.config/meetmash/calendar-accounts.json"
+node scripts/connect-calendar.ts batuhan batuhan@example.com Batuhan
+node scripts/connect-calendar.ts fatma fatma@example.com Fatma
+```
+
+Start the managed hub with a dedicated database. Use the Mac's reachable LAN address (`<LAN_IP>` below) and the certificate directory whose server certificate includes that address. Restart the managed hub after updating the account file. The synthetic phone panel and its Mac agents use their existing dedicated lab hub.
+
+```sh
+createdb meetmesh_calendars
+export MEETMESH_DATA_HOST='<LAN_IP>'
+export CERT_DIR=.state/m5-phone/certs
+npm run hub:m2 -- --host "$MEETMESH_DATA_HOST" --port 8792 \
+  --database-url postgresql://127.0.0.1:5432/meetmesh_calendars
+```
+
+For either mobile build, set `--dart-define=MEETMESH_HUB_URL=wss://<LAN_IP>:8792`. For a local development CA also set `--dart-define="MEETMESH_HUB_CA_BASE64=$(base64 < "$CERT_DIR/ca.crt" | tr -d '\n')"`. Use the public CA certificate file, `ca.crt`. Both phones can then sign in with their own MeetMesh email and password. The **Takvim** tab lists events from their selected Google calendar. Meeting availability and confirmed writes use that same calendar. An OAuth project in Testing may require renewed Google permission after seven days.
+
+### Use the device demo with direct Google authorization
+
 Enable the Calendar API in the demo's Google Cloud project and add the consenting test accounts to its OAuth consent configuration. Register the Android package and iOS bundle ID `com.meetmesh.meetmesh`. Android also needs the SHA-1 of the certificate signing the installed build. On iOS, put the reversed iOS client ID into an untracked `ios/Flutter/Google.local.xcconfig`:
 
 ```xcconfig

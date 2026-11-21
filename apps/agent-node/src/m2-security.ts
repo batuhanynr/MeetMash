@@ -1,13 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { ProtocolError } from '../../../packages/protocol/src/index.ts';
-import { messageHash, signMessage, verifyMessage } from '../../../packages/protocol/src/mac.ts';
+import { messageHash, pairId, signMessage, verifyMessage } from '../../../packages/protocol/src/mac.ts';
 import type { AgentSecurity } from './ports.ts';
 
 export type PairKeys = Record<string, string>;
 export type Secrets = { bootstrap: Record<string, string>; pairKeys: PairKeys };
 
-// Pair keys are symmetric and addressed by the sorted agent pair, so both ends derive the same keyId and key.
-export const pairId = (a: string, b: string): string => [a, b].sort().join(':');
+export { pairId };
 
 export function loadSecrets(path: string): Secrets {
   const parsed = JSON.parse(readFileSync(path, 'utf8')) as Partial<Secrets>;

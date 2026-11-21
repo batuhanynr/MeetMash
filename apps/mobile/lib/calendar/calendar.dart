@@ -32,8 +32,9 @@ void validateWindow(Json window, int duration) {
 }
 
 class CalendarAuthorizationRequired implements Exception {
-  const CalendarAuthorizationRequired();
   static const message = 'Takvimden Google hesabına yeniden izin ver.';
+  const CalendarAuthorizationRequired([this.description = message]);
+  final String description;
 }
 
 class CalendarEntry {
@@ -122,27 +123,46 @@ class FixtureCalendar implements MeetingCalendar {
 }
 
 class GoogleCalendar implements MeetingCalendar {
-  final http.Client client;
-  final Future<String> Function() token;
-  GoogleCalendar(this.client, this.token);
+  final http.Client? _client;
+  final Future<String> Function()? _token;
+  final Future<Json> Function(Json)? _hubRequest;
+  GoogleCalendar(this._client, this._token) : _hubRequest = null;
+  GoogleCalendar.managed(this._hubRequest) : _client = null, _token = null;
   static String eventId(String meeting, String agent) =>
       sha256.convert(utf8.encode(jsonEncode([agent, meeting]))).toString();
   Future<http.Response> _call(
     String method,
     String path, {
+    required Json managed,
     Json? body,
     Map<String, String>? query,
   }) async {
+    final hubRequest = _hubRequest;
+    if (hubRequest != null) {
+      final result = await hubRequest({'kind': 'calendar.request', ...managed});
+      final status = result['status'] as int;
+      if (status == 401 || status == 403) {
+        throw const CalendarAuthorizationRequired(
+          'Bu hesabın Google Takvim izni Mac’te yenilenmeli.',
+        );
+      }
+      // The hub returns the same calendar fields as the direct Google adapter.
+      return http.Response(
+        jsonEncode(result['body']),
+        status,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      );
+    }
     final request = http.Request(
       method,
       Uri.https('www.googleapis.com', '/calendar/v3/$path', query),
     );
     request.headers.addAll({
-      'authorization': 'Bearer ${await token()}',
+      'authorization': 'Bearer ${await _token!()}',
       'content-type': 'application/json',
     });
     if (body != null) request.body = jsonEncode(body);
-    final res = await client
+    final res = await _client!
         .send(request)
         .then(http.Response.fromStream)
         .timeout(const Duration(seconds: 12));
@@ -166,6 +186,11 @@ class GoogleCalendar implements MeetingCalendar {
     final res = await _call(
       'POST',
       'freeBusy',
+      managed: {
+        'operation': 'busy',
+        'start': window['start'],
+        'end': window['end'],
+      },
       body: {
         'timeMin': window['start'],
         'timeMax': window['end'],
@@ -210,7 +235,18 @@ class GoogleCalendar implements MeetingCalendar {
     };
     final seenTokens = <String>{};
     while (true) {
-      final res = await _call('GET', 'calendars/primary/events', query: query);
+      final res = await _call(
+        'GET',
+        'calendars/primary/events',
+        query: query,
+        managed: {
+          'operation': 'events',
+          'start': utc(start),
+          'end': utc(end),
+          'zone': zone,
+          if (query['pageToken'] != null) 'pageToken': query['pageToken'],
+        },
+      );
       if (res.statusCode != 200) {
         throw StateError('Google takvimi yüklenemedi. Tekrar dene.');
       }
@@ -252,7 +288,11 @@ class GoogleCalendar implements MeetingCalendar {
     final id = eventId(meeting, agent);
     final path = 'calendars/primary/events';
     Future<bool> existing() async {
-      final res = await _call('GET', '$path/$id');
+      final res = await _call(
+        'GET',
+        '$path/$id',
+        managed: {'operation': 'event', 'id': id},
+      );
       if (res.statusCode == 404) return false;
       if (res.statusCode != 200) throw StateError('Calendar lookup failed');
       final e = jsonDecode(res.body);
@@ -271,6 +311,7 @@ class GoogleCalendar implements MeetingCalendar {
     final res = await _call(
       'POST',
       path,
+      managed: {'operation': 'insert', 'meeting': meeting, ...times(slot)},
       body: {
         'id': id,
         'summary': 'MeetMesh',

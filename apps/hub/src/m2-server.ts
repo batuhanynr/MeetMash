@@ -12,8 +12,9 @@ import { PgRegistrarStore } from './pg-sessions.ts';
 import { HubCore } from './hub-core.ts';
 import { MobileDirectoryControl } from './mobile-directory.ts';
 import { IntelligenceControls } from './intelligence/controls.ts';
+import type { CalendarAccounts } from './calendar-accounts.ts';
 
-export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number; traceDelivery?: boolean };
+export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number; traceDelivery?: boolean; calendarAccounts?: CalendarAccounts };
 
 export async function startM2Hub(database: Database, config: M2HubConfig, log: Logger) {
   if (!['127.0.0.1', '::1', 'localhost'].includes(config.host) && config.host !== process.env.MEETMESH_DATA_HOST) {
@@ -22,10 +23,13 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
   const profiles = new PgDirectoryStore(database);
   const directory = new Directory(profiles);
   const controls = [new IntelligenceControls(id => profiles.visibleProfiles(id)), new MobileDirectoryControl(database, directory)];
-  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, controls, config.traceDelivery);
+  const accounts = config.calendarAccounts;
+  if (accounts) await accounts.provision(database);
+  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, accounts ? [accounts, ...controls] : controls, config.traceDelivery);
 
   const server = createServer({ cert: config.tls.cert, key: config.tls.key }, (request, response) => {
     response.setHeader('content-type', 'application/json');
+    if (request.url === '/account/login' && accounts) { void accounts.login(request, response); return; }
     if (request.url !== '/health') { response.writeHead(404).end(JSON.stringify({ code: 'NOT_FOUND' })); return; }
     response.end(JSON.stringify({ status: 'ok', pid: process.pid, agentIds: hub.onlineAgentIds }));
   });
@@ -43,7 +47,7 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
         client.send(frame);
       } };
       try {
-        const generation = await hub.connect(agentId, secret, `wss://${config.host}:${config.port}`, peer);
+        const generation = await hub.connect(agentId, secret, `wss://${config.host}:${config.port}`, peer, accounts?.keysFor(agentId));
         client.on('message', data => { void hub.handle(agentId, generation, data.toString()); });
         client.on('close', () => { void hub.disconnect(agentId, generation); });
         if (client.readyState === WebSocket.OPEN) client.resume();

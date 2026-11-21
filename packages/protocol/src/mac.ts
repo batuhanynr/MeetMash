@@ -1,6 +1,9 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { canonicalJson, type Message } from './index.ts';
 
+// Both agents address their shared secret with the same sorted pair ID.
+export const pairId = (a: string, b: string): string => [a, b].sort().join(':');
+
 // The signed bytes cover every envelope field except auth itself. Key order is canonical so Node and a
 // future Dart agent sign the same string. auth is excluded because it carries the signature.
 export function signingString(message: Message): string {

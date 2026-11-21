@@ -38,13 +38,13 @@ export class HubCore {
 
   // Authenticates the connection via the bootstrap secret and rotates to a fresh session. A newer session
   // displaces an older connection for the same agent. Returns the session generation this connection owns.
-  async connect(agentId: string, secret: string, endpoint: string | null, connection: AgentConnection): Promise<number> {
+  async connect(agentId: string, secret: string, endpoint: string | null, connection: AgentConnection, pairKeys?: Record<string, string>): Promise<number> {
     const { generation } = await this.registrar.register(agentId, secret, endpoint);
     const previous = this.connections.get(agentId);
     if (previous) previous.connection.send(JSON.stringify({ kind: 'displaced' }));
     this.connections.set(agentId, { connection, generation });
     this.log('agent.online', { connectedAgentId: agentId, outcome: 'authenticated' });
-    connection.send(JSON.stringify({ kind: 'ready', agentId, generation }));
+    connection.send(JSON.stringify({ kind: 'ready', agentId, generation, ...(pairKeys && { pairKeys }) }));
     await this.deliverTo(agentId);
     return generation;
   }

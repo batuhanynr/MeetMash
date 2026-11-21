@@ -125,12 +125,8 @@ class _CalendarPreviewState extends State<CalendarPreview> {
                   semanticsLabel: 'Takvim yükleniyor',
                 );
               }
-              if (snapshot.error is CalendarAuthorizationRequired) {
-                return const ListTile(
-                  title: Text(
-                    'Etkinlikleri görmek için Google hesabına izin ver.',
-                  ),
-                );
+              if (snapshot.error case CalendarAuthorizationRequired error) {
+                return ListTile(title: Text(error.description));
               }
               if (snapshot.hasError) {
                 return ListTile(

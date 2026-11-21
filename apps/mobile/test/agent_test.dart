@@ -155,6 +155,38 @@ void main() {
     },
   );
   test(
+    'managed agenda sends the selected day and decodes Turkish titles',
+    () async {
+      final calendar = GoogleCalendar.managed((frame) async {
+        expect(frame, {
+          'kind': 'calendar.request',
+          'operation': 'events',
+          'start': '2026-11-09T21:00:00.000Z',
+          'end': '2026-11-10T21:00:00.000Z',
+          'zone': 'Europe/Istanbul',
+        });
+        return {
+          'status': 200,
+          'body': {
+            'items': [
+              {
+                'summary': 'Öğle görüşmesi',
+                'start': {'dateTime': '2026-11-10T13:00:00+03:00'},
+                'end': {'dateTime': '2026-11-10T14:00:00+03:00'},
+              },
+            ],
+          },
+        };
+      });
+      final events = await calendar.eventsOn(
+        DateTime.utc(2026, 11, 9, 21),
+        DateTime.utc(2026, 11, 10, 21),
+        'Europe/Istanbul',
+      );
+      expect(events.single.title, 'Öğle görüşmesi');
+    },
+  );
+  test(
     'manual votes and partial writes keep the meeting pending until recovery',
     () async {
       final dir = Directory.systemTemp.createTempSync('meetmesh-dart-');

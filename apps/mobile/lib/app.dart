@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'agent/connection.dart';
 import 'agent/protocol.dart';
 import 'calendar/calendar.dart';
 import 'calendar/calendar_clock.dart';
@@ -33,6 +34,8 @@ class Desk extends StatefulWidget {
 class _DeskState extends State<Desk> with WidgetsBindingObserver {
   final rt = MobileRuntime();
   final config = TextEditingController(),
+      email = TextEditingController(),
+      password = TextEditingController(),
       name = TextEditingController(),
       capabilities = TextEditingController(),
       search = TextEditingController(),
@@ -51,6 +54,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   DateTime? calendarDay;
   int calendarAuthorization = 0;
   bool wasOnline = false;
+  bool restoring = true;
   String? notice;
 
   CalendarClock get clock => CalendarClock(zone);
@@ -62,7 +66,11 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     rt.addListener(refresh);
-    unawaited(rt.restore());
+    unawaited(
+      rt.restore().whenComplete(() {
+        if (mounted) setState(() => restoring = false);
+      }),
+    );
   }
 
   void refresh() {
@@ -74,7 +82,10 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       }
     });
     final online = rt.connection?.online == true;
-    if (online && !wasOnline) requestedNames.clear();
+    if (online && !wasOnline) {
+      requestedNames.clear();
+      if (rt.config?.provider == 'managed') calendarAuthorization++;
+    }
     wasOnline = online;
     if (online) unawaited(resolveNames());
   }
@@ -93,6 +104,8 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   }
 
   Future<void> resolveNames() async {
+    final connection = rt.connection;
+    if (connection == null) return;
     final ids = <String>{
       if (rt.config != null) rt.config!.id,
       ...people,
@@ -105,9 +118,13 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     await Future.wait(
       ids.map((id) async {
         try {
-          final res = await call('directory.lookup', {'by': 'id', 'term': id});
+          final res = await connection.control({
+            'kind': 'directory.lookup',
+            'by': 'id',
+            'term': id,
+          });
           final profiles = (res['agents'] as List).cast<Json>();
-          if (!mounted) return;
+          if (!mounted || rt.connection != connection) return;
           setState(() {
             if (profiles.isEmpty) {
               agentNames.remove(id);
@@ -116,7 +133,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
             }
           });
         } catch (_) {
-          requestedNames.remove(id);
+          if (rt.connection == connection) requestedNames.remove(id);
         }
       }),
     );
@@ -132,7 +149,16 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     rt.removeListener(refresh);
     rt.dispose();
-    for (final c in [config, name, capabilities, search, natural, duration]) {
+    for (final c in [
+      config,
+      email,
+      password,
+      name,
+      capabilities,
+      search,
+      natural,
+      duration,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -148,7 +174,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       await action();
     } catch (e) {
       notice = e is CalendarAuthorizationRequired
-          ? CalendarAuthorizationRequired.message
+          ? e.description
           : e is StateError
           ? e.message
           : e is FormatException
@@ -162,6 +188,33 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
 
   Future<Json> call(String kind, [Json? value]) =>
       rt.connection!.control({'kind': kind, ...?value});
+
+  Future<void> signOut() async {
+    await rt.signOut();
+    if (!mounted) return;
+    for (final controller in [
+      email,
+      password,
+      name,
+      capabilities,
+      search,
+      natural,
+    ]) {
+      controller.clear();
+    }
+    duration.text = '60';
+    people.clear();
+    agentNames.clear();
+    requestedNames.clear();
+    results = [];
+    friends = [];
+    incoming = [];
+    tab = 0;
+    vis = 'public';
+    window = null;
+    calendarDay = null;
+  }
+
   Future<void> profile() async {
     final p = (await call('profile.get'))['profile'];
     if (p != null) {
@@ -288,16 +341,33 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 notice ?? rt.error ?? rt.connection!.lastError!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-            if (rt.agent == null) ...[
-              const Text('Ajan hesabını bağla', style: TextStyle(fontSize: 24)),
+            if (restoring)
+              const LinearProgressIndicator(semanticsLabel: 'Hesap yükleniyor')
+            else if (rt.agent == null) ...[
               const Text(
-                'Bu cihaz için hazırlanan hesap yapılandırmasını yapıştır.',
+                'MeetMesh’e giriş yap',
+                style: TextStyle(fontSize: 24),
               ),
-              field('Hesap yapılandırması', config, secret: true),
-              button('Bağlan', () async {
-                await rt.start(config.text);
-                config.clear();
+              field('E-posta', email, keyboard: TextInputType.emailAddress),
+              field('MeetMesh şifresi', password, secret: true),
+              button('Giriş yap', () async {
+                try {
+                  await rt.signIn(email.text, password.text);
+                } finally {
+                  if (mounted) password.clear();
+                }
               }),
+              if (configuredHub.isEmpty)
+                ExpansionTile(
+                  title: const Text('Test hesabı yapılandırması'),
+                  children: [
+                    field('Hesap yapılandırması', config, secret: true),
+                    button('Bağlan', () async {
+                      await rt.start(config.text);
+                      if (mounted) config.clear();
+                    }),
+                  ],
+                ),
             ] else ...[
               if (!connected) button('Yeniden bağlan', rt.reconnect),
               if (tab == 0) ...[
@@ -429,7 +499,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 MeetingWindowFields(
                   clock: clock,
                   window: window,
-                  futureOnly: rt.config!.provider == 'google',
+                  futureOnly: rt.config!.liveCalendar,
                   onChanged: busy
                       ? null
                       : (value) => setState(() => window = value),
@@ -450,7 +520,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   if (!selected.end.isAfter(selected.start)) {
                     throw StateError('Bitiş, başlangıçtan sonra olmalı.');
                   }
-                  if (rt.config!.provider == 'google' &&
+                  if (rt.config!.liveCalendar &&
                       selected.start.isBefore(DateTime.now())) {
                     throw StateError(
                       'Google takvimi için gelecekte bir aralık seç.',
@@ -471,9 +541,10 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
               ],
               if (tab == 2) ...[
                 Text(
-                  rt.config!.provider == 'google'
-                      ? 'Google Calendar'
-                      : 'Örnek takvim',
+                  rt.config!.calendarName ??
+                      (rt.config!.liveCalendar
+                          ? 'Google Takvim'
+                          : 'Örnek takvim'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (rt.google != null) ...[
@@ -508,6 +579,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   agentLabel(rt.config!.id),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
+                if (rt.config?.email case final address?) Text(address),
                 if (connected) button('Profili yenile', profile),
                 field('Görünen ad', name),
                 field('Yetenekler (virgülle)', capabilities),
@@ -537,6 +609,9 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                     title: Text(agentLabel(p)),
                     leading: const Icon(Icons.people),
                   ),
+                if (rt.config!.provider == 'managed' ||
+                    configuredHub.isNotEmpty)
+                  button('Oturumu kapat', signOut),
               ],
             ],
           ],
