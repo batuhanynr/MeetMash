@@ -66,9 +66,10 @@ export async function previewMeeting(model: LanguageModel, lookupName: (name: st
   let window: Slot | null = null;
   if (draft.startLocal && draft.endLocal) {
     try {
+      if (hints.length && (!hints.includes(draft.startLocal) || !hints.includes(draft.endLocal))) throw new Error();
       const start = instant(draft.startLocal, zone), end = instant(draft.endLocal, zone);
       const width = Date.parse(end) - Date.parse(start);
-      if (width <= 0 || width > 31 * 86400_000 || width < (draft.durationMinutes ?? 0) * 60000 || Date.parse(end) <= reference.getTime()) throw new Error();
+      if (width <= 0 || width > 64 * 60 * 60_000 || width < (draft.durationMinutes ?? 0) * 60000 || Date.parse(end) <= reference.getTime()) throw new Error();
       window = { start, end };
     } catch { questions.push('Tarih aralığını ve saat dilimini kontrol et.'); }
   } else questions.push('Hangi tarih aralığında görüşmek istiyorsun?');
