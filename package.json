@@ -51,7 +51,8 @@
     "demo:m5:devices": "node --env-file-if-exists=.env scripts/m5-devices.ts",
     "test:intelligence": "node --test tests/intelligence/*.test.ts",
     "test:gate:m4": "npm run test:gate:m3 && npm run bench:network",
-    "test:gate:m5": "npm run test:gate:m3 && npm run test:intelligence && npm run check:mobile && npm run demo:m5"
+    "test:gate:m5": "npm run test:gate:m3 && npm run test:intelligence && npm run check:mobile && npm run demo:m5",
+    "verify:acceptance": "node --env-file-if-exists=.env scripts/verify-acceptance.mjs"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
