@@ -1,0 +1,11 @@
+graph "MeetMesh" {
+  "data"    [function="leaf" os="cumulus-vx-5.16.1" cpu="2" memory="4096"]
+  "hub"     [function="server" os="generic/ubuntu2404" cpu="2" memory="4096" storage="20"]
+  "agent-a" [function="server" os="generic/ubuntu2404" cpu="2" memory="2048" storage="16"]
+  "agent-b" [function="server" os="generic/ubuntu2404" cpu="2" memory="2048" storage="16"]
+  "agent-c" [function="server" os="generic/ubuntu2404" cpu="2" memory="2048" storage="16"]
+  "data":"swp1" -- "hub":"eth1"
+  "data":"swp2" -- "agent-a":"eth1"
+  "data":"swp3" -- "agent-b":"eth1"
+  "data":"swp4" -- "agent-c":"eth1"
+}

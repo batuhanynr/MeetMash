@@ -14,7 +14,9 @@ import { HubCore } from './hub-core.ts';
 export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number };
 
 export async function startM2Hub(database: Database, config: M2HubConfig, log: Logger) {
-  if (!['127.0.0.1', '::1', 'localhost'].includes(config.host)) throw new Error('M2 hub must bind to loopback for the local demo');
+  if (!['127.0.0.1', '::1', 'localhost'].includes(config.host) && config.host !== process.env.MEETMESH_DATA_HOST) {
+    throw new Error('Set MEETMESH_DATA_HOST to the lab interface address before binding off loopback');
+  }
   const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), new Directory(new PgDirectoryStore(database)), new Mailbox(new PgMailboxStore(database)), log);
 
   const server = createServer({ cert: config.tls.cert, key: config.tls.key }, (request, response) => {

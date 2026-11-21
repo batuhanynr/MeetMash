@@ -23,6 +23,6 @@ openssl(['req', '-newkey', 'rsa:2048', '-nodes', '-sha256',
 // The SAN extension is passed on stdin so no temp extfile is left behind.
 execFileSync('openssl', ['x509', '-req', '-in', file('hub.csr'), '-CA', file('ca.crt'), '-CAkey', file('ca.key'),
   '-CAcreateserial', '-days', '825', '-sha256', '-out', file('hub.crt'), '-extfile', '/dev/stdin'],
-  { input: 'subjectAltName=DNS:localhost,IP:127.0.0.1,IP:::1', stdio: ['pipe', 'ignore', 'inherit'] });
+  { input: 'subjectAltName=DNS:localhost,DNS:hub-data,IP:127.0.0.1,IP:::1', stdio: ['pipe', 'ignore', 'inherit'] });
 
 console.log(`Dev CA and hub certificate written to ${directory} (ca.crt, hub.crt, hub.key).`);

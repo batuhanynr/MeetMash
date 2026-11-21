@@ -1,0 +1,52 @@
+name: meetmesh-m4
+x-node: &node
+  image: ${M4_IMAGE:-meetmesh-m4:local}
+  cap_add: [NET_ADMIN]
+  networks: [data]
+  environment:
+    MEETMESH_DATA_HOST: hub-data
+  init: true
+services:
+  hub:
+    <<: *node
+    networks:
+      data:
+        aliases: [hub-data]
+      storage: {}
+    volumes: [hub-state:/state]
+    depends_on:
+      database:
+        condition: service_healthy
+  agent-a:
+    <<: *node
+    volumes: [a-state:/state]
+  agent-b:
+    <<: *node
+    volumes: [b-state:/state]
+  agent-c:
+    <<: *node
+    volumes: [c-state:/state]
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_DB: lab
+      POSTGRES_PASSWORD: ${M4_DB_PASSWORD:?bench generates an ephemeral password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab -d lab"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+    networks: [storage]
+    volumes: [pg-state:/var/lib/postgresql/data]
+networks:
+  data:
+    internal: true
+  storage:
+    internal: true
+volumes:
+  a-state: {}
+  b-state: {}
+  c-state: {}
+  hub-state: {}
+  pg-state: {}

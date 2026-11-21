@@ -1,0 +1,17 @@
+{
+  "environment": "local Linux containers on Docker",
+  "linux": {
+    "node": "v26.13.1",
+    "kernel": "6.12.76-linuxkit",
+    "tc": "tc utility, iproute2-v7.0.0"
+  },
+  "management": {
+    "node": "v26.13.1",
+    "kernel": "6.12.76-linuxkit",
+    "tc": "tc utility, iproute2-v7.0.0"
+  },
+  "dataCut": "172.19.0.5 dev eth0 src 172.19.0.3 uid 0 \n    cache \nqdisc netem 4d4d: root refcnt 11 limit 1000 loss 100% seed 7889974367490889549\n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n",
+  "counters": "172.19.0.5 dev eth0 src 172.19.0.3 uid 0 \n    cache \nqdisc netem 4d4d: root refcnt 11 limit 1000 loss 100% seed 7889974367490889549\n Sent 0 bytes 0 pkt (dropped 11, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n",
+  "reset": "172.19.0.5 dev eth0 src 172.19.0.3 uid 0 \n    cache \nqdisc noqueue 0: root refcnt 2 \n Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0) \n backlog 0b 0p requeues 0\n",
+  "dataRestored": true
+}

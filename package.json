@@ -41,7 +41,12 @@
     "test:regression": "npm run test:gate:m1",
     "demo:m3": "node --env-file-if-exists=.env scripts/m3.ts",
     "test:meetings": "node --test tests/meetings/*.test.ts",
-    "test:gate:m3": "npm run test:gate:m2 && npm run test:meetings && npm run demo:m3"
+    "test:gate:m3": "npm run test:gate:m2 && npm run test:meetings && npm run demo:m3",
+    "bench:network": "node scripts/m4/bench.mjs",
+    "demo:m4": "node scripts/m4/bench.mjs --demo",
+    "lab:apply": "node scripts/m4/profile.mjs",
+    "lab:reset": "node scripts/m4/reset.mjs",
+    "lab:smoke": "node scripts/m4/smoke.mjs"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
