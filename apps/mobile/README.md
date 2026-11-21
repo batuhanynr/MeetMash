@@ -2,6 +2,37 @@
 
 Flutter screens and the headless Dart client use the same foreground meeting agent. The app keeps the provisioned account in platform secure storage. A local file holds the agent's inbox, outbox, reservations, decisions and applied events. The app retries a broken hub connection while it is open and recovers pending meetings from local storage when reopened.
 
+## One iPhone and two Mac agents
+
+Ada runs in Flutter on the iPhone. Ece and Deniz run as separate Node processes on the Mac, each with its own SQLite state and synthetic calendar. Use a Mac and iPhone on the same local network. From the repository root, set `PHONE_LAB_HOST` to the Mac's address on that network and start the lab with a dedicated PostgreSQL database.
+
+```sh
+export PHONE_LAB_HOST="$(ipconfig getifaddr en0)"
+export M5_PHONE_DATABASE_URL=postgresql://127.0.0.1:5432/meetmesh_phone_lab
+export CERT_DIR=.state/m5-phone/certs
+export SECRETS_FILE=.state/m5-phone/secrets.json
+createdb -h 127.0.0.1 meetmesh_phone_lab
+(umask 077; CERT_EXTRA_HOST="$PHONE_LAB_HOST" npm run certs && npm run secrets)
+MEETMESH_DATA_HOST="$PHONE_LAB_HOST" npm run demo:m5:phone
+```
+
+Create the database once, then reuse it with the same secrets. If the Mac's address changes, rerun certificate generation with `CERT_FORCE=1` and copy the new phone account file after restarting the lab.
+
+Build and install MeetMesh on the paired iPhone using your Xcode development team and `--dart-define=MEETMESH_PHONE_LAB=true`. Start the app once to create its Application Support directory, then copy the phone account over USB from the repository root. Set `IOS_DEVICE` to the identifier from `xcrun devicectl list devices`.
+
+```sh
+xcrun devicectl device copy to --device "$IOS_DEVICE" \
+  --domain-type appDataContainer --domain-identifier com.meetmesh.meetmesh \
+  --source .state/m5-phone/meetmesh-phone-account.json \
+  --destination 'Library/Application Support/meetmesh-phone-account.json'
+xcrun devicectl device process launch --device "$IOS_DEVICE" \
+  --terminate-existing com.meetmesh.meetmesh
+```
+
+Allow local network access on the iPhone if prompted. Open [the demo panel](http://127.0.0.1:8790/) on the Mac. Its activity comes from authenticated connections, durable queue entries and WSS forwards. Availability replies and calendar write receipts light up the corresponding calendars. The panel keeps a short recent history and displays no calendar contents or credentials.
+
+In “Planla”, search for Ece and Deniz by name and select each result. Use Europe/Istanbul, `2026-11-10T10:00` to `2026-11-10T16:00`, and 60 minutes. These dates are part of the synthetic fixture. To test manual approval, send Ece's invitation from the panel and accept it under “Toplantılar” on the iPhone. The Deniz control stops or starts that Mac agent, which lets you watch forwarding resume after reconnect. Press Ctrl+C in the terminal running the lab to stop the hub, panel and both Mac agents.
+
 ## Connect two devices
 
 1. On the development machine, prepare the demo credentials and hub certificate with `npm run secrets` and `npm run certs` from the repository root.

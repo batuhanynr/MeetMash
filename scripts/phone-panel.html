@@ -247,7 +247,7 @@
     }
 
     function updateButtons() {
-      invite.disabled = working || !ready || !stations.get('agent-b')?.online;
+      invite.disabled = working || !ready || !stations.get('agent-a')?.online || !stations.get('agent-b')?.online;
       const deniz = stations.get('agent-c');
       toggle.disabled = working || !ready || !deniz;
       toggle.textContent = deniz?.online ? 'Deniz’in bağlantısını kes' : 'Deniz’i yeniden bağla';

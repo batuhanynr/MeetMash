@@ -13,7 +13,7 @@ import { HubCore } from './hub-core.ts';
 import { MobileDirectoryControl } from './mobile-directory.ts';
 import { IntelligenceControls } from './intelligence/controls.ts';
 
-export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number };
+export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number; traceDelivery?: boolean };
 
 export async function startM2Hub(database: Database, config: M2HubConfig, log: Logger) {
   if (!['127.0.0.1', '::1', 'localhost'].includes(config.host) && config.host !== process.env.MEETMESH_DATA_HOST) {
@@ -22,7 +22,7 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
   const profiles = new PgDirectoryStore(database);
   const directory = new Directory(profiles);
   const controls = [new IntelligenceControls(id => profiles.visibleProfiles(id)), new MobileDirectoryControl(database, directory)];
-  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, controls);
+  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, controls, config.traceDelivery);
 
   const server = createServer({ cert: config.tls.cert, key: config.tls.key }, (request, response) => {
     response.setHeader('content-type', 'application/json');
@@ -38,7 +38,10 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
       // ready may reach the client while connect() is still draining its offline mailbox.
       client.pause();
       client.on('error', () => log('transport.error', { connectedAgentId: agentId, outcome: 'socket_error' }));
-      const peer = { send: (frame: string) => { if (client.readyState === WebSocket.OPEN) client.send(frame); } };
+      const peer = { send(frame: string) {
+        if (client.readyState !== WebSocket.OPEN) return false as const;
+        client.send(frame);
+      } };
       try {
         const generation = await hub.connect(agentId, secret, `wss://${config.host}:${config.port}`, peer);
         client.on('message', data => { void hub.handle(agentId, generation, data.toString()); });

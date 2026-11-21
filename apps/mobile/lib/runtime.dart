@@ -13,6 +13,8 @@ import 'agent/store.dart';
 import 'calendar/calendar.dart';
 import 'calendar/google_account.dart';
 
+const _phoneLab = bool.fromEnvironment('MEETMESH_PHONE_LAB');
+
 class MobileRuntime extends ChangeNotifier {
   final vault = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -41,6 +43,15 @@ class MobileRuntime extends ChangeNotifier {
 
   Future<void> restore() async {
     try {
+      if (_phoneLab) {
+        final directory = await getApplicationSupportDirectory();
+        final account = File('${directory.path}/meetmesh-phone-account.json');
+        if (await account.exists()) {
+          final raw = await account.readAsString();
+          if (!_disposed) await start(raw, restoring: true);
+        }
+        return;
+      }
       final saved = await vault.read(key: 'identity');
       if (!_disposed && saved != null) await start(saved, restoring: true);
     } catch (_) {
@@ -105,14 +116,16 @@ class MobileRuntime extends ChangeNotifier {
     try {
       await conn.connect();
       if (!restoring) await vault.write(key: 'identity', value: raw);
-    } catch (_) {
+    } catch (failure) {
       await conn.close();
       if (!restoring) {
         store.close();
         client?.close();
         rethrow;
       }
-      error = 'Çevrimdışısın. Son kayıtlı toplantıların gösteriliyor.';
+      error = _phoneLab
+          ? 'Hub bağlantısı: $failure'
+          : 'Çevrimdışısın. Son kayıtlı toplantıların gösteriliyor.';
     }
     if (_disposed) {
       await conn.close();
