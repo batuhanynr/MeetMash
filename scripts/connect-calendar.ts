@@ -34,7 +34,7 @@ auth.search = new URLSearchParams({
 }).toString();
 
 const code = await new Promise<string>((done, fail) => {
-  const timeout = setTimeout(() => finish(undefined, 'Google authorization timed out.'), 180_000);
+  const timeout = setTimeout(() => finish(undefined, 'Google authorization timed out.'), 600_000);
   const server = createServer((request, response) => {
     const url = URL.parse(request.url ?? '/', redirect);
     if (request.method !== 'GET' || !url || url.origin !== 'http://127.0.0.1:8791' || url.pathname !== '/google/callback' ||
