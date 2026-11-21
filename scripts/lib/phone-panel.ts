@@ -30,7 +30,7 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
   let busy = false;
   let closing = false;
   const fixture = {
-    start: calendar.window.start.slice(0, 16), end: calendar.window.end.slice(0, 16),
+    ...calendar.window,
     zone: calendar.zone, durationMinutes: calendar.durationMinutes,
   };
 

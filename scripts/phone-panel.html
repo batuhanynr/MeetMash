@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0c1218">
   <title>MeetMesh · Test paneli</title>
   <style>
     :root {
+      color-scheme: dark;
       --bg: #0c1218;
       --panel: #111c25;
       --border: #293a47;
@@ -22,11 +23,15 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
     h1, h2, p { margin: 0; }
+    h1, h2 { text-wrap: balance; }
+    [id] { scroll-margin-top: 16px; }
     h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.15; letter-spacing: -.045em; }
     h2 { font-size: 18px; letter-spacing: -.02em; }
     small, .muted { color: var(--muted); }
     button { font: inherit; }
     main { max-width: 1320px; margin: auto; padding: clamp(14px, 3.2vw, 48px); }
+    .skip-link { position: fixed; z-index: 3; inset: 12px auto auto 12px; padding: 8px 12px; color: var(--text); background: var(--panel); transform: translateY(-150%); }
+    .skip-link:focus-visible { transform: none; }
     header, .title, .panel-head, .controls, .buttons { display: flex; align-items: center; gap: 12px; }
     header { justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px; }
     .brand { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid #407a70; border-radius: 14px; background: #1b3636; }
@@ -38,7 +43,7 @@
     #coverage[data-ready="true"] { color: var(--green); }
     .layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(275px, 1fr); gap: 16px; }
     .panel { min-width: 0; border: 1px solid var(--border); border-radius: 16px; background: var(--panel); overflow: hidden; }
-    .panel-head { justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .panel-head { flex-wrap: wrap; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
     .graph { container-type: inline-size; }
     .map {
       height: 365px;
@@ -54,8 +59,9 @@
     .station[data-agent="agent-a"] { --x: 50%; --y: 18%; }
     .station[data-agent="agent-b"] { --x: 23%; --y: 80%; }
     .station[data-agent="agent-c"] { --x: 77%; --y: 80%; }
-    .person { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 8px; min-width: 126px; padding: 8px 10px; border: 1px solid #3c5061; border-radius: 12px; background: #192633; }
-    .person strong { display: block; }
+    .person { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 8px; width: 142px; padding: 8px 10px; border: 1px solid #3c5061; border-radius: 12px; background: #192633; }
+    .person strong { display: block; overflow-wrap: anywhere; }
+    .person-meta { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; }
     .person .status { font-size: 12px; color: var(--muted); }
     .station[data-online="true"] .status { color: var(--green); }
     .station[data-online="false"] .status { color: var(--red); }
@@ -67,7 +73,9 @@
     .wire { position: absolute; z-index: 1; height: 2px; transform-origin: left center; background: #53737b; }
     .wire[data-online="false"] { background: repeating-linear-gradient(90deg, #64737f 0 4px, transparent 4px 9px); }
     .wire.calendar-wire { background: #536358; }
-    .packet { position: absolute; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); }
+    .pulse, .packet { position: absolute; pointer-events: none; }
+    .pulse { inset: 0; border-radius: inherit; box-shadow: 0 0 8px var(--signal), inset 0 0 0 1px var(--signal); }
+    .packet { left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); }
     .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; border-top: 1px solid var(--border); padding: 11px 18px; font-size: 12px; color: var(--muted); }
     .legend span::before { content: ""; display: inline-block; width: 10px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 2px; background: var(--signal); }
     [data-tone="flow"] { --signal: var(--blue); }
@@ -77,24 +85,29 @@
     [data-tone="stop"] { --signal: var(--red); }
     [data-tone="return"] { --signal: var(--teal); }
     .feed-list { margin: 0; padding: 0; list-style: none; max-height: 366px; overflow: auto; }
+    .feed-list:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
     .feed-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 8px; border-bottom: 1px solid var(--border); padding: 9px 15px; }
     .feed-list li:last-child { border: 0; }
     .feed-list strong { color: var(--signal, var(--text)); font-weight: 630; }
+    .feed-list strong, .feed-list small { overflow-wrap: anywhere; }
     .feed-list small { grid-column: 1 / -1; }
-    .feed-list time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .feed-list time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
     #empty { padding: 16px; color: var(--muted); }
     .controls { flex-wrap: wrap; justify-content: space-between; padding: 16px 18px; margin-top: 16px; }
     .controls h2 { margin-bottom: 4px; }
     .buttons { flex-wrap: wrap; align-items: start; }
-    button { cursor: pointer; padding: 8px 12px; border: 1px solid #46636d; border-radius: 9px; color: var(--text); background: #1f3441; }
-    button:first-child { color: #102822; border-color: var(--green); background: var(--green); }
+    button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: #78e6b350; padding: 8px 12px; border: 1px solid #46636d; border-radius: 9px; color: var(--text); background: #1f3441; }
+    .buttons button:first-child { color: #102822; border-color: var(--green); background: var(--green); }
+    #animation { font-size: 12px; padding: 5px 8px; }
+    #animation[aria-pressed="true"] { color: var(--green); border-color: #527366; }
     button:hover:enabled { filter: brightness(1.14); }
-    button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    :is(button, a):focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { cursor: default; opacity: .55; }
     .scenario { font-size: 13px; color: var(--muted); }
     #action-status { width: 100%; color: var(--amber); font-size: 13px; }
     #action-status:empty { display: none; }
     #fixture { font-variant-numeric: tabular-nums; }
+    @media (pointer: fine) { html { overscroll-behavior: none; } }
     @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
     @container (max-width: 510px) {
       .map { height: 325px; }
@@ -103,32 +116,36 @@
       .station[data-agent="agent-b"] { --y: 50%; }
       .station[data-agent="agent-c"] { --y: 82%; }
       .station { gap: 10px; }
-      .person { grid-template-columns: 1fr; width: 110px; min-width: 0; padding: 7px 8px; }
+      .person { grid-template-columns: 1fr; width: 108px; padding: 7px 8px; }
       .initial { display: none; }
       .calendar { min-width: 52px; }
     }
   </style>
 </head>
 <body>
-  <main>
+  <a class="skip-link" href="#main">Ana içeriğe geç</a>
+  <main id="main" tabindex="-1">
     <header>
       <div class="title">
         <span class="brand" aria-hidden="true"></span>
-        <div><small>MeetMesh</small><h1>Tek telefon test paneli</h1></div>
+        <div><small translate="no">MeetMesh</small><h1>Tek telefon test paneli</h1></div>
       </div>
       <span id="coverage" class="status" role="status">Hub bekleniyor</span>
     </header>
     <div class="layout">
       <section class="panel graph" aria-labelledby="map-title">
-        <div class="panel-head"><h2 id="map-title">Bağlantı haritası</h2><small>Sentetik takvimler</small></div>
+        <div class="panel-head">
+          <div><h2 id="map-title">Bağlantı haritası</h2><small>Sentetik takvimler</small></div>
+          <button type="button" id="animation" aria-pressed="false">Animasyon</button>
+        </div>
         <div class="map" data-ready="false">
-          <div class="hub"><div><strong>Hub</strong><small>WSS</small></div></div>
+          <div class="hub"><div><strong>Hub</strong><small translate="no">WSS</small></div></div>
           <template id="station">
             <div class="station">
               <div class="person">
                 <span class="initial" aria-hidden="true"></span>
-                <strong><span class="name"></span> <span class="device"></span></strong>
-                <span class="status">Bekleniyor</span>
+                <strong><span class="name" translate="no"></span> · Ajan</strong>
+                <span class="person-meta"><span class="device" translate="no"></span> <span class="status">Bekleniyor</span></span>
               </div>
               <div class="calendar" title="Ajanın sentetik takvimi">
                 <span class="calendar-icon" aria-hidden="true"></span>Takvim
@@ -145,14 +162,14 @@
       <section class="panel" aria-labelledby="feed-title">
         <div class="panel-head"><h2 id="feed-title">Son olaylar</h2></div>
         <p id="empty">Hub’dan olay bekleniyor.</p>
-        <ol class="feed-list" aria-labelledby="feed-title"></ol>
+        <ol class="feed-list" aria-labelledby="feed-title" tabindex="0"></ol>
       </section>
     </div>
     <section class="panel controls" aria-labelledby="controls-title">
       <div>
         <h2 id="controls-title">Toplantıyı dene</h2>
         <p class="scenario">iPhone’da <strong>Planla</strong> ekranından <strong>Ece</strong> ve <strong>Deniz</strong>’i bulup ekle.</p>
-        <p class="scenario" id="fixture"></p>
+        <p class="scenario" id="fixture">Test takvimi yükleniyor…</p>
         <p class="scenario">Ece’den davet gönderirsen iPhone’da <strong>Toplantılar</strong> ekranından yanıtla.</p>
       </div>
       <div class="buttons">
@@ -170,8 +187,14 @@
     const coverage = $('#coverage');
     const invite = $('[data-action="invite"]');
     const toggle = $('[data-action="toggle-deniz"]');
-    const clock = new Intl.DateTimeFormat('tr-TR', { timeStyle: 'medium' });
+    const animationButton = $('#animation');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const activeAnimations = new Set();
+    const number = new Intl.NumberFormat('tr-TR');
+    let animationEnabled = true;
+    const motionAllowed = () => animationEnabled && !reducedMotion.matches;
+    let currentFixture;
+    let formatDateTime;
     const labels = {
       REQUEST: ['Toplantı isteği', 'flow'],
       AVAILABILITY: ['Müsaitlik yanıtı', 'calendar'],
@@ -198,30 +221,47 @@
       return element;
     }
 
-    function position(line, a, b) {
+    function positionWires() {
       const area = map.getBoundingClientRect();
       const center = (node) => {
         const rect = node.getBoundingClientRect();
         return [rect.left - area.left + rect.width / 2, rect.top - area.top + rect.height / 2];
       };
-      const [x, y] = center(a);
-      const [endX, endY] = center(b);
-      Object.assign(line.style, {
-        left: x + 'px', top: y + 'px', width: Math.hypot(endX - x, endY - y) + 'px',
-        transform: 'rotate(' + Math.atan2(endY - y, endX - x) + 'rad)',
-      });
-    }
-
-    function positionWires() {
+      const hubCenter = center(hub);
+      const wires = [];
       for (const { node, network, calendar } of stations.values()) {
-        position(network, $('.person', node), hub);
-        position(calendar, $('.calendar', node), $('.person', node));
+        const personCenter = center($('.person', node));
+        wires.push([network, personCenter, hubCenter]);
+        wires.push([calendar, center($('.calendar', node)), personCenter]);
+      }
+      for (const [line, [x, y], [endX, endY]] of wires) {
+        const width = Math.hypot(endX - x, endY - y) + 'px';
+        Object.assign(line.style, {
+          left: x + 'px', top: y + 'px', width,
+          transform: 'rotate(' + Math.atan2(endY - y, endX - x) + 'rad)',
+        });
       }
     }
-    new ResizeObserver(positionWires).observe(map);
+
+    function updateFixture(fixture) {
+      if (currentFixture?.zone === fixture.zone && currentFixture.start === fixture.start &&
+          currentFixture.end === fixture.end && currentFixture.durationMinutes === fixture.durationMinutes) return;
+      const timeZone = fixture.zone;
+      const date = new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone });
+      const time = new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone });
+      formatDateTime = (value) => {
+        const instant = new Date(value);
+        return date.format(instant) + ' ' + time.format(instant);
+      };
+      const zoneLabel = timeZone === 'Europe/Istanbul' ? 'Türkiye saati' : timeZone;
+      $('#fixture').textContent = formatDateTime(fixture.start) + ' – ' + formatDateTime(fixture.end) +
+        ' · ' + zoneLabel + ' · ' + number.format(fixture.durationMinutes) + ' dk';
+      currentFixture = fixture;
+    }
+    const resize = new ResizeObserver(positionWires);
+    resize.observe(map);
 
     function updateAgents(agents) {
-      let added = false;
       for (const agent of agents) {
         if (!stations.has(agent.id)) {
           const node = $('#station').content.firstElementChild.cloneNode(true);
@@ -231,7 +271,7 @@
           $('.device', node).textContent = agent.device;
           map.append(node);
           stations.set(agent.id, { node, network: wire(), calendar: wire('calendar-wire') });
-          added = true;
+          resize.observe($('.person', node));
         }
         const station = stations.get(agent.id);
         station.name = agent.name;
@@ -241,8 +281,10 @@
           $('.status', station.node).textContent = agent.online ? 'Bağlı' : 'Çevrimdışı';
         }
       }
-      if (added) positionWires();
-      coverage.textContent = agents.filter(agent => agent.online).length + ' / ' + agents.length + ' ajan bağlı';
+      const connected = number.format(agents.filter(agent => agent.online).length);
+      const total = number.format(agents.length);
+      const status = connected + ' / ' + total + ' ajan bağlı';
+      if (coverage.textContent !== status) coverage.textContent = status;
       updateButtons();
     }
 
@@ -286,52 +328,78 @@
         const detail = document.createElement('small');
         title.textContent = event.title;
         time.dateTime = event.at;
-        time.textContent = clock.format(new Date(event.at));
+        time.textContent = formatDateTime(event.at);
         detail.textContent = event.detail + (event.meeting ? ' · ' + event.meeting.slice(0, 8) : '');
         row.append(title, time, detail);
         return row;
       }));
     }
 
-    function pulse(line, tone, reverse, duration) {
-      if (!line) return Promise.resolve();
-      const start = reverse ? '100%' : '0';
-      const end = reverse ? '0' : '100%';
-      const packet = document.createElement('span');
-      packet.className = 'packet';
-      packet.dataset.tone = tone;
-      line.append(packet);
-      const color = getComputedStyle(packet).getPropertyValue('--signal').trim();
-      line.animate([{ backgroundColor: color, boxShadow: '0 0 8px ' + color }, {}], duration);
-      return packet.animate([{ left: start }, { left: end }], { duration, easing: 'ease-in-out' })
-        .finished.finally(() => packet.remove());
+    function animateSignal(parent, className, tone, keyframes, duration) {
+      const signal = document.createElement('span');
+      signal.className = className;
+      signal.dataset.tone = tone;
+      signal.setAttribute('aria-hidden', 'true');
+      parent.append(signal);
+      const animation = signal.animate(keyframes, { duration, easing: 'ease-in-out' });
+      activeAnimations.add(animation);
+      return animation.finished.catch(() => {}).finally(() => {
+        activeAnimations.delete(animation);
+        signal.remove();
+      });
     }
+
+    function flash(element, tone, duration) {
+      return animateSignal(element, 'pulse', tone, [{ opacity: 1 }, { opacity: 0 }], duration);
+    }
+
+    function pulse(line, tone, reverse, duration) {
+      const from = 'translateX(0)';
+      const to = 'translateX(' + line.style.width + ')';
+      void flash(line, tone, duration);
+      return animateSignal(line, 'packet', tone, [
+        { transform: reverse ? to : from },
+        { transform: reverse ? from : to },
+      ], duration);
+    }
+
+    function stopAnimation() {
+      pending = [];
+      for (const animation of activeAnimations) animation.cancel();
+    }
+
+    function updateAnimation() {
+      animationButton.disabled = reducedMotion.matches;
+      animationButton.setAttribute('aria-pressed', String(motionAllowed()));
+      if (!motionAllowed()) stopAnimation();
+    }
+
+    animationButton.addEventListener('click', () => {
+      animationEnabled = !animationEnabled;
+      updateAnimation();
+    });
+    reducedMotion.addEventListener('change', updateAnimation);
+    updateAnimation();
 
     async function play() {
       if (playing) return;
       playing = true;
       try {
-        while (pending.length && !document.hidden && !reducedMotion.matches) {
+        while (pending.length && !document.hidden && motionAllowed()) {
           const event = pending.shift();
           const duration = pending.length > 8 ? 140 : 270;
           if (event.agent) {
             const person = stations.get(event.agent)?.node.querySelector('.person');
-            if (person) {
-              const color = getComputedStyle(document.documentElement).getPropertyValue(
-                event.tone === 'stop' ? '--red' : event.tone === 'return' ? '--teal' : '--green',
-              ).trim();
-              await person.animate([{ borderColor: color, boxShadow: '0 0 12px ' + color }, {}], duration).finished;
-            }
+            if (person) await flash(person, event.tone, duration);
           } else {
             const outgoing = event.kind === 'queued';
             const station = stations.get(outgoing ? event.from : event.to);
             if (!station) continue;
             if (outgoing && event.calendar) await pulse(station.calendar, 'calendar', event.phase === 'APPLIED', duration);
-            await pulse(station.network, event.tone, !outgoing, duration);
+            if (motionAllowed() && !document.hidden) await pulse(station.network, event.tone, !outgoing, duration);
           }
         }
       } finally {
-        if (document.hidden || reducedMotion.matches) pending = [];
         playing = false;
       }
     }
@@ -346,12 +414,12 @@
         ready = true;
         coverage.dataset.ready = map.dataset.ready = 'true';
         updateAgents(agents);
-        $('#fixture').textContent = fixture.start + ' → ' + fixture.end + ' · ' + fixture.zone + ' · ' + fixture.durationMinutes + ' dk';
+        updateFixture(fixture);
         const latest = events.at(-1);
         if (latest?.seq !== lastEvent?.seq || latest?.at !== lastEvent?.at) {
           const items = describe(events);
           showEvents(items);
-          if (lastEvent && latest?.seq > lastEvent.seq && !reducedMotion.matches) {
+          if (lastEvent && latest?.seq > lastEvent.seq && motionAllowed() && !document.hidden) {
             pending = pending.concat(items.filter(event => event.seq > lastEvent.seq)).slice(-30);
             void play();
           }
@@ -359,14 +427,14 @@
         }
       } catch {
         ready = false;
-        coverage.textContent = 'Hub bekleniyor';
+        if (coverage.textContent !== 'Hub bekleniyor') coverage.textContent = 'Hub bekleniyor';
         coverage.dataset.ready = map.dataset.ready = 'false';
         for (const { node, network } of stations.values()) {
           node.removeAttribute('data-online');
           network.dataset.online = 'false';
           $('.status', node).textContent = 'Bilinmiyor';
         }
-        pending = [];
+        stopAnimation();
         lastEvent = undefined;
         updateButtons();
       } finally {
@@ -377,7 +445,9 @@
 
     document.addEventListener('visibilitychange', () => {
       clearTimeout(pollTimer);
-      if (!document.hidden) {
+      if (document.hidden) {
+        stopAnimation();
+      } else {
         lastEvent = undefined;
         void poll();
       }
@@ -395,7 +465,7 @@
           });
           const result = await res.json();
           if (!res.ok || !result.ok) {
-            $('#action-status').textContent = result.error || 'İşlem tamamlanamadı.';
+            $('#action-status').textContent = result.error || 'İşlem tamamlanamadı. Bağlantıyı kontrol edip tekrar dene.';
             return;
           }
           $('#action-status').textContent = button === invite
