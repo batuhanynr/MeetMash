@@ -46,7 +46,8 @@
     "demo:m4": "node scripts/m4/bench.mjs --demo",
     "lab:apply": "node scripts/m4/profile.mjs",
     "lab:reset": "node scripts/m4/reset.mjs",
-    "lab:smoke": "node scripts/m4/smoke.mjs"
+    "lab:smoke": "node scripts/m4/smoke.mjs",
+    "test:gate:m4": "npm run test:gate:m3 && npm run bench:network"
   },
   "devDependencies": {
     "@types/node": "26.6.5",

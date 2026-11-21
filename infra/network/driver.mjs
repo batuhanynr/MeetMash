@@ -1,9 +1,9 @@
-import { fork, execFileSync } from 'node:child_process';
+import { fork, spawn, execFileSync } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createDatabase, migrate } from '../../apps/hub/src/db.ts';
 import { provisionIdentity } from '../../apps/hub/src/pg-identity.ts';
 import https from 'node:https';
@@ -11,6 +11,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const node = process.argv[2];
 const isHub = node === 'hub';
+const dart = node === 'agent-c' && existsSync('/state/dart-agent');
 const emit = (data) => process.stdout.write(JSON.stringify(data) + '\n');
 const db = isHub ? createDatabase(process.env.DATABASE_URL) : undefined;
 let child, started, restored, stateRoot;
@@ -39,20 +40,46 @@ async function start({ runId, fault, args: extra = [] }) {
         '500',
         ...extra,
       ];
-  child = fork('apps/' + app + '/src/m2-main.ts', [...args, '--run-id', runId], {
-    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    execArgv: fault ? ['--import', './infra/network/faults.mjs'] : [],
-    env: {
-      ...process.env,
-      CERT_DIR: '/state/certs',
-      SECRETS_FILE: '/state/secrets.json',
-      M4_FAULT: fault ?? '',
-      M4_NODE: node,
-    },
-  });
+  if (dart) {
+    mkdirSync(stateRoot, { recursive: true });
+    const secrets = JSON.parse(readFileSync('/state/secrets.json', 'utf8'));
+    const account = {
+      agentId: node,
+      secret: secrets.bootstrap[node],
+      hub: 'wss://hub-data:8787',
+      caPem: readFileSync('/state/certs/ca.crt', 'utf8'),
+      pairKeys: secrets.pairKeys,
+      calendar: 'fixture',
+    };
+    const accountFile = stateRoot + '/account.json';
+    writeFileSync(accountFile, JSON.stringify(account), { mode: 0o600 });
+    child = spawn(
+      '/state/dart-agent',
+      [
+        accountFile,
+        stateRoot + '/agent.json',
+        'packages/protocol/schemas/message.schema.json',
+        'packages/protocol/fixtures/calendar-v1.json',
+      ],
+      { stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, M4_FAULT: fault ?? '' } },
+    );
+  } else
+    child = fork('apps/' + app + '/src/m2-main.ts', [...args, '--run-id', runId], {
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      execArgv: fault ? ['--import', './infra/network/faults.mjs'] : [],
+      env: {
+        ...process.env,
+        CERT_DIR: '/state/certs',
+        SECRETS_FILE: '/state/secrets.json',
+        M4_FAULT: fault ?? '',
+        M4_NODE: node,
+      },
+    });
   createInterface({ input: child.stdout }).on('line', (line) => {
     try {
-      emit({ record: JSON.parse(line) });
+      const row = JSON.parse(line);
+      if (dart && ['ready', 'response'].includes(row.kind)) child.emit('message', row);
+      else emit({ record: row });
     } catch {
       /* ignore non-JSON diagnostics */
     }
@@ -161,7 +188,8 @@ async function execute(input) {
           pending.delete(requestId);
           reply.error ? reject(new Error(reply.error)) : resolve(reply);
         });
-        child.send({ ...input.command, requestId });
+        if (dart) child.stdin.write(JSON.stringify({ ...input.command, requestId }) + '\n');
+        else child.send({ ...input.command, requestId });
       });
     }
     default:

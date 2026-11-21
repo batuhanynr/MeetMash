@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, appendFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import profiles from './profiles.json' with { type: 'json' };
 import { Lab, build } from './lab.mjs';
@@ -11,15 +11,24 @@ import { report } from './report.mjs';
 const { values } = parseArgs({
   options: {
     profiles: { type: 'string' },
+    'dart-agent': { type: 'string' },
     count: { type: 'string' },
     jobs: { type: 'string', default: '1' },
+    'allow-parallel': { type: 'boolean', default: false },
     out: { type: 'string' },
     demo: { type: 'boolean', default: false },
     'reuse-image': { type: 'string' },
   },
 });
 const demo = values.demo;
-const requested = values.profiles?.split(',') ?? (demo ? ['N0', 'N3', 'N4-ack', 'N5'] : profiles.map((p) => p.id));
+const dartAgent = values['dart-agent'];
+const requested =
+  values.profiles?.split(',') ??
+  (dartAgent
+    ? ['N0', 'N3', 'N4-request', 'N4-ack']
+    : demo
+      ? ['N0', 'N3', 'N4-ack', 'N5']
+      : profiles.map((p) => p.id));
 const configs = requested.map((id) => {
   const p = profiles.find((c) => c.id === id);
   if (!p) throw new Error('Unknown profile ' + id);
@@ -28,16 +37,20 @@ const configs = requested.map((id) => {
   return { ...p, count, required: Math.ceil((p.required / p.count) * count) };
 });
 const jobs = Number(values.jobs);
-if (!Number.isInteger(jobs) || jobs < 1 || jobs > 8) throw new Error('jobs must be 1..8');
+if (jobs !== 1 && !(jobs === 2 && values['allow-parallel'])) {
+  throw new Error('One topology is the default. Two require --jobs=2 --allow-parallel.');
+}
 const directory = resolve(values.out ?? join('.state/evidence/m4', randomUUID()));
 mkdirSync(directory, { recursive: true });
 const raw = join(directory, 'runs.jsonl');
 writeFileSync(raw, '', { flag: 'wx' }); // never overwrite previous measurements
-const image = values['reuse-image'] ?? 'meetmesh-m4:local';
+const image = values['reuse-image'] ?? (dartAgent ? 'meetmesh-m5-mixed:local' : 'meetmesh-m4:local');
 if (!values['reuse-image']) build(image);
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 const meta = {
   environment: 'Docker Linux',
+  clients: dartAgent ? 'Node A/B + Dart C' : 'Node A/B/C',
+  dartBinarySha256: dartAgent ? createHash('sha256').update(readFileSync(dartAgent)).digest('hex') : null,
   commit: git('rev-parse', 'HEAD'),
   worktreeDirty: !!git('status', '--porcelain'),
   imageId: execFileSync('docker', ['image', 'inspect', image, '--format', '{{.Id}}'], { encoding: 'utf8' }).trim(),
@@ -48,12 +61,13 @@ const work = configs.flatMap((config) =>
   Array.from({ length: config.count }, (_, i) => ({ config, index: i + 1 })),
 );
 async function worker() {
-  const lab = new Lab(image);
+  const lab = new Lab(image, dartAgent);
   try {
     const environment = await lab.open();
-    while (work.length) {
+    while (work.length && !lab.closing) {
       const { config, index } = work.shift();
       const row = await run(lab, config, { ...meta, ...environment }, index);
+      if (lab.closing) break;
       appendFileSync(raw, JSON.stringify(row) + '\n');
       console.log(
         row.pass ? 'PASS' : 'FAIL',

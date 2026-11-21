@@ -27,7 +27,7 @@ export function summarize(rows, expected = profiles) {
     };
   });
 }
-export function report(directory, expected) {
+export function report(directory, expected = JSON.parse(readFileSync(join(directory, 'config.json'), 'utf8')).configs) {
   const rows = readFileSync(join(directory, 'runs.jsonl'), 'utf8')
     .trim()
     .split('\n')

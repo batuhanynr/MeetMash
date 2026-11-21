@@ -9,6 +9,17 @@ export const ids = ['agent-a', 'agent-b', 'agent-c'];
 const nodes = ['hub', ...ids];
 const composeFile = 'infra/network/compose.yaml';
 const token = () => randomBytes(24).toString('hex');
+const ownedLabs = new Set();
+let stopping = false;
+for (const [signal, code] of [['SIGINT', 130], ['SIGTERM', 143]]) {
+  process.on(signal, async () => {
+    if (stopping) return;
+    stopping = true;
+    const results = await Promise.allSettled([...ownedLabs].map((lab) => lab.close()));
+    for (const result of results) if (result.status === 'rejected') console.error(result.reason);
+    process.exit(code);
+  });
+}
 export function build(image) {
   execFileSync('docker', ['build', '-f', 'infra/network/Dockerfile', '-t', image, '.'], {
     stdio: ['ignore', 'inherit', 'inherit'],
@@ -58,13 +69,15 @@ class Control {
   }
 }
 export class Lab {
-  constructor(image) {
-    this.project = 'meetmesh-m4-' + randomUUID().slice(0, 8);
+  constructor(image, dartAgent) {
+    this.dartAgent = dartAgent;
+    this.project = 'meetmesh-m4-' + randomUUID();
     this.records = [];
     this.temp = mkdtempSync(join(tmpdir(), 'meetmesh-m4-'));
     this.env = { ...process.env, M4_DB_PASSWORD: token(), M4_IMAGE: image };
     this.controls = {};
     this.containers = {};
+    ownedLabs.add(this);
   }
   compose(args) {
     return execFileSync('docker', ['compose', '-f', composeFile, '-p', this.project, ...args], {
@@ -73,7 +86,16 @@ export class Lab {
     });
   }
   async open() {
-    this.compose(['up', '-d', '--wait']);
+    if (stopping || this.closing) throw new Error('Network experiment interrupted');
+    this.startup = spawn('docker', ['compose', '-f', composeFile, '-p', this.project, 'up', '-d', '--wait'], {
+      env: this.env, stdio: ['ignore', 'inherit', 'inherit'],
+    });
+    this.started = new Promise((resolve, reject) => {
+      this.startup.once('error', reject);
+      this.startup.once('close', (code) => code === 0 ? resolve() : reject(new Error('Compose startup failed')));
+    });
+    await this.started;
+    if (stopping || this.closing) throw new Error('Network experiment interrupted');
     const certDir = join(this.temp, 'certs');
     execFileSync(process.execPath, ['scripts/dev-certs.ts'], {
       env: { ...this.env, CERT_DIR: certDir },
@@ -103,6 +125,8 @@ export class Lab {
           { mode: 0o600 },
         );
       execFileSync('docker', ['cp', folder + '/.', cid + ':/state/']);
+      if (this.dartAgent && id === 'agent-c')
+        execFileSync('docker', ['cp', this.dartAgent, cid + ':/state/dart-agent']);
       this.controls[id] = new Control(
         id,
         cid,
@@ -136,15 +160,20 @@ export class Lab {
   stopAll() {
     return Promise.allSettled(Object.keys(this.controls).map((id) => this.call(id, 'stop')));
   }
-  async close() {
+  close() {
+    return this.closing ??= this.removeProject();
+  }
+  async removeProject() {
+    if (this.startup && this.startup.exitCode === null && this.startup.signalCode === null) this.startup.kill('SIGTERM');
+    await this.started?.catch(() => {});
+    for (const controller of Object.values(this.controls)) controller.process.stdin.end();
     try {
-      await this.stopAll();
-      await Promise.allSettled(
-        nodes.filter((id) => this.controls[id]).map((id) => this.call(id, 'profile', { profile: 'reset' })),
-      );
-      for (const controller of Object.values(this.controls)) controller.process.stdin.end();
+      // Removing this project's containers also releases their network namespaces and qdiscs.
+      this.compose(['down', '--timeout', '1', '-v']);
+      ownedLabs.delete(this);
+    } catch (cause) {
+      throw new Error('Could not remove lab project ' + this.project, { cause });
     } finally {
-      this.compose(['down', '-v', '--remove-orphans']);
       rmSync(this.temp, { recursive: true, force: true });
     }
   }

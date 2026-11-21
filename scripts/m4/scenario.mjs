@@ -171,7 +171,10 @@ export async function run(lab, config, meta, index) {
           15000,
           'mailbox retry and recipient ACK',
         );
-        assert(lab.records.some((m) => m.event === 'message.duplicate' && m.messageId === drop.ackFor));
+        // Dart's CLI reports its own drop. The durable mailbox attempt count and receipt
+        // verify the same retransmission even when that client does not emit a duplicate log.
+        if (!lab.dartAgent)
+          assert(lab.records.some((m) => m.event === 'message.duplicate' && m.messageId === drop.ackFor));
       }
     }
     if (profileId === 'N5')

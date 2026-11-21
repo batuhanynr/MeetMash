@@ -1,5 +1,5 @@
 FROM node:26-alpine
-RUN apk add --no-cache iproute2 iproute2-tc openssl
+RUN apk add --no-cache iproute2 iproute2-tc openssl gcompat
 WORKDIR /lab
 COPY package*.json ./
 COPY apps/agent-node/package.json apps/agent-node/
