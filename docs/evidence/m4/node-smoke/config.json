@@ -1,0 +1,69 @@
+{
+  "environment": "Docker Linux",
+  "commit": "9bc471cfe418f81efdb0a69a986a4e1a3abd5112",
+  "worktreeDirty": true,
+  "imageId": "sha256:fe9306476b80da7d778294079ddab788c608a0be3bad23ee8354eb56edceedd7",
+  "jobs": 2,
+  "configs": [
+    {
+      "id": "N0",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 10000
+    },
+    {
+      "id": "N1",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000,
+      "netem": "delay 150ms at each application egress"
+    },
+    {
+      "id": "N2",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 60000,
+      "netem": "delay 150ms 20ms loss 5% at each application egress"
+    },
+    {
+      "id": "N4-request",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000
+    },
+    {
+      "id": "N4-ack",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000
+    },
+    {
+      "id": "N5",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000
+    },
+    {
+      "id": "N7-hub",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000,
+      "fromRecovery": true
+    },
+    {
+      "id": "N7-coordinator",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000,
+      "fromRecovery": true
+    },
+    {
+      "id": "N8",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000,
+      "deadlineMs": 3000,
+      "fromRecovery": true
+    }
+  ]
+}

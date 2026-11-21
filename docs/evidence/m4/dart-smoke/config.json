@@ -1,0 +1,37 @@
+{
+  "environment": "Docker Linux",
+  "clients": "Node A/B + Dart C",
+  "dartBinarySha256": "733ec2b8550e3ac5dafd42edb1a07461d72fd38216a11882cacb3a251012474e",
+  "commit": "5efdee26bd81e76517592b192a0a467f4ef41554",
+  "worktreeDirty": true,
+  "imageId": "sha256:edd40fa9d6065f4cee17b389594bc791211d15b1793878d5a8e5c0ab7e1acd36",
+  "jobs": 1,
+  "configs": [
+    {
+      "id": "N0",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 10000
+    },
+    {
+      "id": "N4-request",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000
+    },
+    {
+      "id": "N4-ack",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000
+    },
+    {
+      "id": "N3",
+      "count": 1,
+      "required": 1,
+      "budgetMs": 30000,
+      "offlineMs": 30000,
+      "fromRecovery": true
+    }
+  ]
+}
