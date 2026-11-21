@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "zone": "Europe/Istanbul",
+  "window": {
+    "start": "2026-11-10T10:00:00+03:00",
+    "end": "2026-11-10T16:00:00+03:00"
+  },
+  "durationMinutes": 60,
+  "stepMinutes": 30,
+  "agents": {
+    "agent-a": {
+      "working": [
+        {
+          "start": "2026-11-10T10:00:00+03:00",
+          "end": "2026-11-10T16:00:00+03:00"
+        }
+      ],
+      "busy": [
+        {
+          "start": "2026-11-10T12:00:00+03:00",
+          "end": "2026-11-10T14:00:00+03:00",
+          "title": "PRIVATE-TITLE-301",
+          "description": "PRIVATE-NOTES-301"
+        }
+      ],
+      "preferences": [
+        {
+          "start": "2026-11-10T11:00:00+03:00",
+          "score": 40
+        },
+        {
+          "start": "2026-11-10T14:00:00+03:00",
+          "score": 90
+        }
+      ]
+    },
+    "agent-b": {
+      "working": [
+        {
+          "start": "2026-11-10T11:00:00+03:00",
+          "end": "2026-11-10T15:00:00+03:00"
+        }
+      ],
+      "busy": [
+        {
+          "start": "2026-11-10T13:00:00+03:00",
+          "end": "2026-11-10T14:00:00+03:00",
+          "title": "PRIVATE-TITLE-301",
+          "description": "PRIVATE-NOTES-301"
+        }
+      ],
+      "preferences": [
+        {
+          "start": "2026-11-10T11:00:00+03:00",
+          "score": 80
+        },
+        {
+          "start": "2026-11-10T14:00:00+03:00",
+          "score": 50
+        }
+      ]
+    },
+    "agent-c": {
+      "working": [
+        {
+          "start": "2026-11-10T10:30:00+03:00",
+          "end": "2026-11-10T16:00:00+03:00"
+        }
+      ],
+      "busy": [
+        {
+          "start": "2026-11-10T12:00:00+03:00",
+          "end": "2026-11-10T14:00:00+03:00",
+          "title": "PRIVATE-TITLE-301",
+          "description": "PRIVATE-NOTES-301"
+        }
+      ],
+      "preferences": [
+        {
+          "start": "2026-11-10T11:00:00+03:00",
+          "score": 60
+        },
+        {
+          "start": "2026-11-10T14:00:00+03:00",
+          "score": 80
+        }
+      ]
+    }
+  }
+}
