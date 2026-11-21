@@ -7,3 +7,9 @@ Set `DATABASE_URL` and `M3_TEST_DATABASE_URL` to a dedicated PostgreSQL test dat
 - The [local model evaluations](intelligence/README.md) contain calls to the real models on synthetic inputs. A separate [network smoke run](../m4/README.md) exercised a Dart agent under four profiles once each.
 
 The unsigned iOS device build succeeded during development. iOS installation and launch still need a simulator or signed test device. The Android debug build stopped during NDK setup, before APK installation. Two consenting Google test accounts and platform OAuth client configuration are needed for a live calendar run. The mixed network acceptance series and the final live device demo remain open.
+
+## Run the remaining acceptance checks serially
+
+Arrange an Air lab with four Linux targets and two Google OAuth test accounts before starting. Once the accounts are available, finish the platform builds and record each app opening. Run the Google case on two assigned test calendars and use the same meeting ID to compare the two results. Revoke either grant and check that its client reports the pending write.
+
+Use `npm run bench:network` with its one-topology default for the local Linux matrix. The [Air guide](../../../infra/air/README.md) describes the separate Air verification. Then pass the Linux Dart binary to `npm run bench:network -- --dart-agent <path>` for the mixed N0/N3/N4 series. Run the model preview demo and the mobile UI recording after the network bench exits.
