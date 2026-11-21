@@ -3,19 +3,21 @@ import { Ajv } from 'ajv';
 import schema from '../schemas/message.schema.json' with { type: 'json' };
 
 export type Slot = { start: string; end: string };
+export type Round = { roundId: string; decisionVersion: number };
 export type Payloads = {
-  REQUEST: { participantAgentIds: string[]; durationMinutes: number; window: Slot };
-  PROPOSE: { phase: 'AVAILABILITY'; slots: Slot[] } | { phase: 'SELECTION'; slot: Slot };
+  REQUEST: { participantAgentIds: string[]; durationMinutes: number; deadline?: string; window: Slot };
+  PROPOSE: { phase: 'AVAILABILITY'; slots: (Slot & { score?: number })[] } | { phase: 'SELECTION'; slot: Slot };
   ACCEPT: { proposalMessageId: string };
   REJECT: { reasonCode: 'NO_AVAILABILITY' | 'DECLINED' | 'INVALID_REQUEST' };
   CONFIRM: { phase: 'PREPARE'; proposalMessageId: string; slot: Slot }
     | { phase: 'COMMIT'; decisionId: string; slot: Slot }
-    | { phase: 'APPLIED'; decisionId: string };
+    | { phase: 'APPLIED'; decisionId: string }
+    | { phase: 'ABORT'; decisionId: string; reasonCode: string } | { phase: 'SYNC' };
   ACK: { ackForMessageId: string; scope: 'relay.persisted' | 'recipient.persisted' };
 };
 export type MessageType = keyof Payloads;
 export type Message = { [T in MessageType]: {
-  protocolVersion: '1'; messageId: string; meetingId: string;
+  protocolVersion: '1'; roundId?: string; decisionVersion?: number; messageId: string; meetingId: string;
   fromAgentId: string; toAgentId: string; type: T; sequence: number;
   createdAt: string; expiresAt: string; nonce: string; payload: Payloads[T]; auth: Auth;
 } }[MessageType];
@@ -75,7 +77,7 @@ export function parseMessage(raw: string): Message {
 
 export function createMessage<T extends MessageType>(input: {
   fromAgentId: string; toAgentId: string; meetingId: string;
-  type: T; payload: Payloads[T]; sequence: number;
+  type: T; payload: Payloads[T]; sequence: number; roundId?: string; decisionVersion?: number;
 }): Message {
   const now = Date.now();
   return validateMessage({

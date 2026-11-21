@@ -85,14 +85,14 @@ Beş milestone'u yukarıdaki adlarla oluşturun. Her `MM-xxx` bölümü bir GitH
 
 Önerilen etiketler: `protocol`, `backend`, `agent`, `mobile`, `ai`, `calendar`, `security`, `network-lab`, `test`, `docs`. `blocked` yalnız gerçekten engellenen işlerde kullanılır.
 
-Her issue için bir sorumlu ve diğer ekip üyesinden bir inceleyen seçin. Burada kişilere görev atanmış değildir.
+Issue sorumlusu kabul testlerini çalıştırır, sonuçları PR’a ekler ve kendi PR’ını birleştirebilir.
 
 ### 3.2. Ortak tamamlanma tanımı
 
 Aşağıdaki şartlar **her issue için** geçerlidir:
 
 - [ ] Issue'nun kabul kriterleri otomatik test veya tarif edilmiş tekrarlanabilir manuel test ile doğrulandı.
-- [ ] Değişiklik ana geliştirme dalına inceleme sonrası alındı.
+- [ ] Kabul testlerinin kanıtı PR’a eklendi ve değişiklik ana geliştirme dalına alındı.
 - [ ] Kurulum / çalıştırma / hata ayıklama bilgisi ilgili README'ye eklendi.
 - [ ] Secret, OAuth token, kişisel takvim içeriği veya gerçek özel anahtar repoya / rapora girmedi.
 - [ ] İlgili test logu, ekran kaydı veya makine tarafından okunabilir sonuç kaydedildi.
@@ -335,7 +335,7 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 | M1-T5 | Inbox'a yazdıktan sonra ajanı yeniden başlat | Kaydedilmiş iş kurtarılıyor |
 
 - [ ] Beş senaryo geçiyor; normal 100 mesaj testi 100/100.
-- [ ] `demo:m1` ikinci ekip üyesi tarafından README'den çalıştırıldı.
+- [ ] `demo:m1` README kullanılarak temiz bir ortamdan çalıştırıldı.
 - [ ] Kanıtlar ve `m1-demo` kod etiketi aynı commit'i gösteriyor.
 
 **Aşama sonunda söylenecek cümle:** “Üç ajan, kendi protokolümüzle konuşuyor; ACK kaybında tekrar gönderim ve tek işleme çalışıyor.”

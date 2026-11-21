@@ -8,9 +8,12 @@ import { jsonLogger } from '../../../packages/runtime/src/log.ts';
 import { Agent, type AgentConfig } from './agent.ts';
 import { SqliteAgentStore } from './sqlite-store.ts';
 import { M2Transport, type ControlFrame } from './m2-transport.ts';
-import { buildSecurity, loadSecrets } from './m2-security.ts';
+import fixture from '../../../packages/protocol/fixtures/calendar-v1.json' with { type: 'json' };
+import { MeetingPlanner } from './meetings/planner.ts';
+import type { CalendarProfile } from './meetings/slots.ts';
+import { buildSecurity, loadSecrets, pairId } from './m2-security.ts';
 
-const args = options(['id', 'hub', 'state-root', 'run-id', 'secrets', 'cert-dir', 'ack-timeout-ms', 'max-retries', 'max-backoff-ms', 'drop-acks', 'drop-messages', 'pause-after-persist', 'heartbeat-ms']);
+const args = options(['id', 'hub', 'state-root', 'run-id', 'secrets', 'cert-dir', 'ack-timeout-ms', 'max-retries', 'max-backoff-ms', 'drop-acks', 'drop-messages', 'pause-after-persist', 'heartbeat-ms', 'calendar-file']);
 const agentId = args.id ?? '';
 const log = jsonLogger(args['run-id'] ?? process.env.RUN_ID ?? randomUUID(), agentId);
 let store: SqliteAgentStore | undefined;
@@ -18,11 +21,15 @@ let transport: M2Transport | undefined;
 let agent: Agent | undefined;
 let heartbeat: ReturnType<typeof setInterval> | undefined;
 let input: ReturnType<typeof createInterface> | undefined;
+let planner: MeetingPlanner | undefined;
+let planning: ReturnType<typeof setInterval> | undefined;
 let stopping = false;
 const stop = () => {
   if (stopping) return;
   stopping = true;
   clearInterval(heartbeat);
+  clearInterval(planning);
+  planner?.close();
   agent?.stop();
   transport?.close();
   store?.close();
@@ -33,7 +40,7 @@ const stop = () => {
 try {
   if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(agentId) || agentId === '.' || agentId === '..') throw new Error('--id must be a protocol agent ID');
   const url = new URL(args.hub ?? process.env.HUB_URL ?? 'wss://127.0.0.1:8787');
-  if (url.protocol !== 'wss:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) throw new Error('M2 requires a loopback wss:// hub URL');
+  if (url.protocol !== 'wss:' || (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) && url.hostname !== process.env.MEETMESH_DATA_HOST)) throw new Error('Expected wss:// on loopback or the configured MEETMESH_DATA_HOST');
   url.searchParams.set('agentId', agentId);
 
   const secrets = loadSecrets(resolve(args.secrets ?? process.env.SECRETS_FILE ?? '.state/secrets.json'));
@@ -58,6 +65,12 @@ try {
   transport = new M2Transport(url, agentId, bootstrapSecret, ca, log);
   agent = new Agent(config, store, transport, log, security);
 
+  const profile: CalendarProfile = args['calendar-file'] ? JSON.parse(readFileSync(args['calendar-file'], 'utf8'))
+    : (fixture.agents as Record<string, CalendarProfile>)[agentId] ?? {working:[],busy:[],preferences:[]};
+  planner = new MeetingPlanner(join(directory,'meetings.sqlite'), agentId, profile,
+    (to,id,type,payload,round) => agent!.send(to,id,type,payload,round),log);
+  agent.onWork = message => planner!.accept(message);
+
   const pendingLookups = new Map<string, (agents: unknown) => void>();
   const onControl = (frame: ControlFrame) => {
     if (frame.kind === 'relay.ack' && typeof frame.messageId === 'string') agent!.onRelayAck(frame.messageId);
@@ -71,6 +84,7 @@ try {
     process.exitCode = 1;
   });
   agent.start();
+  planning = setInterval(() => planner!.tick(), 50);
   heartbeat = setInterval(() => { try { transport!.sendControl({ kind: 'heartbeat' }); } catch { /* closing */ } }, integer(args['heartbeat-ms'] ?? '5000', 'heartbeat', 200, 60_000));
   heartbeat.unref();
   process.once('SIGINT', stop);
@@ -85,6 +99,18 @@ try {
     };
     try {
       switch (request.command) {
+        case 'schedule': {
+          const cmd=value as Payloads['REQUEST'] & {timeoutMs?:number};
+          if (!Array.isArray(cmd.participantAgentIds) || cmd.participantAgentIds.some(id=>id!==agentId && !secrets.pairKeys[pairId(agentId,id)])) throw new Error('Unknown participant');
+          const meeting=planner!.schedule(request.meetingId ?? randomUUID(), {participantAgentIds:cmd.participantAgentIds,window:cmd.window,durationMinutes:cmd.durationMinutes},cmd.timeoutMs);
+          respond({meeting}); break;
+        }
+        case 'meeting': respond({meeting:planner!.view(request.meetingId!)});break;
+        case 'fixture-fault': {
+          const cmd=value as {fault:keyof MeetingPlanner['faults'];enabled:boolean};
+          if (!Object.hasOwn(planner!.faults,cmd.fault)||typeof cmd.enabled!=='boolean') throw new Error('Unknown fixture fault');
+          planner!.faults[cmd.fault]=cmd.enabled;respond({updated:true});break;
+        }
         case 'status': respond({ snapshot: store!.snapshot() }); break;
         case 'send': respond({ message: agent!.send(request.toAgentId!, request.meetingId!, request.type!, request.payload!) }); break;
         case 'lookup': {

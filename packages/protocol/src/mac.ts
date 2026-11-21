@@ -5,6 +5,7 @@ import { canonicalJson, type Message } from './index.ts';
 // future Dart agent sign the same string. auth is excluded because it carries the signature.
 export function signingString(message: Message): string {
   return canonicalJson({
+    ...(message.roundId ? {roundId: message.roundId, decisionVersion: message.decisionVersion} : {}),
     protocolVersion: message.protocolVersion, messageId: message.messageId, meetingId: message.meetingId,
     fromAgentId: message.fromAgentId, toAgentId: message.toAgentId, type: message.type, sequence: message.sequence,
     createdAt: message.createdAt, expiresAt: message.expiresAt, nonce: message.nonce, payload: message.payload,

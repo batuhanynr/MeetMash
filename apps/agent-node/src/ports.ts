@@ -5,7 +5,7 @@ export type OutboxEntry = { message: Message; attempts: number; nextAttemptAt: n
 
 export interface InboxStore {
   persist(message: Message): boolean;
-  completePending(): Message[];
+  completePending(onWork?: (message: Message) => void): Message[];
 }
 
 export interface OutboxStore {
