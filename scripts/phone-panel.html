@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>MeetMesh · Test paneli</title>
+  <style>
+    :root {
+      --bg: #0c1218;
+      --panel: #111c25;
+      --border: #293a47;
+      --muted: #a8bac8;
+      --text: #ecf4f8;
+      --green: #78e6b3;
+      --blue: #8abbff;
+      --violet: #c5acff;
+      --amber: #ffd285;
+      --red: #ffa5a5;
+      --teal: #75eee6;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.15; letter-spacing: -.045em; }
+    h2 { font-size: 18px; letter-spacing: -.02em; }
+    small, .muted { color: var(--muted); }
+    button { font: inherit; }
+    main { max-width: 1320px; margin: auto; padding: clamp(14px, 3.2vw, 48px); }
+    header, .title, .panel-head, .controls, .buttons { display: flex; align-items: center; gap: 12px; }
+    header { justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px; }
+    .brand { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid #407a70; border-radius: 14px; background: #1b3636; }
+    .brand::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--green); border-radius: 4px; rotate: 45deg; box-shadow: 0 0 14px #78e6b34d; }
+    .title small { display: block; margin-bottom: 3px; }
+    .status { display: inline-flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums; }
+    .status::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    #coverage { padding: 7px 12px; border: 1px solid var(--border); border-radius: 30px; color: var(--amber); }
+    #coverage[data-ready="true"] { color: var(--green); }
+    .layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(275px, 1fr); gap: 16px; }
+    .panel { min-width: 0; border: 1px solid var(--border); border-radius: 16px; background: var(--panel); overflow: hidden; }
+    .panel-head { justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .graph { container-type: inline-size; }
+    .map {
+      height: 365px;
+      position: relative;
+      isolation: isolate;
+      background: radial-gradient(ellipse at center, #1b303b75, transparent 68%), radial-gradient(#3e526054 1px, transparent 1px) 0 0 / 18px 18px;
+    }
+    .hub, .station { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); }
+    .hub { --x: 50%; --y: 48%; z-index: 2; display: grid; place-items: center; width: 92px; height: 82px; border: 1px solid #527366; border-radius: 18px; background: #19332f; text-align: center; }
+    .hub small { display: block; }
+    .map[data-ready="false"] .hub { background: #1c2934; border-color: #3c5061; }
+    .station { display: flex; align-items: center; gap: 16px; z-index: 2; }
+    .station[data-agent="agent-a"] { --x: 50%; --y: 18%; }
+    .station[data-agent="agent-b"] { --x: 23%; --y: 80%; }
+    .station[data-agent="agent-c"] { --x: 77%; --y: 80%; }
+    .person { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 8px; min-width: 126px; padding: 8px 10px; border: 1px solid #3c5061; border-radius: 12px; background: #192633; }
+    .person strong { display: block; }
+    .person .status { font-size: 12px; color: var(--muted); }
+    .station[data-online="true"] .status { color: var(--green); }
+    .station[data-online="false"] .status { color: var(--red); }
+    .initial { display: grid; grid-row: span 2; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #314559; color: #d5e7fc; font-size: 12px; font-weight: 700; }
+    .device { white-space: nowrap; color: var(--muted); font-size: 11px; font-weight: 450; }
+    .calendar { position: relative; display: grid; place-items: center; gap: 4px; min-width: 58px; height: 58px; border: 1px solid #3c5061; border-radius: 10px; background: #192633; color: #cfdda9; font-size: 11px; padding: 7px; }
+    .calendar-icon { position: relative; width: 16px; height: 15px; border: 1px solid currentColor; border-radius: 3px; border-top-width: 5px; }
+    .calendar-icon::before { content: ""; position: absolute; top: -8px; left: 2px; width: 2px; height: 5px; color: inherit; background: currentColor; box-shadow: 8px 0 currentColor; }
+    .wire { position: absolute; z-index: 1; height: 2px; transform-origin: left center; background: #53737b; }
+    .wire[data-online="false"] { background: repeating-linear-gradient(90deg, #64737f 0 4px, transparent 4px 9px); }
+    .wire.calendar-wire { background: #536358; }
+    .packet { position: absolute; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; border-top: 1px solid var(--border); padding: 11px 18px; font-size: 12px; color: var(--muted); }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 2px; background: var(--signal); }
+    [data-tone="flow"] { --signal: var(--blue); }
+    [data-tone="calendar"] { --signal: var(--violet); }
+    [data-tone="decision"] { --signal: var(--green); }
+    [data-tone="wait"] { --signal: var(--amber); }
+    [data-tone="stop"] { --signal: var(--red); }
+    [data-tone="return"] { --signal: var(--teal); }
+    .feed-list { margin: 0; padding: 0; list-style: none; max-height: 366px; overflow: auto; }
+    .feed-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 8px; border-bottom: 1px solid var(--border); padding: 9px 15px; }
+    .feed-list li:last-child { border: 0; }
+    .feed-list strong { color: var(--signal, var(--text)); font-weight: 630; }
+    .feed-list small { grid-column: 1 / -1; }
+    .feed-list time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    #empty { padding: 16px; color: var(--muted); }
+    .controls { flex-wrap: wrap; justify-content: space-between; padding: 16px 18px; margin-top: 16px; }
+    .controls h2 { margin-bottom: 4px; }
+    .buttons { flex-wrap: wrap; align-items: start; }
+    button { cursor: pointer; padding: 8px 12px; border: 1px solid #46636d; border-radius: 9px; color: var(--text); background: #1f3441; }
+    button:first-child { color: #102822; border-color: var(--green); background: var(--green); }
+    button:hover:enabled { filter: brightness(1.14); }
+    button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { cursor: default; opacity: .55; }
+    .scenario { font-size: 13px; color: var(--muted); }
+    #action-status { width: 100%; color: var(--amber); font-size: 13px; }
+    #action-status:empty { display: none; }
+    #fixture { font-variant-numeric: tabular-nums; }
+    @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    @container (max-width: 510px) {
+      .map { height: 325px; }
+      .hub { --x: 16%; --y: 50%; width: 62px; height: 64px; }
+      .station[data-agent] { --x: 66%; }
+      .station[data-agent="agent-b"] { --y: 50%; }
+      .station[data-agent="agent-c"] { --y: 82%; }
+      .station { gap: 10px; }
+      .person { grid-template-columns: 1fr; width: 110px; min-width: 0; padding: 7px 8px; }
+      .initial { display: none; }
+      .calendar { min-width: 52px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="title">
+        <span class="brand" aria-hidden="true"></span>
+        <div><small>MeetMesh</small><h1>Tek telefon test paneli</h1></div>
+      </div>
+      <span id="coverage" class="status" role="status">Hub bekleniyor</span>
+    </header>
+    <div class="layout">
+      <section class="panel graph" aria-labelledby="map-title">
+        <div class="panel-head"><h2 id="map-title">Bağlantı haritası</h2><small>Sentetik takvimler</small></div>
+        <div class="map" data-ready="false">
+          <div class="hub"><div><strong>Hub</strong><small>WSS</small></div></div>
+          <template id="station">
+            <div class="station">
+              <div class="person">
+                <span class="initial" aria-hidden="true"></span>
+                <strong><span class="name"></span> <span class="device"></span></strong>
+                <span class="status">Bekleniyor</span>
+              </div>
+              <div class="calendar" title="Ajanın sentetik takvimi">
+                <span class="calendar-icon" aria-hidden="true"></span>Takvim
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="legend">
+          <span data-tone="flow">Mesaj</span><span data-tone="calendar">Takvim yanıtı</span>
+          <span data-tone="decision">Onay</span><span data-tone="stop">Ret veya kopma</span>
+          <span data-tone="return">Yeniden bağlanma</span>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="feed-title">
+        <div class="panel-head"><h2 id="feed-title">Son olaylar</h2></div>
+        <p id="empty">Hub’dan olay bekleniyor.</p>
+        <ol class="feed-list" aria-labelledby="feed-title"></ol>
+      </section>
+    </div>
+    <section class="panel controls" aria-labelledby="controls-title">
+      <div>
+        <h2 id="controls-title">Toplantıyı dene</h2>
+        <p class="scenario">iPhone’da <strong>Planla</strong> ekranından <strong>Ece</strong> ve <strong>Deniz</strong>’i bulup ekle.</p>
+        <p class="scenario" id="fixture"></p>
+        <p class="scenario">Ece’den davet gönderirsen iPhone’da <strong>Toplantılar</strong> ekranından yanıtla.</p>
+      </div>
+      <div class="buttons">
+        <button type="button" data-action="invite" disabled>Ece’den davet gönder</button>
+        <button type="button" data-action="toggle-deniz" disabled>Deniz’in bağlantısını kes</button>
+      </div>
+      <p id="action-status" role="status"></p>
+    </section>
+  </main>
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const map = $('.map');
+    const hub = $('.hub');
+    const stations = new Map();
+    const coverage = $('#coverage');
+    const invite = $('[data-action="invite"]');
+    const toggle = $('[data-action="toggle-deniz"]');
+    const clock = new Intl.DateTimeFormat('tr-TR', { timeStyle: 'medium' });
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const labels = {
+      REQUEST: ['Toplantı isteği', 'flow'],
+      AVAILABILITY: ['Müsaitlik yanıtı', 'calendar'],
+      SELECTION: ['Saat önerisi', 'flow'],
+      ACCEPT: ['Katılımcı onayı', 'decision'],
+      REJECT: ['Katılımcı reddi', 'stop'],
+      COMMIT: ['Kayıt kararı', 'decision'],
+      ABORT: ['İptal kararı', 'stop'],
+      SYNC: ['Durum eşitleme', 'wait'],
+    };
+    let pending = [];
+    let lastEvent;
+    let playing = false;
+    let working = false;
+    let ready = false;
+    let pollTimer;
+    let fetching = false;
+
+    function wire(className = '') {
+      const element = document.createElement('div');
+      element.className = 'wire ' + className;
+      element.setAttribute('aria-hidden', 'true');
+      map.prepend(element);
+      return element;
+    }
+
+    function position(line, a, b) {
+      const area = map.getBoundingClientRect();
+      const center = (node) => {
+        const rect = node.getBoundingClientRect();
+        return [rect.left - area.left + rect.width / 2, rect.top - area.top + rect.height / 2];
+      };
+      const [x, y] = center(a);
+      const [endX, endY] = center(b);
+      Object.assign(line.style, {
+        left: x + 'px', top: y + 'px', width: Math.hypot(endX - x, endY - y) + 'px',
+        transform: 'rotate(' + Math.atan2(endY - y, endX - x) + 'rad)',
+      });
+    }
+
+    function positionWires() {
+      for (const { node, network, calendar } of stations.values()) {
+        position(network, $('.person', node), hub);
+        position(calendar, $('.calendar', node), $('.person', node));
+      }
+    }
+    new ResizeObserver(positionWires).observe(map);
+
+    function updateAgents(agents) {
+      let added = false;
+      for (const agent of agents) {
+        if (!stations.has(agent.id)) {
+          const node = $('#station').content.firstElementChild.cloneNode(true);
+          node.dataset.agent = agent.id;
+          $('.initial', node).textContent = agent.name.charAt(0);
+          $('.name', node).textContent = agent.name;
+          $('.device', node).textContent = agent.device;
+          map.append(node);
+          stations.set(agent.id, { node, network: wire(), calendar: wire('calendar-wire') });
+          added = true;
+        }
+        const station = stations.get(agent.id);
+        station.name = agent.name;
+        if (station.node.dataset.online !== String(agent.online)) {
+          station.online = agent.online;
+          station.node.dataset.online = station.network.dataset.online = agent.online;
+          $('.status', station.node).textContent = agent.online ? 'Bağlı' : 'Çevrimdışı';
+        }
+      }
+      if (added) positionWires();
+      coverage.textContent = agents.filter(agent => agent.online).length + ' / ' + agents.length + ' ajan bağlı';
+      updateButtons();
+    }
+
+    function updateButtons() {
+      invite.disabled = working || !ready || !stations.get('agent-b')?.online;
+      const deniz = stations.get('agent-c');
+      toggle.disabled = working || !ready || !deniz;
+      toggle.textContent = deniz?.online ? 'Deniz’in bağlantısını kes' : 'Deniz’i yeniden bağla';
+    }
+
+    function describe(events) {
+      const disconnected = new Set();
+      const decisions = new Map();
+      const name = (id) => stations.get(id)?.name || id;
+      return events.map(event => {
+        if (event.kind === 'offline') {
+          disconnected.add(event.agent);
+          return { ...event, title: 'Bağlantı kesildi', tone: 'stop', detail: name(event.agent) };
+        }
+        if (event.kind === 'online') {
+          const rejoined = disconnected.delete(event.agent);
+          return { ...event, title: rejoined ? 'Yeniden bağlandı' : 'Bağlandı', tone: rejoined ? 'return' : 'decision', detail: name(event.agent) };
+        }
+        if (event.phase === 'COMMIT' || event.phase === 'ABORT') decisions.set(event.meeting, event.phase);
+        const wrote = event.phase === 'APPLIED' && decisions.get(event.meeting) === 'COMMIT';
+        const [title, tone] = wrote ? ['Takvim kayıt onayı', 'calendar']
+          : event.phase === 'APPLIED' ? ['Karar teyidi', 'decision']
+          : labels[event.phase] || labels[event.type] || ['Mesaj', 'flow'];
+        const detail = event.kind === 'queued' ? name(event.from) + ' → Hub' : 'Hub → ' + name(event.to);
+        return { ...event, title, tone, detail, calendar: event.phase === 'AVAILABILITY' || wrote };
+      });
+    }
+
+    function showEvents(events) {
+      $('#empty').hidden = events.length > 0;
+      $('.feed-list').replaceChildren(...events.slice(-15).reverse().map(event => {
+        const row = document.createElement('li');
+        row.dataset.tone = event.tone;
+        const title = document.createElement('strong');
+        const time = document.createElement('time');
+        const detail = document.createElement('small');
+        title.textContent = event.title;
+        time.dateTime = event.at;
+        time.textContent = clock.format(new Date(event.at));
+        detail.textContent = event.detail + (event.meeting ? ' · ' + event.meeting.slice(0, 8) : '');
+        row.append(title, time, detail);
+        return row;
+      }));
+    }
+
+    function pulse(line, tone, reverse, duration) {
+      if (!line) return Promise.resolve();
+      const start = reverse ? '100%' : '0';
+      const end = reverse ? '0' : '100%';
+      const packet = document.createElement('span');
+      packet.className = 'packet';
+      packet.dataset.tone = tone;
+      line.append(packet);
+      const color = getComputedStyle(packet).getPropertyValue('--signal').trim();
+      line.animate([{ backgroundColor: color, boxShadow: '0 0 8px ' + color }, {}], duration);
+      return packet.animate([{ left: start }, { left: end }], { duration, easing: 'ease-in-out' })
+        .finished.finally(() => packet.remove());
+    }
+
+    async function play() {
+      if (playing) return;
+      playing = true;
+      try {
+        while (pending.length && !document.hidden && !reducedMotion.matches) {
+          const event = pending.shift();
+          const duration = pending.length > 8 ? 140 : 270;
+          if (event.agent) {
+            const person = stations.get(event.agent)?.node.querySelector('.person');
+            if (person) {
+              const color = getComputedStyle(document.documentElement).getPropertyValue(
+                event.tone === 'stop' ? '--red' : event.tone === 'return' ? '--teal' : '--green',
+              ).trim();
+              await person.animate([{ borderColor: color, boxShadow: '0 0 12px ' + color }, {}], duration).finished;
+            }
+          } else {
+            const outgoing = event.kind === 'queued';
+            const station = stations.get(outgoing ? event.from : event.to);
+            if (!station) continue;
+            if (outgoing && event.calendar) await pulse(station.calendar, 'calendar', event.phase === 'APPLIED', duration);
+            await pulse(station.network, event.tone, !outgoing, duration);
+          }
+        }
+      } finally {
+        if (document.hidden || reducedMotion.matches) pending = [];
+        playing = false;
+      }
+    }
+
+    async function poll() {
+      if (fetching || document.hidden) return;
+      fetching = true;
+      try {
+        const res = await fetch('/state', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+        if (!res.ok) throw new Error('Hub bekleniyor');
+        const { agents, fixture, events } = await res.json();
+        ready = true;
+        coverage.dataset.ready = map.dataset.ready = 'true';
+        updateAgents(agents);
+        $('#fixture').textContent = fixture.start + ' → ' + fixture.end + ' · ' + fixture.zone + ' · ' + fixture.durationMinutes + ' dk';
+        const latest = events.at(-1);
+        if (latest?.seq !== lastEvent?.seq || latest?.at !== lastEvent?.at) {
+          const items = describe(events);
+          showEvents(items);
+          if (lastEvent && latest?.seq > lastEvent.seq && !reducedMotion.matches) {
+            pending = pending.concat(items.filter(event => event.seq > lastEvent.seq)).slice(-30);
+            void play();
+          }
+          lastEvent = latest;
+        }
+      } catch {
+        ready = false;
+        coverage.textContent = 'Hub bekleniyor';
+        coverage.dataset.ready = map.dataset.ready = 'false';
+        for (const { node, network } of stations.values()) {
+          node.removeAttribute('data-online');
+          network.dataset.online = 'false';
+          $('.status', node).textContent = 'Bilinmiyor';
+        }
+        pending = [];
+        lastEvent = undefined;
+        updateButtons();
+      } finally {
+        fetching = false;
+        if (!document.hidden) pollTimer = setTimeout(poll, 500);
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      clearTimeout(pollTimer);
+      if (!document.hidden) {
+        lastEvent = undefined;
+        void poll();
+      }
+    });
+
+    for (const button of [invite, toggle]) {
+      button.addEventListener('click', async () => {
+        working = true;
+        updateButtons();
+        $('#action-status').textContent = 'İşlem sürüyor…';
+        try {
+          const res = await fetch('/' + button.dataset.action, {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+            signal: AbortSignal.timeout(12000),
+          });
+          const result = await res.json();
+          if (!res.ok || !result.ok) {
+            $('#action-status').textContent = result.error || 'İşlem tamamlanamadı.';
+            return;
+          }
+          $('#action-status').textContent = button === invite
+            ? 'Davet başlatıldı. iPhone’da Toplantılar ekranını aç.'
+            : 'Deniz’in durumu bağlantı haritasında güncellenecek.';
+        } catch {
+          $('#action-status').textContent = 'İşlem tamamlanamadı. Hub bağlantısını kontrol et.';
+        } finally {
+          working = false;
+          updateButtons();
+        }
+      });
+    }
+    void poll();
+  </script>
+</body>
+</html>
