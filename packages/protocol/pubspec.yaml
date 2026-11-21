@@ -1,0 +1,13 @@
+name: meetmesh_protocol
+description: Shared MeetMesh wire contracts for Dart clients.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: ^3.10.7
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  assets:
+    - schemas/message.schema.json
+    - fixtures/calendar-v1.json

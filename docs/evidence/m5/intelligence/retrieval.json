@@ -1,0 +1,188 @@
+{
+  "provider": "ollama",
+  "model": {
+    "name": "bge-m3:latest",
+    "model": "bge-m3:latest",
+    "modified_at": "2026-11-21T11:10:02.630608912+03:00",
+    "size": 1157672605,
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "bert",
+      "families": [
+        "bert"
+      ],
+      "parameter_size": "566.70M",
+      "quantization_level": "F16",
+      "context_length": 8192,
+      "embedding_length": 1024,
+      "runner": "ggml"
+    },
+    "capabilities": [
+      "embedding"
+    ]
+  },
+  "timestamp": "2026-11-21T08:10:09.630Z",
+  "fixtureSha256": "15bebab34a9a343ca7f33a1c3a09c9d5a8b1216a92661b4afefb6628a2fbcd0d",
+  "sourceCommit": "c847f4f693f4d9c8195c18343f1a3a05f4aebddb",
+  "sourceDirty": true,
+  "fixtureVersion": "capabilities-tr-en-1",
+  "profileCount": 30,
+  "queryCount": 15,
+  "hits": 15,
+  "hitAt3": 1,
+  "passed": true,
+  "cases": [
+    {
+      "query": "Who could examine evidence on a seized hard drive?",
+      "target": "01",
+      "results": [
+        "01",
+        "19",
+        "04"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Mozart çalmayı öğrenmek için öğretmen arıyorum",
+      "target": "02",
+      "results": [
+        "02",
+        "11",
+        "30"
+      ],
+      "hit": true
+    },
+    {
+      "query": "How can a farmer improve depleted soil?",
+      "target": "03",
+      "results": [
+        "03",
+        "17",
+        "18"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Görme engelli ziyaretçilerin sitemi kullanabilmesini istiyorum",
+      "target": "04",
+      "results": [
+        "04",
+        "11",
+        "17"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Who can teach me to bake sourdough and pastries?",
+      "target": "05",
+      "results": [
+        "05",
+        "11",
+        "07"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Yavaş çalışan veri sorgularını hızlandıracak uzman",
+      "target": "06",
+      "results": [
+        "06",
+        "01",
+        "04"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Help me train for my first marathon",
+      "target": "07",
+      "results": [
+        "07",
+        "17",
+        "24"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Çatıya güneşten elektrik üreten sistem kuracağım",
+      "target": "08",
+      "results": [
+        "08",
+        "13",
+        "17"
+      ],
+      "hit": true
+    },
+    {
+      "query": "I need a German contract translated into Turkish",
+      "target": "09",
+      "results": [
+        "09",
+        "13",
+        "04"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Bir oyun sahneleyecek yönetmen arıyorum",
+      "target": "10",
+      "results": [
+        "10",
+        "25",
+        "26"
+      ],
+      "hit": true
+    },
+    {
+      "query": "I need drawings for a picture book for children",
+      "target": "11",
+      "results": [
+        "11",
+        "24",
+        "13"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Kıyıdaki balık popülasyonunu araştıracak biri",
+      "target": "12",
+      "results": [
+        "12",
+        "29",
+        "11"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Who can light a portrait shoot?",
+      "target": "13",
+      "results": [
+        "13",
+        "08",
+        "07"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Kuryelerin daha kısa yoldan teslimat yapmasını sağlayacak biri",
+      "target": "14",
+      "results": [
+        "04",
+        "24",
+        "14"
+      ],
+      "hit": true
+    },
+    {
+      "query": "Who can assess a building for earthquake resistance?",
+      "target": "15",
+      "results": [
+        "15",
+        "04",
+        "08"
+      ],
+      "hit": true
+    }
+  ]
+}

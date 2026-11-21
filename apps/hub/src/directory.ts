@@ -41,16 +41,23 @@ export class Directory {
     return visible;
   }
 
-  private async cached(key: string, load: () => Promise<Profile[]>): Promise<Profile[]> {
+  private async cached(key: string, requester: string, matches: (profile: Profile) => boolean, load: () => Promise<Profile[]>): Promise<Profile[]> {
     const hit = this.cache.get(key);
-    if (hit && hit.expires > this.now()) return hit.value;
+    if (hit && hit.expires > this.now()) {
+      const visible: Profile[] = [];
+      for (const previous of hit.value) {
+        const current = await this.store.getProfile(previous.agentId);
+        if (current && matches(current) && await this.canSee(requester, current)) visible.push(current);
+      }
+      return visible;
+    }
     const value = await load();
     this.cache.set(key, { expires: this.now() + this.ttlMs, value });
     return value;
   }
 
   async lookup(requesterAgentId: string, agentId: string): Promise<Profile | undefined> {
-    const [match] = await this.cached(`id:${requesterAgentId}:${agentId}`, async () => {
+    const [match] = await this.cached(JSON.stringify(['id', requesterAgentId, agentId]), requesterAgentId, () => true, async () => {
       const profile = await this.store.getProfile(agentId);
       return profile ? this.filter(requesterAgentId, [profile]) : [];
     });
@@ -59,12 +66,12 @@ export class Directory {
 
   async searchByName(requesterAgentId: string, name: string): Promise<Profile[]> {
     const normalized = normalize(name);
-    return this.cached(`name:${requesterAgentId}:${normalized}`, async () => this.filter(requesterAgentId, await this.store.findByName(normalized)));
+    return this.cached(JSON.stringify(['name', requesterAgentId, normalized]), requesterAgentId, p => normalize(p.displayName) === normalized, async () => this.filter(requesterAgentId, await this.store.findByName(normalized)));
   }
 
   async searchByCapability(requesterAgentId: string, capability: string): Promise<Profile[]> {
     const normalized = normalize(capability);
-    return this.cached(`cap:${requesterAgentId}:${normalized}`, async () => this.filter(requesterAgentId, await this.store.findByCapability(normalized)));
+    return this.cached(JSON.stringify(['cap', requesterAgentId, normalized]), requesterAgentId, p => p.capabilities.includes(normalized), async () => this.filter(requesterAgentId, await this.store.findByCapability(normalized)));
   }
 
   async putProfile(profile: Profile): Promise<void> {

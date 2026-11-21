@@ -1,0 +1,41 @@
+{
+  "commit": "0f8b2003ccbd5275524c612bde3aaf41e05a7b9e",
+  "command": "npm run test:gate:m5",
+  "environment": "macOS arm64, local PostgreSQL 18, Flutter 3.38.7",
+  "worktreeDirtyAtStart": false,
+  "nodeSuitePassCounts": [
+    43,
+    27,
+    3,
+    5
+  ],
+  "m2WssScenariosPassed": 4,
+  "m3ScenariosPassed": 26,
+  "flutterAnalysis": "passed",
+  "flutterTestsPassed": 5,
+  "mixed": {
+    "runId": "b10e8d6a-5a7a-419f-a03c-d47837d0e716",
+    "meetingId": "bd07a25c-df79-4582-8adb-a82a6b4c5d8c",
+    "transport": "WSS",
+    "coordinator": "Node",
+    "participants": [
+      "Node",
+      "Node",
+      "Dart foreground core"
+    ],
+    "provider": "synthetic",
+    "selected": {
+      "start": "2026-11-10T11:00:00.000Z",
+      "end": "2026-11-10T12:00:00.000Z",
+      "score": 220
+    },
+    "localEventCounts": [
+      1,
+      1,
+      1
+    ],
+    "dartAfterReopen": 1,
+    "status": "passed"
+  },
+  "status": "passed"
+}

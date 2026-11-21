@@ -10,6 +10,8 @@ import { PgDirectoryStore } from './pg-directory.ts';
 import { PgMailboxStore } from './pg-mailbox.ts';
 import { PgRegistrarStore } from './pg-sessions.ts';
 import { HubCore } from './hub-core.ts';
+import { MobileDirectoryControl } from './mobile-directory.ts';
+import { IntelligenceControls } from './intelligence/controls.ts';
 
 export type M2HubConfig = { host: string; port: number; tls: { cert: Buffer; key: Buffer }; tickMs?: number };
 
@@ -17,7 +19,10 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
   if (!['127.0.0.1', '::1', 'localhost'].includes(config.host) && config.host !== process.env.MEETMESH_DATA_HOST) {
     throw new Error('Set MEETMESH_DATA_HOST to the lab interface address before binding off loopback');
   }
-  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), new Directory(new PgDirectoryStore(database)), new Mailbox(new PgMailboxStore(database)), log);
+  const profiles = new PgDirectoryStore(database);
+  const directory = new Directory(profiles);
+  const controls = [new IntelligenceControls(id => profiles.visibleProfiles(id)), new MobileDirectoryControl(database, directory)];
+  const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, controls);
 
   const server = createServer({ cert: config.tls.cert, key: config.tls.key }, (request, response) => {
     response.setHeader('content-type', 'application/json');
@@ -30,16 +35,21 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
     const agentId = String(request.headers['x-meetmesh-agent'] ?? '');
     const secret = String(request.headers['x-meetmesh-secret'] ?? '');
     sockets.handleUpgrade(request, socket, head, async client => {
+      // ready may reach the client while connect() is still draining its offline mailbox.
+      client.pause();
+      client.on('error', () => log('transport.error', { connectedAgentId: agentId, outcome: 'socket_error' }));
       const peer = { send: (frame: string) => { if (client.readyState === WebSocket.OPEN) client.send(frame); } };
       try {
         const generation = await hub.connect(agentId, secret, `wss://${config.host}:${config.port}`, peer);
         client.on('message', data => { void hub.handle(agentId, generation, data.toString()); });
         client.on('close', () => { void hub.disconnect(agentId, generation); });
-        client.on('error', () => log('transport.error', { connectedAgentId: agentId, outcome: 'socket_error' }));
+        if (client.readyState === WebSocket.OPEN) client.resume();
+        else await hub.disconnect(agentId, generation);
       } catch (error) {
         const code = error instanceof ProtocolError ? error.code : 'AUTH_FAILED';
         log('connection.rejected', { connectedAgentId: agentId, outcome: code });
         peer.send(JSON.stringify({ kind: 'error', code }));
+        client.resume();
         client.close();
       }
     });

@@ -133,3 +133,7 @@ Android/iOS binary builds are **not verified** by M1. See [the mobile README](ap
 Directory discovery, durable hub mailboxes, authentication/MAC/TLS, scheduling, and mobile agent features remain in M2-M5.
 
 The [M3 scheduling guide](docs/m3.md) includes a three-agent meeting request, the recovery states and the commands for the repeatability tests.
+
+Run `npm run lab:smoke` to check a local Linux data-path interruption, or `npm run demo:m4` for four network scenarios. The [network lab guide](infra/network/README.md) covers the measurement matrix and resource limits. The [recorded runs](docs/evidence/m4/README.md) include the interrupted series and the separate Dart smoke run.
+
+The [mobile guide](apps/mobile/README.md) covers the device hub, fixture meeting and Google test calendar setup. `npm run demo:m5` runs one foreground Dart agent with two Node peers and synthetic calendars on a disposable database. See the [M5 checks](docs/evidence/m5/README.md) for commands and verification status.

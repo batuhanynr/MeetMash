@@ -54,6 +54,15 @@ export class PgDirectoryStore implements DirectoryStore {
     return result.rows[0] ? toProfile(result.rows[0]) : undefined;
   }
 
+  async visibleProfiles(requester: string): Promise<Profile[]> {
+    const result = await this.database.query<ProfileRow>(
+      `${SELECT} WHERE p.agent_id = $1 OR p.visibility = 'public'
+        OR (p.visibility = 'friends' AND EXISTS (
+          SELECT 1 FROM friendships f WHERE f.agent_id = p.agent_id AND f.friend_agent_id = $1
+        )) GROUP BY p.agent_id ORDER BY p.agent_id`, [requester]);
+    return result.rows.map(toProfile);
+  }
+
   async findByName(normalizedName: string): Promise<Profile[]> {
     const result = await this.database.query<ProfileRow>(`${SELECT} WHERE lower(p.display_name) = $1 GROUP BY p.agent_id`, [normalizedName]);
     return result.rows.map(toProfile);

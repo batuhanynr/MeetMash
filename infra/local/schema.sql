@@ -61,3 +61,10 @@ CREATE TABLE IF NOT EXISTS mailbox (
 );
 
 CREATE INDEX IF NOT EXISTS mailbox_recipient_status ON mailbox (recipient_agent_id, status);
+
+CREATE TABLE IF NOT EXISTS friend_requests (
+  sender TEXT REFERENCES agent_profiles(agent_id) ON DELETE CASCADE,
+  recipient TEXT REFERENCES agent_profiles(agent_id) ON DELETE CASCADE,
+  PRIMARY KEY (sender, recipient),
+  CHECK (sender <> recipient)
+);
