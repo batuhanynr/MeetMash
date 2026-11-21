@@ -1,0 +1,11 @@
+{
+  "lab": "course-lab",
+  "revision": "REPLACE_WITH_FULL_COMMIT_SHA",
+  "appImage": "meetmesh-m4:air",
+  "targets": {
+    "hub": "air-hub-oob",
+    "agent-a": "air-agent-a-oob",
+    "agent-b": "air-agent-b-oob",
+    "agent-c": "air-agent-c-oob"
+  }
+}
