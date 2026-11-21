@@ -167,7 +167,8 @@ async function run({ command: [file, ...args], env, stdout }, out) {
 }
 
 mkdirSync(root, { recursive: true });
-const lock = join(root, '.active');
+// Worktrees share the common Git directory, so separate branches cannot start two suites.
+const lock = resolve(git('rev-parse', '--git-common-dir'), 'meetmesh-verification.lock');
 try {
   writeFileSync(lock, process.pid + '\n', { flag: 'wx', mode: 0o600 });
 } catch (error) {
