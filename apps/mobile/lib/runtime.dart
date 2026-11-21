@@ -20,6 +20,7 @@ class MobileRuntime extends ChangeNotifier {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
   AccountConfig? config;
+  Json? fixtureWindow;
   AgentConnection? connection;
   MeetingAgent? agent;
   CalendarAccount? google;
@@ -135,6 +136,7 @@ class MobileRuntime extends ChangeNotifier {
       return;
     }
     config = c;
+    fixtureWindow = c.provider == 'fixture' ? fixture['window'] : null;
     connection = conn;
     agent = a;
     _tick = Timer.periodic(const Duration(milliseconds: 500), (_) async {

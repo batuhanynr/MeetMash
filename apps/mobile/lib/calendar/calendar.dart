@@ -18,9 +18,9 @@ abstract interface class MeetingCalendar {
 }
 
 void validateWindow(Json window, int duration) {
-  final length = parseWireTime(window['end']).difference(
-    parseWireTime(window['start']),
-  );
+  final length = parseWireTime(
+    window['end'],
+  ).difference(parseWireTime(window['start']));
   if (duration < 1 ||
       duration > 1440 ||
       length < Duration(minutes: duration) ||
@@ -34,6 +34,16 @@ void validateWindow(Json window, int duration) {
 class CalendarAuthorizationRequired implements Exception {
   const CalendarAuthorizationRequired();
   static const message = 'Takvimden Google hesabına yeniden izin ver.';
+}
+
+class CalendarEntry {
+  final String title;
+  final DateTime start, end;
+  final bool allDay;
+  const CalendarEntry(this.title, this.start, this.end, {this.allDay = false});
+
+  CalendarEntry.fromSlot(String title, Json slot)
+    : this(title, startOf(slot), endOf(slot));
 }
 
 List<Json> generate(
@@ -117,10 +127,15 @@ class GoogleCalendar implements MeetingCalendar {
   GoogleCalendar(this.client, this.token);
   static String eventId(String meeting, String agent) =>
       sha256.convert(utf8.encode(jsonEncode([agent, meeting]))).toString();
-  Future<http.Response> _call(String method, String path, [Json? body]) async {
+  Future<http.Response> _call(
+    String method,
+    String path, {
+    Json? body,
+    Map<String, String>? query,
+  }) async {
     final request = http.Request(
       method,
-      Uri.https('www.googleapis.com', '/calendar/v3/$path'),
+      Uri.https('www.googleapis.com', '/calendar/v3/$path', query),
     );
     request.headers.addAll({
       'authorization': 'Bearer ${await token()}',
@@ -148,13 +163,17 @@ class GoogleCalendar implements MeetingCalendar {
     if (!endOf(window).isAfter(now)) {
       throw const FormatException('Geçmiş takvim aralığı');
     }
-    final res = await _call('POST', 'freeBusy', {
-      'timeMin': window['start'],
-      'timeMax': window['end'],
-      'items': [
-        {'id': 'primary'},
-      ],
-    });
+    final res = await _call(
+      'POST',
+      'freeBusy',
+      body: {
+        'timeMin': window['start'],
+        'timeMax': window['end'],
+        'items': [
+          {'id': 'primary'},
+        ],
+      },
+    );
     if (res.statusCode != 200) {
       throw StateError('Calendar availability unavailable');
     }
@@ -174,6 +193,58 @@ class GoogleCalendar implements MeetingCalendar {
       [...List<Json>.from(cal['busy']), ...reserved],
       [],
     );
+  }
+
+  Future<List<CalendarEntry>> eventsOn(
+    DateTime start,
+    DateTime end,
+    String zone,
+  ) async {
+    final entries = <CalendarEntry>[];
+    final query = {
+      'timeMin': utc(start),
+      'timeMax': utc(end),
+      'timeZone': zone,
+      'singleEvents': 'true',
+      'fields': 'nextPageToken,items(summary,start,end)',
+    };
+    final seenTokens = <String>{};
+    while (true) {
+      final res = await _call('GET', 'calendars/primary/events', query: query);
+      if (res.statusCode != 200) {
+        throw StateError('Google takvimi yüklenemedi. Tekrar dene.');
+      }
+      final page = jsonDecode(res.body) as Json;
+      for (final item in (page['items'] as List? ?? []).whereType<Json>()) {
+        final from = item['start'], to = item['end'];
+        if (from is! Json || to is! Json) continue;
+        final allDay = from['date'] is String;
+        final key = allDay ? 'date' : 'dateTime';
+        if (from[key] is! String || to[key] is! String) continue;
+        final fromTime = DateTime.tryParse(from[key]);
+        final toTime = DateTime.tryParse(to[key]);
+        if (fromTime == null || toTime == null || !toTime.isAfter(fromTime)) {
+          continue;
+        }
+        final summary = item['summary'];
+        entries.add(
+          CalendarEntry(
+            summary is String && summary.trim().isNotEmpty
+                ? summary.trim()
+                : 'Etkinlik',
+            fromTime,
+            toTime,
+            allDay: allDay,
+          ),
+        );
+      }
+      final token = page['nextPageToken'];
+      if (token is! String || token.isEmpty) return entries;
+      if (!seenTokens.add(token)) {
+        throw StateError('Google takvim sayfası tekrarlanıyor.');
+      }
+      query['pageToken'] = token;
+    }
   }
 
   @override
@@ -197,15 +268,19 @@ class GoogleCalendar implements MeetingCalendar {
     }
 
     if (await existing()) return;
-    final res = await _call('POST', path, {
-      'id': id,
-      'summary': 'MeetMesh',
-      'start': {'dateTime': slot['start']},
-      'end': {'dateTime': slot['end']},
-      'extendedProperties': {
-        'private': {'meetmesh': id},
+    final res = await _call(
+      'POST',
+      path,
+      body: {
+        'id': id,
+        'summary': 'MeetMesh',
+        'start': {'dateTime': slot['start']},
+        'end': {'dateTime': slot['end']},
+        'extendedProperties': {
+          'private': {'meetmesh': id},
+        },
       },
-    });
+    );
     if (res.statusCode >= 200 && res.statusCode < 300) return;
     if (res.statusCode == 409 && await existing()) return;
     throw StateError('Calendar write pending');

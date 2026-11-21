@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'agent/protocol.dart';
 import 'calendar/calendar.dart';
+import 'calendar/calendar_clock.dart';
+import 'calendar/calendar_preview.dart';
+import 'calendar/meeting_window_fields.dart';
 import 'runtime.dart';
 
 class MeetMeshApp extends StatelessWidget {
@@ -9,6 +13,9 @@ class MeetMeshApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'MeetMesh',
+    locale: const Locale('tr', 'TR'),
+    supportedLocales: const [Locale('tr', 'TR')],
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
     theme: ThemeData(
       colorSchemeSeed: const Color(0xff275858),
       useMaterial3: true,
@@ -30,17 +37,26 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       capabilities = TextEditingController(),
       search = TextEditingController(),
       natural = TextEditingController(),
-      duration = TextEditingController(text: '60'),
-      start = TextEditingController(),
-      end = TextEditingController();
+      duration = TextEditingController(text: '60');
   var zone = 'Europe/Istanbul',
       vis = 'public',
       by = 'name',
       tab = 0,
       busy = false;
   final people = <String>{};
+  final agentNames = <String, String>{};
+  final requestedNames = <String>{};
   List results = [], friends = [], incoming = [];
+  MeetingWindow? window;
+  DateTime? calendarDay;
+  int calendarAuthorization = 0;
+  bool wasOnline = false;
   String? notice;
+
+  CalendarClock get clock => CalendarClock(zone);
+  Map<String, dynamic> get meetings =>
+      (rt.agent?.store.data['meetings'] ?? <String, dynamic>{})
+          as Map<String, dynamic>;
   @override
   void initState() {
     super.initState();
@@ -50,7 +66,60 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   }
 
   void refresh() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {
+      final fixture = rt.fixtureWindow;
+      if (window == null && fixture != null) {
+        window = (start: startOf(fixture), end: endOf(fixture));
+      }
+    });
+    final online = rt.connection?.online == true;
+    if (online && !wasOnline) requestedNames.clear();
+    wasOnline = online;
+    if (online) unawaited(resolveNames());
+  }
+
+  void rememberName(Json profile) {
+    final id = profile['agentId'], displayName = profile['displayName'];
+    if (id is String && displayName is String && displayName.isNotEmpty) {
+      agentNames[id] = displayName;
+    }
+  }
+
+  String agentLabel(String id) {
+    final displayName = agentNames[id];
+    if (displayName != null) return '$displayName · Ajan';
+    return id == rt.config?.id ? 'Benim ajanım' : 'Katılımcı ajan';
+  }
+
+  Future<void> resolveNames() async {
+    final ids = <String>{
+      if (rt.config != null) rt.config!.id,
+      ...people,
+      ...friends.cast<String>(),
+      ...incoming.cast<String>(),
+      for (final meeting in meetings.values)
+        ...(meeting['participants'] as List).cast<String>(),
+    }.difference(requestedNames);
+    requestedNames.addAll(ids);
+    await Future.wait(
+      ids.map((id) async {
+        try {
+          final res = await call('directory.lookup', {'by': 'id', 'term': id});
+          final profiles = (res['agents'] as List).cast<Json>();
+          if (!mounted) return;
+          setState(() {
+            if (profiles.isEmpty) {
+              agentNames.remove(id);
+            } else {
+              rememberName(profiles.first);
+            }
+          });
+        } catch (_) {
+          requestedNames.remove(id);
+        }
+      }),
+    );
   }
 
   @override
@@ -63,16 +132,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     rt.removeListener(refresh);
     rt.dispose();
-    for (final c in [
-      config,
-      name,
-      capabilities,
-      search,
-      natural,
-      duration,
-      start,
-      end,
-    ]) {
+    for (final c in [config, name, capabilities, search, natural, duration]) {
       c.dispose();
     }
     super.dispose();
@@ -92,7 +152,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
           : e is StateError
           ? e.message
           : e is FormatException
-          ? 'Girdiyi kontrol et.'
+          ? (e.message.isEmpty ? 'Girdiyi kontrol et.' : e.message)
           : 'İşlem tamamlanamadı. Bağlantıyı kontrol et.';
     } finally {
       busy = false;
@@ -105,6 +165,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   Future<void> profile() async {
     final p = (await call('profile.get'))['profile'];
     if (p != null) {
+      rememberName(p);
       name.text = p['displayName'];
       capabilities.text = (p['capabilities'] as List).join(', ');
       vis = p['visibility'];
@@ -143,59 +204,29 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       child: Text(s),
     ),
   );
-  String localInput(String iso) {
-    final d = DateTime.parse(
-      iso,
-    ).toUtc().add(Duration(hours: zone == 'Europe/Istanbul' ? 3 : 0));
-    return d.toIso8601String().substring(0, 16);
-  }
-
-  String absolute(String local) {
-    final v = local.trim();
-    if (!RegExp(r'^\d{4}-\d\d-\d\dT\d\d:\d\d$').hasMatch(v)) {
-      throw const FormatException();
-    }
-    final result = DateTime.parse(
-      '$v:00${zone == 'Europe/Istanbul' ? '+03:00' : 'Z'}',
-    );
-    if (localInput(utc(result)) != v) throw const FormatException();
-    return utc(result);
-  }
-
-  void selectZone(String nextZone) {
-    String? instant(String value) {
-      try {
-        return absolute(value);
-      } on FormatException {
-        return null;
-      }
-    }
-
-    final begin = instant(start.text);
-    final finish = instant(end.text);
-    zone = nextZone;
-    if (begin != null) start.text = localInput(begin);
-    if (finish != null) end.text = localInput(finish);
-  }
-
   Widget dropdown(
     String value,
     List<String> values,
-    void Function(String) change,
-  ) => DropdownButton<String>(
+    void Function(String) change, {
+    Map<String, String> labels = const {},
+  }) => DropdownButton<String>(
     value: value,
     onChanged: busy
         ? null
         : (v) {
             if (v != null) setState(() => change(v));
           },
-    items: [for (final v in values) DropdownMenuItem(value: v, child: Text(v))],
+    items: [
+      for (final v in values)
+        DropdownMenuItem(value: v, child: Text(labels[v] ?? v)),
+    ],
   );
   @override
   Widget build(BuildContext context) {
     final connected = rt.connection?.online == true;
-    final meetings = (rt.agent?.store.data['meetings'] ?? {}) as Map;
-    final events = (rt.agent?.store.data['events'] ?? {}) as Map;
+    final events =
+        (rt.agent?.store.data['events'] ?? <String, dynamic>{})
+            as Map<String, dynamic>;
     return Scaffold(
       appBar: AppBar(
         title: const Text('MeetMesh'),
@@ -263,21 +294,23 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   Card(
                     child: ExpansionTile(
                       title: Text(status(m)),
-                      subtitle: Text(m['meetingId']),
+                      subtitle: Text(
+                        meetingRange(m['selected'] ?? m['window']),
+                      ),
                       children: [
-                        if (m['selected'] != null)
-                          ListTile(
-                            title: Text(
-                              '${localInput(m['selected']['start'])} · $zone',
-                            ),
-                          ),
                         ListTile(
-                          title: Text((m['participants'] as List).join(', ')),
+                          title: const Text('Katılımcılar'),
+                          subtitle: Text(
+                            (m['participants'] as List)
+                                .cast<String>()
+                                .map(agentLabel)
+                                .join(', '),
+                          ),
                         ),
                         if (m['status'] == 'COMMIT_PENDING' &&
                             m['coordinator'] == rt.config!.id)
                           Text(
-                            'Yazımı beklenen: ${(m['participants'] as List).where((v) => m['applied'][v] != true).join(', ')}',
+                            'Takvime yazması beklenen: ${(m['participants'] as List).cast<String>().where((v) => m['applied'][v] != true).map(agentLabel).join(', ')}',
                           ),
                         if (m['error'] != null) Text(m['error']),
                         if (m['status'] == 'AWAITING_USER' &&
@@ -322,11 +355,20 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                         ..remove(rt.config!.id),
                     );
                   duration.text = '${res['durationMinutes']}';
-                  start.text = localInput(res['window']['start']);
-                  end.text = localInput(res['window']['end']);
+                  final draft = res['window'] as Json;
+                  window = (start: startOf(draft), end: endOf(draft));
                   notice = 'Katılımcıları ve saati kontrol edip onayla.';
                 }),
-                dropdown(by, ['name', 'id', 'semantic'], (v) => by = v),
+                dropdown(
+                  by,
+                  ['name', 'id', 'semantic'],
+                  (v) => by = v,
+                  labels: const {
+                    'name': 'Ada göre',
+                    'id': 'Kimliğe göre',
+                    'semantic': 'Anlama göre',
+                  },
+                ),
                 field('Ajan ara', search),
                 button('Ara', () async {
                   final res = await call('directory.lookup', {
@@ -334,6 +376,9 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                     'term': search.text,
                   });
                   results = res['agents'];
+                  for (final item in results.cast<Json>()) {
+                    rememberName(item);
+                  }
                   if (res['mode'] == 'unavailable') {
                     notice =
                         'Anlamsal arama kullanılamıyor. İsim veya kimlikle arayabilirsin.';
@@ -343,8 +388,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   (p) => p['agentId'] != rt.config!.id,
                 ))
                   ListTile(
-                    title: Text(p['displayName']),
-                    subtitle: Text(p['agentId']),
+                    title: Text(agentLabel(p['agentId'])),
                     onTap: () => setState(() => people.add(p['agentId'])),
                     trailing: IconButton(
                       tooltip: 'Arkadaşlık isteği',
@@ -359,14 +403,25 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   children: [
                     for (final p in people)
                       InputChip(
-                        label: Text(p),
+                        label: Text(agentLabel(p)),
                         onDeleted: () => setState(() => people.remove(p)),
                       ),
                   ],
                 ),
-                dropdown(zone, ['Europe/Istanbul', 'UTC'], selectZone),
-                field('Başlangıç · YYYY-MM-DDTHH:MM', start),
-                field('Bitiş · YYYY-MM-DDTHH:MM', end),
+                dropdown(
+                  zone,
+                  ['Europe/Istanbul', 'UTC'],
+                  (v) => zone = v,
+                  labels: const {'Europe/Istanbul': 'İstanbul saati'},
+                ),
+                MeetingWindowFields(
+                  clock: clock,
+                  window: window,
+                  futureOnly: rt.config!.provider == 'google',
+                  onChanged: busy
+                      ? null
+                      : (value) => setState(() => window = value),
+                ),
                 field(
                   'Süre (dakika)',
                   duration,
@@ -376,19 +431,29 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                   if (rt.connection?.displaced == true) {
                     throw StateError('Bu oturum başka cihaza geçti.');
                   }
-                  final window = {
-                    'start': absolute(start.text),
-                    'end': absolute(end.text),
-                  };
+                  final selected = window;
+                  if (selected == null) {
+                    throw StateError('Takvimden bir tarih aralığı seç.');
+                  }
+                  if (!selected.end.isAfter(selected.start)) {
+                    throw StateError('Bitiş, başlangıçtan sonra olmalı.');
+                  }
                   if (rt.config!.provider == 'google' &&
-                      startOf(window).isBefore(DateTime.now())) {
+                      selected.start.isBefore(DateTime.now())) {
                     throw StateError(
                       'Google takvimi için gelecekte bir aralık seç.',
                     );
                   }
-                  await rt.agent!.schedule(
-                    people.toList(), window, int.parse(duration.text),
-                  );
+                  final minutes = int.tryParse(duration.text.trim());
+                  if (minutes == null || minutes < 1 || minutes > 1440) {
+                    throw StateError(
+                      'Toplantı süresini 1–1440 dakika arasında gir.',
+                    );
+                  }
+                  await rt.agent!.schedule(people.toList(), {
+                    'start': utc(selected.start),
+                    'end': utc(selected.end),
+                  }, minutes);
                   tab = 0;
                 }),
               ],
@@ -402,22 +467,35 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 if (rt.google != null) ...[
                   button('Google hesabına izin ver', () async {
                     await rt.google!.authorize();
+                    calendarAuthorization++;
                     await rt.agent!.retryCalendarWrites();
                   }),
                   button('Google iznini kaldır', () async {
                     await rt.google!.revoke();
+                    calendarAuthorization++;
                     notice = 'Google takvim izni kaldırıldı.';
                   }),
                 ],
-                if (events.isEmpty) const Text('Kaydedilmiş toplantı yok.'),
-                for (final e in events.entries)
-                  ListTile(
-                    title: Text(localInput(e.value['start'])),
-                    subtitle: Text('${e.key} · $zone'),
-                  ),
+                CalendarPreview(
+                  clock: clock,
+                  calendar: rt.agent!.calendar,
+                  savedEvents: events.values.cast<Json>(),
+                  day:
+                      calendarDay ??
+                      clock.day(
+                        rt.fixtureWindow == null
+                            ? DateTime.now()
+                            : startOf(rt.fixtureWindow!),
+                      ),
+                  onDateChanged: (day) => setState(() => calendarDay = day),
+                  authorizationRevision: calendarAuthorization,
+                ),
               ],
               if (tab == 3) ...[
-                Text(rt.config!.id),
+                Text(
+                  agentLabel(rt.config!.id),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 if (connected) button('Profili yenile', profile),
                 field('Görünen ad', name),
                 field('Yetenekler (virgülle)', capabilities),
@@ -436,14 +514,17 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 }),
                 for (final p in incoming)
                   ListTile(
-                    title: Text(p),
+                    title: Text(agentLabel(p)),
                     trailing: button('İsteği kabul et', () async {
                       await call('friends.accept', {'target': p});
                       await profile();
                     }),
                   ),
                 for (final p in friends)
-                  ListTile(title: Text(p), leading: const Icon(Icons.people)),
+                  ListTile(
+                    title: Text(agentLabel(p)),
+                    leading: const Icon(Icons.people),
+                  ),
               ],
             ],
           ],
@@ -451,6 +532,8 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       ),
     );
   }
+
+  String meetingRange(Json range) => clock.range(startOf(range), endOf(range));
 
   String status(Json m) => switch (m['status']) {
     'COLLECTING' =>

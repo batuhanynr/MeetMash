@@ -10,6 +10,7 @@ import 'package:meetmesh/calendar/calendar.dart';
 
 dynamic fixture(String path) =>
     jsonDecode(File('../../packages/protocol/$path').readAsStringSync());
+
 class PermissionCalendar extends FixtureCalendar {
   PermissionCalendar(super.profile);
 
@@ -101,6 +102,59 @@ void main() {
     );
   });
   test(
+    'Google day preview reads all-day and timed events across pages',
+    () async {
+      int requests = 0;
+      final client = MockClient((r) async {
+        requests++;
+        expect(r.method, 'GET');
+        expect(r.url.path, '/calendar/v3/calendars/primary/events');
+        expect(r.url.queryParameters['timeMin'], '2026-11-09T21:00:00.000Z');
+        expect(r.url.queryParameters['timeMax'], '2026-11-10T21:00:00.000Z');
+        expect(r.url.queryParameters['timeZone'], 'Europe/Istanbul');
+        if (r.url.queryParameters['pageToken'] == 'page-2') {
+          return http.Response(
+            jsonEncode({
+              'items': [
+                {
+                  'summary': 'Ders',
+                  'start': {'dateTime': '2026-11-10T14:00:00+03:00'},
+                  'end': {'dateTime': '2026-11-10T15:00:00+03:00'},
+                },
+              ],
+            }),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'nextPageToken': 'page-2',
+            'items': [
+              {
+                'summary': 'Tatil',
+                'start': {'date': '2026-11-10'},
+                'end': {'date': '2026-11-11'},
+              },
+            ],
+          }),
+          200,
+        );
+      });
+      final events = await GoogleCalendar(client, () async => 'synthetic')
+          .eventsOn(
+            DateTime.utc(2026, 11, 9, 21),
+            DateTime.utc(2026, 11, 10, 21),
+            'Europe/Istanbul',
+          );
+      expect(requests, 2);
+      expect(events.map((event) => (event.title, event.allDay)), [
+        ('Tatil', true),
+        ('Ders', false),
+      ]);
+      expect(events.last.start, DateTime.utc(2026, 11, 10, 11));
+    },
+  );
+  test(
     'manual votes and partial writes keep the meeting pending until recovery',
     () async {
       final dir = Directory.systemTemp.createTempSync('meetmesh-dart-');
@@ -117,7 +171,9 @@ void main() {
           keys: {for (final peer in ids) pair(id, peer): 'fixture'},
           wire: wire,
           store: AgentStore(File('${dir.path}/$id'), id),
-          calendar: id == ids.last ? calendar : FixtureCalendar(f['agents'][id]),
+          calendar: id == ids.last
+              ? calendar
+              : FixtureCalendar(f['agents'][id]),
           changed: () {},
           transmit: pending.add,
           canTransmit: () => id != ids.first || coordinatorOnline,
