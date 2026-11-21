@@ -23,6 +23,22 @@ class PermissionCalendar extends FixtureCalendar {
 }
 
 void main() {
+  test(
+    'first sign-in initializes maps the meeting and calendar screens can read',
+    () {
+      final directory = Directory.systemTemp.createTempSync('meetmesh-store-');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final store = AgentStore(
+        File('${directory.path}/state.json'),
+        'test-agent',
+      );
+      addTearDown(store.close);
+
+      expect(store.data['meetings'] as Json, isEmpty);
+      expect(store.data['events'] as Json, isEmpty);
+    },
+  );
+
   test('shared Node/Dart wire fixtures, canonical bytes and MAC', () {
     final wire = Wire(fixture('schemas/message.schema.json'));
     for (final v in fixture('fixtures/messages.json')) {
