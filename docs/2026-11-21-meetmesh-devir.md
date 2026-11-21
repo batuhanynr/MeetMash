@@ -1,0 +1,19 @@
+# MeetMesh devir notu · 21 Kasım 2026
+
+## Bugün yapılanlar
+
+M3, M4 ve M5 implementasyonları `main` dalında birleştirildi (`c25b3f1`). Aynı gün kimlik doğrulamalı WSS hub entegrasyonu da `main`’e alındı. Son kabul testleri, Mac’e yük bindirmemek için aşamaları sırayla çalıştıran ve kaldığı yerden devam edebilen bir komutta toplandı.
+
+- **M3 · Toplantı müzakeresi** (`8672cd2`). Ajanlar kendi takvimlerinden müsaitlik çıkarıyor, ortak saatleri puanlıyor ve seçilen saati geçici olarak ayırıyor. Herkes onaylayınca etkinlik takvim başına bir kez yazılıyor. Bağlantı kopması ve başarısız takvim yazımı sonrası aynı karar devam ettirilebiliyor. 20 normal koşu ve 6 hata/kurtarma senaryosu geçti. [M3 test kaydı](evidence/m3/gate.json)
+- **M4 · Ağ deneyleri** (`762c7ba`, `c25b3f1`). Linux/Docker ortamı, gecikme, paket kaybı, kopma ve yeniden başlatma senaryoları ile ham sonuçlardan rapor üreten araç hazırlandı. Yerel koşuda planlanan 126 örneğin 90’ı kaydedildi. Makine yükü nedeniyle koşu durdu. NVIDIA Air için kurulum ve doğrulama araçları hazır, gerçek Air koşusu bekliyor. [M4 ölçümleri](evidence/m4/README.md)
+- **M5 · Mobil planlama** (`e42d912`, `c25b3f1`). Flutter ajanı WSS üzerinden toplantı müzakeresine katılıyor. Profil, görünürlük, arkadaşlık, ajan arama, Türkçe istekten toplantı önizlemesi ve takvim akışı eklendi. Yerel Node–Dart denemesi sentetik takvimlere birer etkinlik yazdı ve yeniden açılışta kayıt korundu. [M5 test kaydı](evidence/m5/gate.json)
+- **Telefon denemeleri** (`m5/phone-lab`). Tek telefonlu demo paneline bağlantı haritası ve olay akışı eklendi. Mobilde Türkçe tarih ve saat, dokunarak tarih aralığı seçimi, günlük takvim ve yeni ikonlar hazır. Gemini’ye geçiş yerel çalışma ağacında. Hub üzerinden Türkçe toplantı önizlemesi ve anlamsal arama denendi.
+- **Google Takvim ve cihazlar** (`6d709c6`, `593e81a`). Batuhan ve Fatma için ayrı e-posta/şifre girişi ve ayrı **Meetmash Takvimim** takvimleri bağlandı. İki hesapta hub üzerinden giriş, etkinlik okuma ve müsaitlik doğrulandı. İlk girişteki beyaz ekran düzeltildi. iPhone’a güncel sürüm kuruldu ve takvim ekranı açıldı. 10 mobil test geçti. Android Release APK ZIP’i hazır, Android’de cihaz testi bekliyor.
+
+## Yapılacaklar
+
+- [ ] **Yazıyla toplantı oluşturmayı uçtan uca dene.** iPhone’da “Yarın 10.00–16.00 arasında Fatma’yla bir saat görüşelim” yaz. Önizlemenin doğru kişiyi, aralığı ve süreyi planlama formuna doldurduğunu kontrol et. Önizleme başarısızsa ekrandaki mesajı kaydet. Formu onayla, Fatma’nın cihazından daveti yanıtla ve ortak saatin iki takvimde de etkinlik olarak göründüğünü doğrula.
+- [ ] **Takvimleri ayırt edilecek örnek etkinliklerle doldur.** Batuhan ve Fatma’nın Google test takvimlerine farklı saatlerde `Batuhan Test` ve `Fatma Test` etkinlikleri ekle. İki hesapta da **Takvim** sekmesinin doğru gün ve etkinliği gösterdiğini doğrula. Ortak boş saatin bulunduğu bir aralıkla hiç ortak boş saat olmayan bir aralığı dene. Yeni Google takvimleri boş açılıyor. Mac’teki sentetik takvimler ayrı test ortamında ve sabit bir tarihle çalışıyor.
+- [ ] **Hangi takvime yazıldığını kontrol et.** İki Google takviminin adı aynı. Hub’ın her ajan için farklı takvim kimliği kullandığı doğrulandı. Telefonda Batuhan’ın Fatma’nın test etkinliğini, Fatma’nın da Batuhan’ınkini görmediğini kontrol et. Onaylanan toplantının yalnızca ilgili **Meetmash Takvimim** takvimlerine yazıldığını ve tekrar denemede çift kayıt oluşmadığını doğrula.
+- [ ] **Ajan seçimini kolaylaştır.** Şu an katılımcı eklemek için arama alanına isim yazmak gerekiyor. Uygunsa alan açıldığında kullanıcının görme yetkisi olan ajanları listele ve yazdıkça filtrele. Bu iş uzarsa mevcut aramayı kullanarak toplantı testini tamamla.
+- [ ] **Kalan kabul testlerini bitir.** Yerel ağ ölçümlerini tek topolojiyle tamamla ve M4 senaryolarını gerçek NVIDIA Air ortamında tekrarla. Telefon ve Google Takvim sonuçlarını da kullanılan commit ile kaydet. [Kabul testi notları](evidence/m5/README.md)
