@@ -61,6 +61,14 @@
         }
       },
       "required": []
+    },
+    "roundId": {
+      "$ref": "#/definitions/identifier"
+    },
+    "decisionVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
     }
   },
   "required": [
@@ -101,6 +109,29 @@
         "start",
         "end"
       ]
+    },
+    "ratedSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ]
     }
   },
   "allOf": [
@@ -134,6 +165,10 @@
               },
               "window": {
                 "$ref": "#/definitions/slot"
+              },
+              "deadline": {
+                "type": "string",
+                "format": "date-time"
               }
             },
             "required": [
@@ -167,7 +202,7 @@
                   "slots": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/definitions/slot"
+                      "$ref": "#/definitions/ratedSlot"
                     },
                     "maxItems": 128
                   }
@@ -319,6 +354,44 @@
                   "phase",
                   "decisionId"
                 ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "phase": {
+                    "const": "ABORT"
+                  },
+                  "decisionId": {
+                    "$ref": "#/definitions/identifier"
+                  },
+                  "reasonCode": {
+                    "enum": [
+                      "TIMEOUT",
+                      "DECLINED",
+                      "NO_COMMON_SLOT",
+                      "CONFLICT",
+                      "INVALID_REQUEST"
+                    ]
+                  }
+                },
+                "required": [
+                  "phase",
+                  "decisionId",
+                  "reasonCode"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "phase": {
+                    "const": "SYNC"
+                  }
+                },
+                "required": [
+                  "phase"
+                ],
+                "additionalProperties": false
               }
             ]
           }
@@ -357,5 +430,13 @@
         }
       }
     }
-  ]
+  ],
+  "dependencies": {
+    "decisionVersion": [
+      "roundId"
+    ],
+    "roundId": [
+      "decisionVersion"
+    ]
+  }
 }

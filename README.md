@@ -131,3 +131,5 @@ The Flutter shell was generated using the installed SDK. `flutter pub get --offl
 Android command-line tools are missing and Xcode cannot enumerate simulator runtimes on this machine.
 Android/iOS binary builds are **not verified** by M1. See [the mobile README](apps/mobile/README.md); MM-501 remains open.
 Directory discovery, durable hub mailboxes, authentication/MAC/TLS, scheduling, and mobile agent features remain in M2-M5.
+
+The [M3 scheduling guide](docs/m3.md) includes a three-agent meeting request, the recovery states and the commands for the repeatability tests.

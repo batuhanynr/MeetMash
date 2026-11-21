@@ -23,28 +23,36 @@ export class LocalCalendar implements Calendar {
     this.profile = JSON.parse(String(db.prepare('SELECT data FROM calendar_config WHERE id=1').get()!.data));
   }
   getBusy(): Slot[] {
-    const rows = this.db.prepare('SELECT start,end FROM reservations UNION SELECT start,end FROM calendar_events').all();
-    return [...this.profile.busy, ...rows].map(s => ({start: String(s.start), end: String(s.end)}));
+    const rows = this.db
+      .prepare('SELECT start,end FROM reservations UNION SELECT start,end FROM calendar_events')
+      .all();
+    return [...this.profile.busy, ...rows].map((s) => ({ start: String(s.start), end: String(s.end) }));
   }
-  offers(window: Slot, duration: number) { return candidates(this.profile, this.getBusy(), window, duration); }
+  offers(window: Slot, duration: number) {
+    return candidates(this.profile, this.getBusy(), window, duration);
+  }
   reserve(meetingId: string, slot: Slot): boolean {
     this.db.exec('SAVEPOINT reserve_slot');
     try {
       const prior = this.db.prepare('SELECT start,end FROM reservations WHERE meeting=?').get(meetingId);
-      if (prior) return sameSlot({start:String(prior.start),end:String(prior.end)},slot);
-      if (this.getBusy().some(b => overlaps(b,slot))) return false;
-      this.db.prepare('INSERT INTO reservations VALUES(?,?,?)').run(meetingId,slot.start,slot.end);
+      if (prior) return sameSlot({ start: String(prior.start), end: String(prior.end) }, slot);
+      if (this.getBusy().some((b) => overlaps(b, slot))) return false;
+      this.db.prepare('INSERT INTO reservations VALUES(?,?,?)').run(meetingId, slot.start, slot.end);
       return true;
-    } finally { this.db.exec('RELEASE reserve_slot'); }
+    } finally {
+      this.db.exec('RELEASE reserve_slot');
+    }
   }
-  release(id: string) { this.db.prepare('DELETE FROM reservations WHERE meeting=?').run(id); }
+  release(id: string) {
+    this.db.prepare('DELETE FROM reservations WHERE meeting=?').run(id);
+  }
   event(id: string) {
     const r = this.db.prepare('SELECT start,end FROM calendar_events WHERE meeting=?').get(id);
-    return r ? {start:String(r.start),end:String(r.end)} : undefined;
+    return r ? { start: String(r.start), end: String(r.end) } : undefined;
   }
   ensureEvent(id: string, slot: Slot) {
     const existing = this.event(id);
-    if (existing && !sameSlot(existing,slot)) throw new Error('EVENT_CONFLICT');
-    this.db.prepare('INSERT OR IGNORE INTO calendar_events VALUES(?,?,?)').run(id,slot.start,slot.end);
+    if (existing && !sameSlot(existing, slot)) throw new Error('EVENT_CONFLICT');
+    this.db.prepare('INSERT OR IGNORE INTO calendar_events VALUES(?,?,?)').run(id, slot.start, slot.end);
   }
 }

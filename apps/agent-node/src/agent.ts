@@ -1,4 +1,4 @@
-import { createMessage, parseMessage, ProtocolError, validateMessage, type Message, type MessageType, type Payloads } from '../../../packages/protocol/src/index.ts';
+import { createMessage, parseMessage, ProtocolError, validateMessage, type Message, type MessageType, type Payloads, type Round } from '../../../packages/protocol/src/index.ts';
 import { messageFields, type Logger } from '../../../packages/runtime/src/log.ts';
 import type { AgentSecurity, InboxStore, OutboxStore, SequenceStore, Transport } from './ports.ts';
 
@@ -27,6 +27,8 @@ export class Agent {
     this.dropMessages = config.dropMessageCount;
   }
 
+  onWork?: (message: Message) => void;
+
   start(): void {
     this.processWork(true);
     this.tick();
@@ -35,10 +37,10 @@ export class Agent {
 
   stop(): void { clearInterval(this.timer); }
 
-  send<T extends MessageType>(toAgentId: string, meetingId: string, type: T, payload: Payloads[T]): Message {
+  send<T extends MessageType>(toAgentId: string, meetingId: string, type: T, payload: Payloads[T], round?: Round): Message {
     if (type === 'ACK') throw new ProtocolError('INVALID_MESSAGE', 'ACK is generated only after inbox persistence');
     const message = createMessage({
-      fromAgentId: this.config.agentId, toAgentId, meetingId, type, payload,
+      fromAgentId: this.config.agentId, toAgentId, meetingId, type, payload, ...round,
       sequence: this.store.nextSequence(toAgentId, meetingId),
     });
     const signed = this.security ? this.security.sign(message) : message;
@@ -91,7 +93,7 @@ export class Agent {
 
   private processWork(recovering: boolean): void {
     if (this.config.pauseAfterPersist) return;
-    for (const message of this.store.completePending()) {
+    for (const message of this.store.completePending(this.onWork)) {
       this.log(recovering ? 'work.recovered' : 'work.completed', { ...messageFields(message), outcome: 'effect_committed' });
     }
   }

@@ -140,12 +140,12 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
     });
   }
 
-  completePending(): Message[] {
+  completePending(onWork?: (message: Message) => void): Message[] {
     return this.transaction(() => {
       const pending = this.database.prepare('SELECT inbox.content FROM work_queue JOIN inbox USING (message_id)').all();
       for (const row of pending) {
         const message = JSON.parse(String(row.content)) as Message;
-        // The M1 synthetic effect and work completion commit together; calendar writes need M3's recovery protocol.
+        onWork?.(message);
         this.database.prepare('INSERT OR IGNORE INTO effects VALUES (?)').run(message.messageId);
         this.database.prepare("UPDATE inbox SET status = 'PROCESSED' WHERE message_id = ?").run(message.messageId);
         this.database.prepare('DELETE FROM work_queue WHERE message_id = ?').run(message.messageId);
