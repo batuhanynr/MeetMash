@@ -57,13 +57,8 @@ class AgentConnection {
 
   Future<void> _connect() async {
     if (_socket != null || displaced) return;
-    final ctx = SecurityContext(withTrustedRoots: false);
-    final bytes = Platform.isIOS
-        ? base64Decode(
-            account.ca.replaceAll(RegExp(r'-----[^-]+-----|\s+'), ''),
-          )
-        : utf8.encode(account.ca);
-    ctx.setTrustedCertificatesBytes(bytes);
+    final ctx = SecurityContext(withTrustedRoots: false)
+      ..setTrustedCertificatesBytes(utf8.encode(account.ca));
     final client = HttpClient(context: ctx)
       ..connectionTimeout = const Duration(seconds: 8);
     _client = client;
