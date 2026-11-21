@@ -94,3 +94,11 @@ test('the 30s cache avoids repeat store reads within the TTL', async () => {
   await directory.searchByName('agent-a', 'alice');
   assert.equal(reads, 2);
 });
+
+test('a cached match respects visibility updates committed by another service', async () => {
+  const directory = new Directory(store);
+  assert.ok(await directory.lookup('agent-a', 'agent-d'));
+  await store.setVisibility('agent-d', 'private');
+  assert.equal(await directory.lookup('agent-a', 'agent-d'), undefined);
+  assert.deepEqual((await store.visibleProfiles('agent-a')).map(p => p.agentId), ['agent-a','agent-b']);
+});

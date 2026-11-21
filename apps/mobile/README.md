@@ -1,13 +1,29 @@
 # MeetMesh mobile
 
-Generated with Flutter 3.38.7 (`flutter create --no-pub --platforms=android,ios`).
-M1 includes the application shell only. The Dart protocol agent and mobile flows belong to M5.
+Flutter screens and the headless Dart client use the same foreground meeting agent. The app keeps the provisioned account in platform secure storage. A local file holds the agent's inbox, outbox, reservations, decisions and applied events. Open the app again with the same account to recover a meeting.
 
-```sh
-flutter pub get --offline
-flutter analyze
-flutter test
-flutter run
+## Connect two devices
+
+1. On the development machine, prepare the demo credentials and hub certificate with `npm run secrets` and `npm run certs` from the repository root.
+2. Point `M5_DEVICE_DATABASE_URL` at a dedicated PostgreSQL database and start `npm run demo:m5:devices`. It provisions Ada and Ece and prints the directory containing their individual account files. The hub must be reachable from each device at the address in its file. The TLS certificate must include that host. An iOS simulator can access a Mac hub on loopback. For an Android emulator or USB-connected test phone, `adb reverse tcp:8787 tcp:8787` forwards that port to the development machine. For a LAN IP or name, generate a separate certificate with `CERT_DIR=.state/device-certs CERT_EXTRA_HOST=<host> npm run certs`. Set `CERT_DIR=.state/device-certs` and `MEETMESH_DATA_HOST=<host>` when starting the device hub.
+3. From `apps/mobile`, use `flutter pub get --offline` with a populated cache, then `flutter run -d <device>` on each target. Paste one device's account JSON into “Ajan hesabını bağla”. Transfer each file privately to the device that owns that identity. A second connection with the same identity displaces its earlier session.
+4. In “Planla”, look up the other agent, select a time zone, enter the local start and end as `YYYY-MM-DDTHH:MM`, then choose a duration. “Önizleme” fills the form from a Turkish request if the hub has a language model. Check the participants and time before pressing “Onayla ve toplantıyı başlat”.
+5. On the receiving device, open the proposed meeting and accept or reject it. After every calendar confirms the write, the organizer sees “Tamamlandı”. “Takvim” lists that agent's applied meetings.
+
+The bundled synthetic calendars cover November 10, 2026. For a fixture run use the structured form, Europe/Istanbul, 10:00 through 16:00, and a duration of 60 minutes. The result depends on the participants and existing reservations. Profile edits, visibility and friend requests are under “Profil” and agent search. Both mobile clients should stay in the foreground during the demo.
+
+## Use Google test calendars
+
+Enable the Calendar API in the demo's Google Cloud project and add the consenting test accounts to its OAuth consent configuration. Register the Android package and iOS bundle ID `com.meetmesh.meetmesh`. Android also needs the SHA-1 of the certificate signing the installed build. On iOS, put the reversed iOS client ID into an untracked `ios/Flutter/Google.local.xcconfig`:
+
+```xcconfig
+GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.YOUR_IOS_CLIENT_ID
 ```
 
-Do not commit `local.properties`, signing identities, provisioning profiles, or API keys.
+Supply the iOS client ID to the corresponding Flutter build with `--dart-define=GOOGLE_IOS_CLIENT_ID=...`. Use `--dart-define=GOOGLE_WEB_CLIENT_ID=...` for the web client ID associated with the Android project. Both accounts must come from the same demo provisioning configuration; set `M5_GOOGLE_A` and `M5_GOOGLE_B` to their distinct email addresses before starting the device hub. Use fresh app installations for this live run so no previous fixture identity or reservations carry over.
+
+Each account holder opens “Takvim”, chooses “Google hesabına izin ver” and signs in with the assigned account. Schedule a **future** test window. Free/busy queries and the local reservation check run before voting. Calendar contents can still change outside MeetMesh after a vote. After COMMIT, the client looks up a stable per-agent event ID and reconciles a lost write response. A missing grant or failed write leaves the meeting pending. “Google iznini kaldır” revokes the grant.
+
+## Verification
+
+`flutter analyze` and `flutter test` cover the Dart code and fixture tests. `flutter build apk --debug` produces the debug APK. Confirm installation and launch separately on each target. Use the repository's M5 evidence records for what was actually verified. The headless WSS run demonstrates the foreground Dart core with a synthetic calendar; live Google verification requires both consenting accounts.

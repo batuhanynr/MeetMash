@@ -4,6 +4,10 @@ import type { Directory } from './directory.ts';
 import type { Mailbox } from './mailbox.ts';
 import type { Registrar } from './registrar.ts';
 
+export interface HubControls {
+  handle(agentId: string, frame: { kind: string; [key: string]: unknown }): Promise<Record<string, unknown> | undefined>;
+}
+
 export interface AgentConnection { send(frame: string): void }
 
 // Composes the authenticated relay: Registrar (sessions), Directory (discovery), and Mailbox (durable queue).
@@ -15,7 +19,10 @@ export class HubCore {
   private readonly log: Logger;
   private readonly connections = new Map<string, { connection: AgentConnection; generation: number }>();
 
-  constructor(registrar: Registrar, directory: Directory, mailbox: Mailbox, log: Logger) {
+  private readonly controls: HubControls[];
+
+  constructor(registrar: Registrar, directory: Directory, mailbox: Mailbox, log: Logger, controls: HubControls[] = []) {
+    this.controls = controls;
     this.registrar = registrar;
     this.directory = directory;
     this.mailbox = mailbox;
@@ -43,6 +50,7 @@ export class HubCore {
   }
 
   async handle(agentId: string, generation: number, raw: string): Promise<void> {
+    if (this.connections.get(agentId)?.generation !== generation) return;
     let value: unknown;
     try { value = JSON.parse(raw); }
     catch { this.reject(agentId, 'INVALID_JSON'); return; }
@@ -59,6 +67,16 @@ export class HubCore {
 
   private async control(agentId: string, generation: number, value: { kind: string; [key: string]: unknown }): Promise<void> {
     if (value.kind === 'heartbeat') { await this.registrar.keepAlive(agentId, generation); return; }
+    for (const service of this.controls) {
+      try {
+        const response = await service.handle(agentId, value);
+        if (this.connections.get(agentId)?.generation !== generation) return;
+        if (response) { this.send(agentId, response); return; }
+      } catch {
+        if (this.connections.get(agentId)?.generation === generation) this.send(agentId, { kind: 'error', requestId: value.requestId, code: 'CONTROL_FAILED' });
+        return;
+      }
+    }
     if (value.kind === 'directory.lookup') {
       const term = String(value.term ?? '');
       const profiles = value.by === 'capability' ? await this.directory.searchByCapability(agentId, term)
