@@ -95,6 +95,11 @@ export class SqliteAgentStore implements InboxStore, OutboxStore, SequenceStore 
     this.database.prepare('UPDATE outbox SET status = ? WHERE message_id = ?').run(status, messageId);
   }
 
+  // The hub took durable responsibility, so stop retransmitting; a later recipient ACK still marks it ACKED.
+  relayAck(messageId: string): void {
+    this.database.prepare("UPDATE outbox SET status = 'HUB_ACKED' WHERE message_id = ? AND status = 'PENDING'").run(messageId);
+  }
+
   acknowledge(ack: Extract<Message, { type: 'ACK' }>): void {
     const row = this.database.prepare('SELECT content FROM outbox WHERE message_id = ?').get(ack.payload.ackForMessageId);
     const original = row ? JSON.parse(String(row.content)) as Message : undefined;

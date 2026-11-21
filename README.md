@@ -88,6 +88,43 @@ CI runs the Node gate and Flutter analysis/widget test, and uploads the gate evi
 Default retries wait 1s, doubling up to 8s, with at most five retries. Gate scenarios explicitly shorten waits to 100/150ms.
 No delivery is silently deleted after retry exhaustion. `DELIVERY_UNCONFIRMED` is visible and is never treated as meeting acceptance.
 
+## M2 demo and verification
+
+M2 adds discovery, authenticated sessions, a durable offline mailbox, and `wss://` with signed messages.
+The hub uses Postgres; agents authenticate with a bootstrap secret and sign messages with a per-pair key.
+
+One-time local setup:
+
+```sh
+npm run db:up            # Postgres on :5433 via docker-compose (or point DATABASE_URL at your own)
+npm run certs            # dev TLS CA + hub cert into .state/certs
+npm run secrets          # demo bootstrap secrets + pair keys into .state/secrets.json
+```
+
+Then run the demo and gate (both read DATABASE_URL, CERT_DIR, SECRETS_FILE from `.env`):
+
+```sh
+npm run demo:m2
+npm run test:gate:m2
+```
+
+`demo:m2` prints a PASS/FAIL line per scenario: directory discovery, a message that stays queued for an
+offline agent **and survives a hub restart** before it is redelivered, rejection of a forged session and a
+tampered MAC, and the M1 REQUEST/PROPOSE/ACCEPT/CONFIRM flow over wss. To drive it by hand instead:
+
+```sh
+npm run hub:m2
+npm run agent:m2 -- --id agent-a
+npm run agent:m2 -- --id agent-b
+npm run agent:m2 -- --id agent-c
+```
+
+Each agent reads JSON-line commands on stdin, including `{"command":"lookup","by":"name","term":"Carol"}`
+and `{"command":"send","toAgentId":"agent-c","meetingId":"m","type":"REQUEST","payload":{...}}`.
+Secrets and certificates live under `.state/` and are never committed. `test:hub` runs the Postgres-backed
+unit and hub-core tests; `test:gate:m2` runs the typecheck, build, M1 regression, `test:hub`, and the M2 scenarios.
+See the [M2 status record](docs/m2-status.md) and [ADR 002](docs/decisions/002-m2-hub-persistence-and-security.md).
+
 ## Current mobile environment
 
 The Flutter shell was generated using the installed SDK. `flutter pub get --offline`, analysis, and the widget test run locally.

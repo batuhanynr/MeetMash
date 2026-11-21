@@ -48,7 +48,12 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run check
+      - run: npm run certs
+      - run: npm run secrets
       - run: npm run test:hub
+        env:
+          DATABASE_URL: postgres://meetmesh:meetmesh@127.0.0.1:5432/meetmesh
+      - run: npm run demo:m2
         env:
           DATABASE_URL: postgres://meetmesh:meetmesh@127.0.0.1:5432/meetmesh
   flutter-shell:
