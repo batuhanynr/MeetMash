@@ -1,0 +1,15 @@
+{
+  "commit": "c847f4f693f4d9c8195c18343f1a3a05f4aebddb",
+  "environment": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "node": "v26.12.1",
+  "postgres": "PostgreSQL 18.3 (Homebrew)",
+  "nodeSuitesPassed": [
+    43,
+    25,
+    3
+  ],
+  "m2DemoPassed": 4,
+  "m3NormalPassed": 20,
+  "m3OtherPassed": 6,
+  "command": "npm run test:gate:m3"
+}

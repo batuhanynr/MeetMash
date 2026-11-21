@@ -1,0 +1,4549 @@
+{
+  "commit": "c847f4f693f4d9c8195c18343f1a3a05f4aebddb",
+  "fixtureVersion": 1,
+  "results": [
+    {
+      "name": "normal-1",
+      "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+      "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:53.850Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-a",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.901Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-a",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "53e72bbd-7f7f-49c1-808f-7a22f8fd9ac2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.901Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-a",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "53e72bbd-7f7f-49c1-808f-7a22f8fd9ac2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.902Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-a",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.952Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-a",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.852Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-b",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.903Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-b",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.933Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-b",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "53e72bbd-7f7f-49c1-808f-7a22f8fd9ac2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.934Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-b",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.853Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-c",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.904Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-c",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.906Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-c",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "53e72bbd-7f7f-49c1-808f-7a22f8fd9ac2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:53.906Z",
+          "runId": "3bbf80c5-1e7e-48bd-9cc1-676dea5be38e",
+          "agentId": "agent-c",
+          "meetingId": "41943ae7-fcc6-417c-bdd3-c0678f27962d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-2",
+      "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+      "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:54.985Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-a",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.034Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-a",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "a34cf682-948f-4520-9add-4926ddeb5471"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.034Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-a",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a34cf682-948f-4520-9add-4926ddeb5471"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.035Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-a",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.135Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-a",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:54.986Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-b",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.036Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-b",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.059Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-b",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a34cf682-948f-4520-9add-4926ddeb5471"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.059Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-b",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:54.986Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-c",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.036Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-c",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.083Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-c",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a34cf682-948f-4520-9add-4926ddeb5471"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:55.084Z",
+          "runId": "fd82836c-d751-46a4-bc2e-0724d6c79da2",
+          "agentId": "agent-c",
+          "meetingId": "d94bb9a5-3999-46ae-aad6-c27a51013d7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-3",
+      "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+      "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:56.218Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-a",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.267Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-a",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "bd81d17f-c423-4950-b806-f1a0bf33a62a"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.268Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-a",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "bd81d17f-c423-4950-b806-f1a0bf33a62a"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.269Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-a",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.318Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-a",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.219Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-b",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.270Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-b",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.300Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-b",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "bd81d17f-c423-4950-b806-f1a0bf33a62a"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.301Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-b",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.220Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-c",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.271Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-c",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.271Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-c",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "bd81d17f-c423-4950-b806-f1a0bf33a62a"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:56.272Z",
+          "runId": "179b1ddf-1728-4fb7-9169-70f31532dc06",
+          "agentId": "agent-c",
+          "meetingId": "60c3e50c-51fb-44a5-9ab7-cd153238e84c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-4",
+      "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+      "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:57.400Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-a",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.449Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-a",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "187e61ea-8155-42ad-b01f-b6125ac88a10"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.450Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-a",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "187e61ea-8155-42ad-b01f-b6125ac88a10"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.450Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-a",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.500Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-a",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.402Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-b",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.452Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-b",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.473Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-b",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "187e61ea-8155-42ad-b01f-b6125ac88a10"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.473Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-b",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.402Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-c",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.452Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-c",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.456Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-c",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "187e61ea-8155-42ad-b01f-b6125ac88a10"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:57.457Z",
+          "runId": "1d28c2eb-0ffe-4155-bcba-0882c5208ae9",
+          "agentId": "agent-c",
+          "meetingId": "9888bc7e-0f6e-4b06-8929-8beaa944298c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-5",
+      "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+      "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:58.545Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-a",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.595Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-a",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "85fec8fe-9d4a-4928-be52-a65940d40d49"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.595Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-a",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "85fec8fe-9d4a-4928-be52-a65940d40d49"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.596Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-a",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.695Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-a",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.546Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-b",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.597Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-b",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.615Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-b",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "85fec8fe-9d4a-4928-be52-a65940d40d49"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.615Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-b",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.547Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-c",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.597Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-c",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.643Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-c",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "85fec8fe-9d4a-4928-be52-a65940d40d49"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:58.644Z",
+          "runId": "8019415f-1011-4d49-a4f9-cbaca71cffb2",
+          "agentId": "agent-c",
+          "meetingId": "1a5ad82d-66b0-4023-b2c8-860f70401f18",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-6",
+      "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+      "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:09:59.770Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-a",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.820Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-a",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "f516a571-2769-463c-9b4c-0af5686cabc2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.821Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-a",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "f516a571-2769-463c-9b4c-0af5686cabc2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.821Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-a",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.871Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-a",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.772Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-b",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.823Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-b",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.849Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-b",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "f516a571-2769-463c-9b4c-0af5686cabc2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.849Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-b",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.772Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-c",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.823Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-c",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.825Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-c",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "f516a571-2769-463c-9b4c-0af5686cabc2"
+        },
+        {
+          "timestamp": "2026-11-21T08:09:59.825Z",
+          "runId": "7f5966d3-023e-4fc5-b8db-691ce5cfd4e4",
+          "agentId": "agent-c",
+          "meetingId": "467b88b8-fac8-403a-b1b0-11d609017279",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-7",
+      "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+      "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 18,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:01.015Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-a",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.115Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-a",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "640aa64c-4924-49fe-9054-981dc9acf28a"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.116Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-a",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "640aa64c-4924-49fe-9054-981dc9acf28a"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.117Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-a",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.217Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-a",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.016Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-b",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.118Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-b",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.143Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-b",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "640aa64c-4924-49fe-9054-981dc9acf28a"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.143Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-b",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.018Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-c",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.119Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-c",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.166Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-c",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "640aa64c-4924-49fe-9054-981dc9acf28a"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:01.166Z",
+          "runId": "e9be2183-fa1a-4917-83ef-23ae5fe77e19",
+          "agentId": "agent-c",
+          "meetingId": "6904ef47-dd46-40f2-b517-c83e2d0452cb",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-8",
+      "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+      "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:02.519Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-a",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.568Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-a",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "5d5b54d3-8d3b-4fe0-b022-39ee62d14b21"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.569Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-a",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d5b54d3-8d3b-4fe0-b022-39ee62d14b21"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.570Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-a",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.619Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-a",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.522Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-b",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.571Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-b",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.577Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-b",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d5b54d3-8d3b-4fe0-b022-39ee62d14b21"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.578Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-b",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.522Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-c",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.572Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-c",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.583Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-c",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d5b54d3-8d3b-4fe0-b022-39ee62d14b21"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:02.583Z",
+          "runId": "609a36a0-c62c-4247-bb0c-82346a31e0bf",
+          "agentId": "agent-c",
+          "meetingId": "4beac59c-0696-4be3-a444-55249709eef3",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-9",
+      "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+      "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:03.766Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-a",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.816Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-a",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "d2bc316b-2106-45a2-9cf1-52f425495c87"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.816Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-a",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d2bc316b-2106-45a2-9cf1-52f425495c87"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.817Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-a",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.917Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-a",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.768Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-b",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.817Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-b",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.866Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-b",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d2bc316b-2106-45a2-9cf1-52f425495c87"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.867Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-b",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.768Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-c",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.818Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-c",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.845Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-c",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d2bc316b-2106-45a2-9cf1-52f425495c87"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:03.849Z",
+          "runId": "f3409f3b-9a24-49c1-a5a4-b1baad6b6eed",
+          "agentId": "agent-c",
+          "meetingId": "399c9f67-932d-49db-86b9-ef48509c3de4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-10",
+      "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+      "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:04.951Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-a",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:04.999Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-a",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "9900286f-5160-4488-bfea-3e2044ea5248"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.000Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-a",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9900286f-5160-4488-bfea-3e2044ea5248"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.000Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-a",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.050Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-a",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:04.952Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-b",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.001Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-b",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.026Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-b",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9900286f-5160-4488-bfea-3e2044ea5248"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.027Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-b",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:04.952Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-c",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.002Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-c",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.044Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-c",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9900286f-5160-4488-bfea-3e2044ea5248"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:05.045Z",
+          "runId": "ddccbb18-fcf6-49b8-b1fe-a5b08cb0249a",
+          "agentId": "agent-c",
+          "meetingId": "9d306036-74ce-4e69-bfc9-f7cc56fc5065",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-11",
+      "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+      "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:06.073Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-a",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.122Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-a",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "77b43878-ae39-4b15-b8fc-5c03d1f9200c"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.122Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-a",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "77b43878-ae39-4b15-b8fc-5c03d1f9200c"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.123Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-a",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.223Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-a",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.074Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-b",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.124Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-b",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.151Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-b",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "77b43878-ae39-4b15-b8fc-5c03d1f9200c"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.151Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-b",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.074Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-c",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.125Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-c",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.171Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-c",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "77b43878-ae39-4b15-b8fc-5c03d1f9200c"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:06.172Z",
+          "runId": "8f272a20-791b-4ceb-a948-28a7edde94f6",
+          "agentId": "agent-c",
+          "meetingId": "52540e66-06cc-4ae8-8215-8b3ae45adf34",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-12",
+      "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+      "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 16,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:07.376Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-a",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.476Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-a",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "9f869bac-5d73-4d3c-9934-d7a46832fcf3"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.476Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-a",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9f869bac-5d73-4d3c-9934-d7a46832fcf3"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.477Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-a",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.578Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-a",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.377Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-b",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.478Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-b",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.502Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-b",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9f869bac-5d73-4d3c-9934-d7a46832fcf3"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.502Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-b",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.377Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-c",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.478Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-c",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.528Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-c",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9f869bac-5d73-4d3c-9934-d7a46832fcf3"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:07.528Z",
+          "runId": "76c49736-b0b6-4a71-9b81-f6ef6d6d4c9f",
+          "agentId": "agent-c",
+          "meetingId": "fd81e736-c4b1-41b6-a23f-b6743906ff4e",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-13",
+      "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+      "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:08.782Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-a",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.833Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-a",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "6999c913-6561-452a-88a5-6a6272090a47"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.833Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-a",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "6999c913-6561-452a-88a5-6a6272090a47"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.834Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-a",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.884Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-a",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.784Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-b",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.835Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-b",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.858Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-b",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "6999c913-6561-452a-88a5-6a6272090a47"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.858Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-b",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.785Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-c",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.835Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-c",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.882Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-c",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "6999c913-6561-452a-88a5-6a6272090a47"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:08.882Z",
+          "runId": "33bc4fa3-b8bf-4faf-9f82-c6716791234c",
+          "agentId": "agent-c",
+          "meetingId": "3dfee5d2-6c10-415d-ae1d-d5c8877b253f",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-14",
+      "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+      "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 18,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:10.061Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-a",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.161Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-a",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "9a726617-7528-442f-b2e2-ccaeb124aab7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.161Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-a",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9a726617-7528-442f-b2e2-ccaeb124aab7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.162Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-a",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.262Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-a",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.062Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-b",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.163Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-b",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.211Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-b",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9a726617-7528-442f-b2e2-ccaeb124aab7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.211Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-b",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.063Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-c",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.164Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-c",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.178Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-c",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "9a726617-7528-442f-b2e2-ccaeb124aab7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:10.178Z",
+          "runId": "c3a84c3b-5e5d-483a-88f3-f6910971b5bc",
+          "agentId": "agent-c",
+          "meetingId": "40b14898-9344-4985-8866-ff7095c19c7b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-15",
+      "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+      "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 18,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:11.499Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-a",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.742Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-a",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "b6ce3256-9364-42cb-9aa1-45a032de63fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.745Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-a",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b6ce3256-9364-42cb-9aa1-45a032de63fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.754Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-a",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.947Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-a",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.510Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-b",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.844Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-b",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.849Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-b",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b6ce3256-9364-42cb-9aa1-45a032de63fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.851Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-b",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.511Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-c",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.862Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-c",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.903Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-c",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b6ce3256-9364-42cb-9aa1-45a032de63fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:11.904Z",
+          "runId": "f6d451cf-53ec-4274-97e6-c956d4ede093",
+          "agentId": "agent-c",
+          "meetingId": "06bff367-573c-40ab-87ca-03f31437de1b",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-16",
+      "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+      "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:13.237Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-a",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.287Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-a",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "1f0d9ef3-0dcd-4e29-aad8-5a60eaa91a64"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.288Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-a",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "1f0d9ef3-0dcd-4e29-aad8-5a60eaa91a64"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.289Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-a",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.337Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-a",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.239Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-b",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.290Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-b",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.295Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-b",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "1f0d9ef3-0dcd-4e29-aad8-5a60eaa91a64"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.296Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-b",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.239Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-c",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.291Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-c",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.320Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-c",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "1f0d9ef3-0dcd-4e29-aad8-5a60eaa91a64"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:13.321Z",
+          "runId": "1cd310aa-6039-4391-b97d-4b97cff142ba",
+          "agentId": "agent-c",
+          "meetingId": "52a539c4-139a-4463-a888-b1b3fc536165",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-17",
+      "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+      "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 18,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:14.506Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-a",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.607Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-a",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "b1b7432c-5e31-4bc2-bd07-2ea604fc5bab"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.607Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-a",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b1b7432c-5e31-4bc2-bd07-2ea604fc5bab"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.608Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-a",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.709Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-a",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.507Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-b",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.609Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-b",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.634Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-b",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b1b7432c-5e31-4bc2-bd07-2ea604fc5bab"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.634Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-b",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.509Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-c",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.610Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-c",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.658Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-c",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "b1b7432c-5e31-4bc2-bd07-2ea604fc5bab"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:14.658Z",
+          "runId": "42f94290-1fd1-4a1b-ab42-8d17709a74f7",
+          "agentId": "agent-c",
+          "meetingId": "d85df493-8053-47e4-82b6-9917afb6cfb2",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-18",
+      "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+      "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 14,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:15.737Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-a",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.787Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-a",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "aa395d9e-c122-4e5a-aa65-6b15bb6f145d"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.787Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-a",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "aa395d9e-c122-4e5a-aa65-6b15bb6f145d"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.788Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-a",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.888Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-a",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.738Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-b",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.789Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-b",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.807Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-b",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "aa395d9e-c122-4e5a-aa65-6b15bb6f145d"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.808Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-b",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.739Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-c",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.789Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-c",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.837Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-c",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "aa395d9e-c122-4e5a-aa65-6b15bb6f145d"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:15.837Z",
+          "runId": "6d6dc5c4-0000-44c0-8dd2-05146f62b76c",
+          "agentId": "agent-c",
+          "meetingId": "ce79be8b-d30e-479e-81a6-69d1e7540563",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-19",
+      "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+      "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 16,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:16.922Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-a",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.022Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-a",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "5d6994df-2b3d-4a74-8035-92354880a067"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.022Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-a",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d6994df-2b3d-4a74-8035-92354880a067"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.023Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-a",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.124Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-a",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:16.923Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-b",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.024Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-b",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.047Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-b",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d6994df-2b3d-4a74-8035-92354880a067"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.047Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-b",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:16.924Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-c",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.025Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-c",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.072Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-c",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "5d6994df-2b3d-4a74-8035-92354880a067"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:17.072Z",
+          "runId": "1ebdfaef-408e-4717-b3e2-65e2817bdcb5",
+          "agentId": "agent-c",
+          "meetingId": "e0f9abe6-a75d-4bd0-9c9d-0eccac735db4",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "normal-20",
+      "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+      "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+      "passed": true,
+      "ranking": [
+        {
+          "start": "2026-11-10T11:00:00.000Z",
+          "end": "2026-11-10T12:00:00.000Z",
+          "score": 220
+        },
+        {
+          "start": "2026-11-10T08:00:00.000Z",
+          "end": "2026-11-10T09:00:00.000Z",
+          "score": 180
+        }
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 12,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:18.196Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-a",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.246Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-a",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "96936b3b-2312-47f5-b887-2b7888e2e6f7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.246Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-a",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "96936b3b-2312-47f5-b887-2b7888e2e6f7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.247Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-a",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.296Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-a",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.198Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-b",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.248Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-b",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.274Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-b",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "96936b3b-2312-47f5-b887-2b7888e2e6f7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.274Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-b",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.199Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-c",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.249Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-c",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.286Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-c",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "96936b3b-2312-47f5-b887-2b7888e2e6f7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:18.287Z",
+          "runId": "108e685c-0806-4f2e-9888-d93ae2f3f405",
+          "agentId": "agent-c",
+          "meetingId": "07a21aa1-b8dc-4846-ba6e-273b76858dbd",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "no-common-slot",
+      "runId": "8c9776f5-d5f1-4e79-9928-013d5ade322e",
+      "meetingId": "fc48d879-9218-42b3-b47f-86d94e42dd48",
+      "passed": true,
+      "reason": "NO_COMMON_SLOT",
+      "events": [
+        0,
+        0,
+        0
+      ],
+      "canaryFree": true,
+      "wireMessages": 6,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:19.471Z",
+          "runId": "8c9776f5-d5f1-4e79-9928-013d5ade322e",
+          "agentId": "agent-a",
+          "meetingId": "fc48d879-9218-42b3-b47f-86d94e42dd48",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "ABORT",
+          "reason": "NO_COMMON_SLOT",
+          "decisionId": "6d0c4b1f-aae8-4b9d-8bb1-6b013b476c5c"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:19.472Z",
+          "runId": "8c9776f5-d5f1-4e79-9928-013d5ade322e",
+          "agentId": "agent-a",
+          "meetingId": "fc48d879-9218-42b3-b47f-86d94e42dd48",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:19.473Z",
+          "runId": "8c9776f5-d5f1-4e79-9928-013d5ade322e",
+          "agentId": "agent-b",
+          "meetingId": "fc48d879-9218-42b3-b47f-86d94e42dd48",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:19.474Z",
+          "runId": "8c9776f5-d5f1-4e79-9928-013d5ade322e",
+          "agentId": "agent-c",
+          "meetingId": "fc48d879-9218-42b3-b47f-86d94e42dd48",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        }
+      ]
+    },
+    {
+      "name": "decline",
+      "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+      "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+      "passed": true,
+      "reason": "DECLINED",
+      "events": [
+        0,
+        0,
+        0
+      ],
+      "canaryFree": true,
+      "wireMessages": 10,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:20.564Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-a",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.608Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-a",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "ABORT",
+          "reason": "DECLINED",
+          "decisionId": "dee35d4c-c30a-4161-a79d-d88ec15e9c37"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.609Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-a",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": "REJECT",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.565Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-b",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.615Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-b",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.566Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-c",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "DECLINED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:20.616Z",
+          "runId": "aca95c3c-ea13-4aae-b913-74c6075e2103",
+          "agentId": "agent-c",
+          "meetingId": "0a2b0e6b-f1ec-45a5-90dd-4b82a73968ac",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        }
+      ]
+    },
+    {
+      "name": "timeout",
+      "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+      "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+      "passed": true,
+      "reason": "TIMEOUT",
+      "events": [
+        0,
+        0,
+        0
+      ],
+      "canaryFree": true,
+      "wireMessages": 22,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:21.855Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-a",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:24.024Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-a",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "ABORT",
+          "reason": "TIMEOUT",
+          "decisionId": "429690bc-ec48-45f7-ba5c-3da31af980d7"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:24.029Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-a",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:21.857Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-b",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:23.970Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-b",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "PENDING_RECOVERY"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:24.376Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-b",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:23.641Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-c",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "DECLINED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:24.519Z",
+          "runId": "a52b9fd7-434c-455f-8cc4-595129e193f8",
+          "agentId": "agent-c",
+          "meetingId": "0dcfc1f0-4058-49cc-bce3-5f90e543c882",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ABORTED"
+        }
+      ]
+    },
+    {
+      "name": "concurrent",
+      "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+      "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+      "passed": true,
+      "events": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "canaryFree": true,
+      "wireMessages": 18,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:29.486Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-a",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.585Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-a",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "14372194-102b-4f3f-9b0f-71a69badf10e"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.586Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-a",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "14372194-102b-4f3f-9b0f-71a69badf10e"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.590Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-a",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.687Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-a",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.490Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-b",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.594Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-b",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.638Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-b",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "14372194-102b-4f3f-9b0f-71a69badf10e"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.639Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-b",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.500Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-c",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.595Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-c",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.608Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-c",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "14372194-102b-4f3f-9b0f-71a69badf10e"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:29.609Z",
+          "runId": "4c1be113-9aef-45b7-ac68-1c35fa46930b",
+          "agentId": "agent-c",
+          "meetingId": "1db8efd6-b178-4c4f-9256-1cade9981375",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "reconcile-write",
+      "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+      "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+      "passed": true,
+      "pending": [
+        "agent-b"
+      ],
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 19,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:32.617Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-a",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "VOTING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.699Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-a",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.decided",
+          "attempt": null,
+          "outcome": "COMMIT",
+          "reason": "UNANIMOUS",
+          "decisionId": "d0ec2eeb-60a9-44b6-b0fe-8cb18c8508a8"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.708Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-a",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d0ec2eeb-60a9-44b6-b0fe-8cb18c8508a8"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.727Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-a",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:34.087Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-a",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.652Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-c",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.746Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-c",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.769Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-c",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d0ec2eeb-60a9-44b6-b0fe-8cb18c8508a8"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:32.778Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-c",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:34.026Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-b",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "d0ec2eeb-60a9-44b6-b0fe-8cb18c8508a8"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:34.032Z",
+          "runId": "9f892e50-1df6-4f3f-b7b0-cdc17dd64ba0",
+          "agentId": "agent-b",
+          "meetingId": "8f997282-59d0-4e34-b8ca-585eaca0741d",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        }
+      ]
+    },
+    {
+      "name": "decision-recovery",
+      "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+      "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+      "passed": true,
+      "decision": "a0f31bee-c400-4f42-94f4-07f1857106fa",
+      "events": [
+        1,
+        1,
+        1
+      ],
+      "canaryFree": true,
+      "wireMessages": 24,
+      "trace": [
+        {
+          "timestamp": "2026-11-21T08:10:39.421Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-b",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:41.554Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-b",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "PENDING_RECOVERY"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.838Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-b",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.851Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-b",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a0f31bee-c400-4f42-94f4-07f1857106fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.856Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-b",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:39.426Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-c",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": "PROPOSE",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "ACCEPTED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:41.561Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-c",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "PENDING_RECOVERY"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.842Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-c",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": "CONFIRM",
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "COMMIT_PENDING"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.867Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-c",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a0f31bee-c400-4f42-94f4-07f1857106fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.872Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-c",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "APPLIED"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.613Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-a",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "calendar.applied",
+          "attempt": null,
+          "outcome": "persisted",
+          "decisionId": "a0f31bee-c400-4f42-94f4-07f1857106fa"
+        },
+        {
+          "timestamp": "2026-11-21T08:10:43.910Z",
+          "runId": "61242200-608c-445f-94f0-38a4dd3ba36d",
+          "agentId": "agent-a",
+          "meetingId": "598a99b4-c837-459c-bcd3-d9be1180862c",
+          "messageId": null,
+          "messageType": null,
+          "direction": null,
+          "event": "meeting.transition",
+          "attempt": null,
+          "outcome": "CONFIRMED"
+        }
+      ]
+    }
+  ]
+}
