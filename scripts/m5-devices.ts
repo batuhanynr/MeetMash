@@ -22,7 +22,7 @@ const secrets = loadSecrets(secretsFile);
 const directory = resolve(singlePhone ? '.state/m5-phone' : '.state/m5-devices');
 const attendees = singlePhone ? phoneAgents.map(({ id, name }) => ({ id, name, email: undefined })) : [
     { id: 'agent-a', name: 'Batuhan', email: process.env.M5_GOOGLE_A },
-    { id: 'agent-b', name: 'Fatma', email: process.env.M5_GOOGLE_B },
+    { id: 'agent-b', name: 'Ece', email: process.env.M5_GOOGLE_B },
   ];
 const google = attendees.some((a) => a.email);
 if (
