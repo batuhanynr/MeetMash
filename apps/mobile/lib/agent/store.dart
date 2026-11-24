@@ -14,16 +14,16 @@ class AgentStore {
     try {
       _lock.lockSync(FileLock.exclusive);
       data = file.existsSync()
-        ? jsonDecode(file.readAsStringSync())
-        : {
-            'owner': owner,
-            'inbox': {},
-            'outbox': {},
-            'nonces': {},
-            'sequences': {},
-            'meetings': {},
-            'events': {},
-          };
+          ? jsonDecode(file.readAsStringSync())
+          : {
+              'owner': owner,
+              'inbox': <String, dynamic>{},
+              'outbox': <String, dynamic>{},
+              'nonces': <String, dynamic>{},
+              'sequences': <String, dynamic>{},
+              'meetings': <String, dynamic>{},
+              'events': <String, dynamic>{},
+            };
       if (data['owner'] != owner) throw StateError('Wrong agent state');
     } catch (_) {
       close();

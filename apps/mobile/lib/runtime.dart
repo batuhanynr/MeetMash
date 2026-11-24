@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -13,11 +14,14 @@ import 'agent/store.dart';
 import 'calendar/calendar.dart';
 import 'calendar/google_account.dart';
 
+const _phoneLab = bool.fromEnvironment('MEETMESH_PHONE_LAB');
+
 class MobileRuntime extends ChangeNotifier {
   final vault = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
   AccountConfig? config;
+  Json? fixtureWindow;
   AgentConnection? connection;
   MeetingAgent? agent;
   CalendarAccount? google;
@@ -42,9 +46,54 @@ class MobileRuntime extends ChangeNotifier {
   Future<void> restore() async {
     try {
       final saved = await vault.read(key: 'identity');
-      if (!_disposed && saved != null) await start(saved, restoring: true);
+      if (_disposed) return;
+      if (saved != null) {
+        final account = AccountConfig(jsonDecode(saved));
+        if (configuredHub.isEmpty ||
+            (account.provider == 'managed' && account.hub == configuredHub)) {
+          await start(saved, restoring: true);
+        }
+      } else if (_phoneLab && configuredHub.isEmpty) {
+        final directory = await getApplicationSupportDirectory();
+        final account = File('${directory.path}/meetmesh-phone-account.json');
+        if (await account.exists()) {
+          final raw = await account.readAsString();
+          if (!_disposed) await start(raw, restoring: true);
+        }
+      }
     } catch (_) {
       error = 'Hesap açılamadı. Bağlantı bilgilerini kontrol et.';
+      _changed();
+    }
+  }
+
+  Future<void> signIn(String email, String password) async {
+    if (email.trim().isEmpty || password.isEmpty) {
+      throw StateError('E-posta adresini ve MeetMesh şifreni gir.');
+    }
+    final account = await loginToHub(email, password);
+    if (!_disposed) await start(account);
+  }
+
+  Future<void> signOut() async {
+    await vault.delete(key: 'identity');
+    _tick?.cancel();
+    final conn = connection, a = agent, httpClient = client;
+    connection = null;
+    agent = null;
+    config = null;
+    fixtureWindow = null;
+    google = null;
+    client = null;
+    _connectionFailures = 0;
+    _retryConnectionAt = null;
+    try {
+      await conn?.close();
+    } finally {
+      await a?.idle;
+      a?.store.close();
+      httpClient?.close();
+      error = null;
       _changed();
     }
   }
@@ -61,11 +110,16 @@ class MobileRuntime extends ChangeNotifier {
       return;
     }
     final c = AccountConfig(jsonDecode(raw));
-    final fixture = jsonDecode(
-      await rootBundle.loadString(
-        'packages/meetmesh_protocol/fixtures/calendar-v1.json',
-      ),
-    );
+    final fixture = c.liveCalendar
+        ? null
+        : jsonDecode(
+            await rootBundle.loadString(
+              'packages/meetmesh_protocol/fixtures/calendar-v1.json',
+            ),
+          );
+    if (!c.liveCalendar && fixture['agents'][c.id] == null) {
+      throw StateError('Bu ajan için örnek takvim bulunamadı');
+    }
     final wire = Wire(
       jsonDecode(
         await rootBundle.loadString(
@@ -74,21 +128,22 @@ class MobileRuntime extends ChangeNotifier {
       ),
     );
     final dir = await getApplicationSupportDirectory();
+    final root = c.provider == 'managed'
+        ? 'managed/${sha256.convert(utf8.encode(jsonEncode([c.hub, c.ca])))}'
+        : 'agents';
     final store = AgentStore(
-      File('${dir.path}/agents/${c.id}/state.json'),
+      File('${dir.path}/$root/${c.id}/state.json'),
       c.id,
     );
     final conn = AgentConnection(c, _changed);
     late MeetingCalendar calendar;
-    if (c.provider == 'google') {
+    if (c.provider == 'managed') {
+      calendar = GoogleCalendar.managed(conn.control);
+    } else if (c.provider == 'google') {
       google = CalendarAccount(c.googleEmail!);
       client = http.Client();
       calendar = GoogleCalendar(client!, google!.token);
     } else {
-      if (fixture['agents'][c.id] == null) {
-        store.close();
-        throw StateError('Bu ajan için örnek takvim bulunamadı');
-      }
       calendar = FixtureCalendar(fixture['agents'][c.id]);
     }
     final a = MeetingAgent(
@@ -105,14 +160,19 @@ class MobileRuntime extends ChangeNotifier {
     try {
       await conn.connect();
       if (!restoring) await vault.write(key: 'identity', value: raw);
-    } catch (_) {
+    } catch (failure) {
       await conn.close();
       if (!restoring) {
+        await a.idle;
         store.close();
         client?.close();
+        google = null;
+        client = null;
         rethrow;
       }
-      error = 'Çevrimdışısın. Son kayıtlı toplantıların gösteriliyor.';
+      error = _phoneLab
+          ? 'Hub bağlantısı: $failure'
+          : 'Çevrimdışısın. Son kayıtlı toplantıların gösteriliyor.';
     }
     if (_disposed) {
       await conn.close();
@@ -122,10 +182,13 @@ class MobileRuntime extends ChangeNotifier {
       return;
     }
     config = c;
+    fixtureWindow = fixture?['window'];
     connection = conn;
     agent = a;
     _tick = Timer.periodic(const Duration(milliseconds: 500), (_) async {
-      if (_working || !_foreground || conn.displaced) return;
+      if (_working || !_foreground || conn.displaced || connection != conn) {
+        return;
+      }
       _working = true;
       try {
         if (!conn.online) {
@@ -133,6 +196,7 @@ class MobileRuntime extends ChangeNotifier {
           try {
             await reconnect();
           } catch (_) {
+            if (connection != conn) return;
             final delay = 1 << _connectionFailures.clamp(0, 4);
             _retryConnectionAt = DateTime.now().add(Duration(seconds: delay));
             _connectionFailures++;
@@ -141,8 +205,10 @@ class MobileRuntime extends ChangeNotifier {
         }
         await a.tick();
       } catch (_) {
-        error = 'İşlem yeniden denenecek';
-        _changed();
+        if (connection == conn) {
+          error = 'İşlem yeniden denenecek';
+          _changed();
+        }
       } finally {
         _working = false;
       }
@@ -151,14 +217,15 @@ class MobileRuntime extends ChangeNotifier {
   }
 
   Future<void> reconnect() async {
-    if (connection?.displaced == true) {
+    final conn = connection;
+    if (conn?.displaced == true) {
       throw StateError(
         'Oturum başka cihaza geçti. Uygulamayı yeniden açarak devralabilirsin.',
       );
     }
-    if (connection != null && connection!.online == false) {
-      await connection!.connect();
-      if (connection!.online) {
+    if (conn != null && !conn.online) {
+      await conn.connect();
+      if (connection == conn && conn.online) {
         _connectionFailures = 0;
         _retryConnectionAt = null;
         error = null;

@@ -5,7 +5,7 @@ import schema from '../schemas/message.schema.json' with { type: 'json' };
 export type Slot = { start: string; end: string };
 export type Round = { roundId: string; decisionVersion: number };
 export type Payloads = {
-  REQUEST: { participantAgentIds: string[]; durationMinutes: number; deadline?: string; window: Slot };
+  REQUEST: { participantAgentIds: string[]; durationMinutes: number; deadline?: string; window: Slot; title?: string };
   PROPOSE: { phase: 'AVAILABILITY'; slots: (Slot & { score?: number })[] } | { phase: 'SELECTION'; slot: Slot };
   ACCEPT: { proposalMessageId: string };
   REJECT: { reasonCode: 'NO_AVAILABILITY' | 'DECLINED' | 'INVALID_REQUEST' };

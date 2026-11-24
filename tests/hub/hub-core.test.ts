@@ -10,6 +10,7 @@ import { PgMailboxStore } from '../../apps/hub/src/pg-mailbox.ts';
 import { PgRegistrarStore } from '../../apps/hub/src/pg-sessions.ts';
 import { provisionIdentity } from '../../apps/hub/src/pg-identity.ts';
 import { HubCore, type AgentConnection } from '../../apps/hub/src/hub-core.ts';
+import type { Logger } from '../../packages/runtime/src/log.ts';
 import { freshDatabase } from './helper.ts';
 
 let database: Database;
@@ -25,11 +26,11 @@ class Fake implements AgentConnection {
   domain(): Message[] { return this.parsed().filter(frame => frame.kind === undefined) as unknown as Message[]; }
 }
 
-function newHub(): HubCore {
+function newHub(log: Logger = () => {}, traceDelivery = false): HubCore {
   const directory = new Directory(new PgDirectoryStore(database));
   const registrar = new Registrar(new PgRegistrarStore(database));
   const mailbox = new Mailbox(new PgMailboxStore(database));
-  return new HubCore(registrar, directory, mailbox, () => {});
+  return new HubCore(registrar, directory, mailbox, log, [], traceDelivery);
 }
 
 const message = <T extends MessageType>(from: string, to: string, type: T, payload: Payloads[T]): Message =>
@@ -42,7 +43,7 @@ beforeEach(async () => {
   const directory = new Directory(new PgDirectoryStore(database));
   for (const [id, name, secret] of [['agent-a', 'Alice', 'secret-a'], ['agent-b', 'Bravo', 'secret-b']] as const) {
     await provisionIdentity(database, { agentId: id, userId: `user-${id}`, secret });
-    await directory.putProfile({ agentId: id, displayName: name, visibility: 'public', capabilities: ['scheduling'] });
+    await directory.putProfile({ agentId: id, displayName: name, visibility: 'public' });
   }
 });
 
@@ -60,7 +61,12 @@ test('an agent discovers another through a directory lookup', async () => {
 });
 
 test('a message to an offline agent is queued, relay-acked, and redelivered on reconnect then confirmed', async () => {
-  const hub = newHub();
+  const relayTrace: unknown[] = [];
+  const hub = newHub((event, fields) => {
+    if (event === 'message.queued' || event === 'message.forwarded') {
+      relayTrace.push([event, fields?.fromAgentId, fields?.toAgentId, fields?.messageType]);
+    }
+  }, true);
   const connA = new Fake();
   const generationA = await hub.connect('agent-a', 'secret-a', null, connA);
 
@@ -69,11 +75,13 @@ test('a message to an offline agent is queued, relay-acked, and redelivered on r
   assert.equal(connA.ofKind('relay.ack')?.messageId, sent.messageId); // hub took durable responsibility
   const mailbox = new Mailbox(new PgMailboxStore(database));
   assert.equal((await mailbox.snapshot('agent-b'))[0]?.status, 'QUEUED'); // still waiting, not delivered
+  assert.deepEqual(relayTrace, [['message.queued', 'agent-a', 'agent-b', 'REQUEST']]);
 
   const connB = new Fake();
   const generationB = await hub.connect('agent-b', 'secret-b', null, connB);
   assert.equal(connB.domain()[0]?.messageId, sent.messageId); // redelivered on reconnect
   assert.equal((await mailbox.snapshot('agent-b'))[0]?.status, 'SENT');
+  assert.deepEqual(relayTrace[1], ['message.forwarded', 'agent-a', 'agent-b', 'REQUEST']);
 
   const ack = message('agent-b', 'agent-a', 'ACK', { ackForMessageId: sent.messageId, scope: 'recipient.persisted' });
   await hub.handle('agent-b', generationB, JSON.stringify(ack));

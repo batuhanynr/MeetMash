@@ -6,7 +6,7 @@ import 'meeting_agent.dart';
 
 class AccountConfig {
   final String id, secret, hub, ca, provider;
-  final String? googleEmail;
+  final String? googleEmail, calendarName, email;
   final Map<String, String> keys;
   AccountConfig(Json data)
     : id = data['agentId'],
@@ -15,23 +15,80 @@ class AccountConfig {
       ca = data['caPem'],
       provider = data['calendar'] ?? 'fixture',
       googleEmail = data['googleEmail'],
+      calendarName = data['calendarName'],
+      email = data['email'],
       keys = Map<String, String>.from(data['pairKeys']) {
     final url = Uri.tryParse(hub);
     if (!RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$').hasMatch(id) ||
         secret.isEmpty ||
-        keys.isEmpty ||
+        (provider != 'managed' && keys.isEmpty) ||
         url == null ||
         url.scheme != 'wss' ||
         url.host.isEmpty ||
         url.userInfo.isNotEmpty ||
         url.hasFragment ||
-        !['google', 'fixture'].contains(provider) ||
+        !['google', 'fixture', 'managed'].contains(provider) ||
         (provider == 'google' && (googleEmail ?? '').isEmpty) ||
+        (provider == 'managed' &&
+            ((calendarName ?? '').isEmpty || (email ?? '').isEmpty)) ||
         keys.entries.any(
           (e) => !e.key.split(':').contains(id) || e.value.isEmpty,
         )) {
       throw const FormatException('Invalid account configuration');
     }
+  }
+
+  bool get liveCalendar => provider != 'fixture';
+}
+
+const configuredHub = String.fromEnvironment('MEETMESH_HUB_URL');
+const _encodedCa = String.fromEnvironment('MEETMESH_HUB_CA_BASE64');
+
+HttpClient _hubClient(String ca) {
+  final context = SecurityContext(withTrustedRoots: ca.isEmpty);
+  if (ca.isNotEmpty) context.setTrustedCertificatesBytes(utf8.encode(ca));
+  return HttpClient(context: context)
+    ..connectionTimeout = const Duration(seconds: 8);
+}
+
+Future<String> loginToHub(String email, String password) async {
+  final hub = Uri.tryParse(configuredHub);
+  if (hub == null ||
+      hub.scheme != 'wss' ||
+      hub.host.isEmpty ||
+      hub.userInfo.isNotEmpty ||
+      hub.hasQuery ||
+      hub.hasFragment ||
+      (hub.path.isNotEmpty && hub.path != '/')) {
+    throw StateError('Bu uygulama için güvenli hub adresi ayarlanmamış.');
+  }
+  final ca = _encodedCa.isEmpty ? '' : utf8.decode(base64Decode(_encodedCa));
+  final client = _hubClient(ca);
+  try {
+    return await (() async {
+      final request = await client.postUrl(
+        hub.replace(scheme: 'https', path: '/account/login'),
+      );
+      request.followRedirects = false;
+      request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+      request.write(jsonEncode({'email': email.trim(), 'password': password}));
+      final response = await request.close();
+      if (response.statusCode == 401) {
+        throw StateError('E-posta veya MeetMesh şifresi yanlış.');
+      }
+      if (response.statusCode == 429) {
+        throw StateError(
+          'Çok fazla giriş denemesi. Bir dakika sonra tekrar dene.',
+        );
+      }
+      if (response.statusCode != 200) {
+        throw StateError('Hub şu anda oturum açamıyor.');
+      }
+      final data = jsonDecode(await utf8.decoder.bind(response).join()) as Json;
+      return jsonEncode({...data, 'hub': configuredHub, 'caPem': ca});
+    })().timeout(const Duration(seconds: 12));
+  } finally {
+    client.close(force: true);
   }
 }
 
@@ -57,15 +114,7 @@ class AgentConnection {
 
   Future<void> _connect() async {
     if (_socket != null || displaced) return;
-    final ctx = SecurityContext(withTrustedRoots: false);
-    final bytes = Platform.isIOS
-        ? base64Decode(
-            account.ca.replaceAll(RegExp(r'-----[^-]+-----|\s+'), ''),
-          )
-        : utf8.encode(account.ca);
-    ctx.setTrustedCertificatesBytes(bytes);
-    final client = HttpClient(context: ctx)
-      ..connectionTimeout = const Duration(seconds: 8);
+    final client = _hubClient(account.ca);
     _client = client;
     late final WebSocket socket;
     try {
@@ -111,6 +160,12 @@ class AgentConnection {
           final frame = jsonDecode(raw as String) as Json;
           switch (frame['kind']) {
             case 'ready':
+              if (account.provider == 'managed') {
+                final keys = Map<String, String>.from(frame['pairKeys']);
+                account.keys
+                  ..clear()
+                  ..addAll(keys);
+              }
               online = true;
               lastError = null;
               if (!ready.isCompleted) ready.complete();
@@ -130,7 +185,9 @@ class AgentConnection {
               lastError = frame['code'];
               final request = pending.remove(frame['requestId']);
               if (request != null && !request.isCompleted) {
-                request.completeError(StateError(lastError ?? 'Hub request failed'));
+                request.completeError(
+                  StateError(lastError ?? 'Hub request failed'),
+                );
               }
               changed();
               break;

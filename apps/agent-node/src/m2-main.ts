@@ -102,7 +102,7 @@ try {
         case 'schedule': {
           const cmd=value as Payloads['REQUEST'] & {timeoutMs?:number};
           if (!Array.isArray(cmd.participantAgentIds) || cmd.participantAgentIds.some(id=>id!==agentId && !secrets.pairKeys[pairId(agentId,id)])) throw new Error('Unknown participant');
-          const meeting=planner!.schedule(request.meetingId ?? randomUUID(), {participantAgentIds:cmd.participantAgentIds,window:cmd.window,durationMinutes:cmd.durationMinutes},cmd.timeoutMs);
+          const meeting=planner!.schedule(request.meetingId ?? randomUUID(), {participantAgentIds:cmd.participantAgentIds,window:cmd.window,durationMinutes:cmd.durationMinutes,...(cmd.title !== undefined && {title:cmd.title})},cmd.timeoutMs);
           respond({meeting}); break;
         }
         case 'meeting': respond({meeting:planner!.view(request.meetingId!)});break;

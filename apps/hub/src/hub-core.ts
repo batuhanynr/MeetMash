@@ -8,7 +8,12 @@ export interface HubControls {
   handle(agentId: string, frame: { kind: string; [key: string]: unknown }): Promise<Record<string, unknown> | undefined>;
 }
 
-export interface AgentConnection { send(frame: string): void }
+export interface AgentConnection { send(frame: string): void | false }
+
+const relayFields = (message: Message) => ({
+  ...messageFields(message), fromAgentId: message.fromAgentId, toAgentId: message.toAgentId,
+  ...('phase' in message.payload ? { phase: message.payload.phase } : {}),
+});
 
 // Composes the authenticated relay: Registrar (sessions), Directory (discovery), and Mailbox (durable queue).
 // Transport-agnostic, so it is tested with in-memory connections and driven by the wss server in production.
@@ -20,24 +25,26 @@ export class HubCore {
   private readonly connections = new Map<string, { connection: AgentConnection; generation: number }>();
 
   private readonly controls: HubControls[];
+  private readonly traceDelivery: boolean;
 
-  constructor(registrar: Registrar, directory: Directory, mailbox: Mailbox, log: Logger, controls: HubControls[] = []) {
+  constructor(registrar: Registrar, directory: Directory, mailbox: Mailbox, log: Logger, controls: HubControls[] = [], traceDelivery = false) {
     this.controls = controls;
     this.registrar = registrar;
     this.directory = directory;
     this.mailbox = mailbox;
     this.log = log;
+    this.traceDelivery = traceDelivery;
   }
 
   // Authenticates the connection via the bootstrap secret and rotates to a fresh session. A newer session
   // displaces an older connection for the same agent. Returns the session generation this connection owns.
-  async connect(agentId: string, secret: string, endpoint: string | null, connection: AgentConnection): Promise<number> {
+  async connect(agentId: string, secret: string, endpoint: string | null, connection: AgentConnection, pairKeys?: Record<string, string>): Promise<number> {
     const { generation } = await this.registrar.register(agentId, secret, endpoint);
     const previous = this.connections.get(agentId);
     if (previous) previous.connection.send(JSON.stringify({ kind: 'displaced' }));
     this.connections.set(agentId, { connection, generation });
     this.log('agent.online', { connectedAgentId: agentId, outcome: 'authenticated' });
-    connection.send(JSON.stringify({ kind: 'ready', agentId, generation }));
+    connection.send(JSON.stringify({ kind: 'ready', agentId, generation, ...(pairKeys && { pairKeys }) }));
     await this.deliverTo(agentId);
     return generation;
   }
@@ -45,8 +52,8 @@ export class HubCore {
   async disconnect(agentId: string, generation: number): Promise<void> {
     if (this.connections.get(agentId)?.generation !== generation) return; // a stale close must not drop the new session
     this.connections.delete(agentId);
-    await this.registrar.disconnect(agentId, generation);
     this.log('agent.offline', { connectedAgentId: agentId, outcome: 'disconnected' });
+    await this.registrar.disconnect(agentId, generation);
   }
 
   async handle(agentId: string, generation: number, raw: string): Promise<void> {
@@ -78,9 +85,9 @@ export class HubCore {
       }
     }
     if (value.kind === 'directory.lookup') {
+      if (value.by !== 'name' && value.by !== 'id') { this.reject(agentId, 'INVALID_REQUEST'); return; }
       const term = String(value.term ?? '');
-      const profiles = value.by === 'capability' ? await this.directory.searchByCapability(agentId, term)
-        : value.by === 'id' ? [await this.directory.lookup(agentId, term)].filter(p => p !== undefined)
+      const profiles = value.by === 'id' ? [await this.directory.lookup(agentId, term)].filter(p => p !== undefined)
         : await this.directory.searchByName(agentId, term);
       if (this.connections.get(agentId)?.generation !== generation) return;
       this.send(agentId, { kind: 'directory.result', requestId: value.requestId, agents: profiles.map(p => ({ agentId: p.agentId, displayName: p.displayName })) });
@@ -95,14 +102,16 @@ export class HubCore {
     }
     const { queued } = await this.mailbox.accept(message);
     this.send(sender, { kind: 'relay.ack', messageId: message.messageId, scope: 'relay.persisted' });
-    this.log(queued ? 'message.queued' : 'message.duplicate', { ...messageFields(message), direction: 'relay', outcome: 'persisted', toAgentId: message.toAgentId });
+    this.log(queued ? 'message.queued' : 'message.duplicate', { ...relayFields(message), direction: 'relay', outcome: 'persisted' });
     await this.deliverTo(message.toAgentId);
   }
 
   // Delivers queued work to a recipient only while it is connected; otherwise the mailbox keeps it durably.
   private async deliverTo(agentId: string): Promise<void> {
     if (!this.connections.has(agentId)) return;
-    await this.mailbox.drain(agentId, async message => this.send(agentId, message));
+    await this.mailbox.drain(agentId, async message => {
+      if (this.send(agentId, message) && this.traceDelivery) this.log('message.forwarded', relayFields(message));
+    });
   }
 
   // Periodic maintenance: expire overdue messages (notifying senders) and retry delivery to online recipients.
@@ -118,8 +127,9 @@ export class HubCore {
     this.log('message.rejected', { direction: 'inbound', outcome: code, connectedAgentId: agentId });
   }
 
-  private send(agentId: string, payload: unknown): void {
-    this.connections.get(agentId)?.connection.send(typeof payload === 'string' ? payload : JSON.stringify(payload));
+  private send(agentId: string, payload: unknown): boolean {
+    const peer = this.connections.get(agentId);
+    return !!peer && peer.connection.send(typeof payload === 'string' ? payload : JSON.stringify(payload)) !== false;
   }
 
   get onlineAgentIds(): string[] { return [...this.connections.keys()].sort(); }

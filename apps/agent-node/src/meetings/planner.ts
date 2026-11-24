@@ -9,6 +9,7 @@ import {
   type Slot,
 } from '../../../../packages/protocol/src/index.ts';
 import type { Logger } from '../../../../packages/runtime/src/log.ts';
+import { normalizeMeetingTitle } from '../../../../packages/protocol/src/meeting-title.ts';
 import { LocalCalendar } from './calendar.ts';
 import { rankSlots, sameSlot, type CalendarProfile, type RatedSlot } from './slots.ts';
 
@@ -124,7 +125,8 @@ export class MeetingPlanner {
     if (!Number.isInteger(timeout) || timeout < 100 || timeout > 600_000)
       throw new Error('Invalid meeting timeout');
     const round = { roundId: randomUUID(), decisionVersion: 1 };
-    const payload = { ...request, deadline: new Date(Date.now() + timeout).toISOString() };
+    const payload = { ...request, ...(request.title !== undefined && { title: normalizeMeetingTitle(request.title) }),
+      deadline: new Date(Date.now() + timeout).toISOString() };
     createMessage({
       meetingId: id,
       fromAgentId: this.id,
@@ -145,6 +147,7 @@ export class MeetingPlanner {
     return {
       meetingId: id,
       roundId: m.roundId,
+      title: normalizeMeetingTitle(m.request.title),
       decisionVersion: m.decisionVersion,
       status: m.status,
       decision: m.decision ?? null,
@@ -285,12 +288,12 @@ export class MeetingPlanner {
     try {
       if (!this.calendar.event(m.id)) {
         if (this.faults.failWrite) throw new Error('PROVIDER_UNAVAILABLE');
-        this.calendar.ensureEvent(m.id, m.selected);
+        this.calendar.ensureEvent(m.id, m.selected, m.request.title);
         if (this.faults.loseWriteReply) {
           this.faults.loseWriteReply = false;
           throw new Error('WRITE_RESULT_UNKNOWN');
         }
-      } else this.calendar.ensureEvent(m.id, m.selected);
+      } else this.calendar.ensureEvent(m.id, m.selected, m.request.title);
       this.calendar.release(m.id);
       m.applied.push(this.id);
       delete m.error;

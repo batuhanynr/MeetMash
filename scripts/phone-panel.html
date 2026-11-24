@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1218">
+  <link rel="icon" type="image/svg+xml" href="/brand/meetmesh-icon.svg">
+  <title>MeetMesh · Test paneli</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1218;
+      --panel: #111c25;
+      --border: #293a47;
+      --muted: #a8bac8;
+      --text: #ecf4f8;
+      --green: #78e6b3;
+      --blue: #8abbff;
+      --violet: #c5acff;
+      --amber: #ffd285;
+      --red: #ffa5a5;
+      --teal: #75eee6;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
+    h1, h2, p { margin: 0; }
+    h1, h2 { text-wrap: balance; }
+    [id] { scroll-margin-top: 16px; }
+    h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.15; letter-spacing: -.045em; }
+    h2 { font-size: 18px; letter-spacing: -.02em; }
+    small, .muted { color: var(--muted); }
+    button { font: inherit; }
+    main { max-width: 1320px; margin: auto; padding: clamp(14px, 3.2vw, 48px); }
+    .skip-link { position: fixed; z-index: 3; inset: 12px auto auto 12px; padding: 8px 12px; color: var(--text); background: var(--panel); transform: translateY(-150%); }
+    .skip-link:focus-visible { transform: none; }
+    header, .title, .panel-head, .controls, .buttons { display: flex; align-items: center; gap: 12px; }
+    header { justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px; }
+    .brand { display: block; flex: none; border-radius: 14px; background: #fff; }
+    .title small { display: block; margin-bottom: 3px; }
+    .status { display: inline-flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums; }
+    .status::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    #coverage { padding: 7px 12px; border: 1px solid var(--border); border-radius: 30px; color: var(--amber); }
+    #coverage[data-ready="true"] { color: var(--green); }
+    .layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(275px, 1fr); gap: 16px; }
+    .panel { min-width: 0; border: 1px solid var(--border); border-radius: 16px; background: var(--panel); overflow: hidden; }
+    .panel-head { flex-wrap: wrap; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .graph { container-type: inline-size; }
+    .map {
+      height: 365px;
+      position: relative;
+      isolation: isolate;
+      background: radial-gradient(ellipse at center, #1b303b75, transparent 68%), radial-gradient(#3e526054 1px, transparent 1px) 0 0 / 18px 18px;
+    }
+    .hub, .station { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%); }
+    .hub { --x: 50%; --y: 48%; z-index: 2; display: grid; place-items: center; width: 92px; height: 82px; border: 1px solid #527366; border-radius: 18px; background: #19332f; text-align: center; }
+    .hub small { display: block; }
+    .map[data-ready="false"] .hub { background: #1c2934; border-color: #3c5061; }
+    .station { display: flex; align-items: center; gap: 16px; z-index: 2; }
+    .station[data-agent="agent-a"] { --x: 50%; --y: 18%; }
+    .station[data-agent="agent-b"] { --x: 23%; --y: 80%; }
+    .station[data-agent="agent-c"] { --x: 77%; --y: 80%; }
+    .map[data-mode="managed"] { height: var(--desktop-height, 365px); }
+    .map[data-mode="managed"] .station { --x: var(--managed-x); --y: var(--managed-y); }
+    .person { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 8px; width: 142px; padding: 8px 10px; border: 1px solid #3c5061; border-radius: 12px; background: #192633; }
+    .person strong { display: block; overflow-wrap: anywhere; }
+    .person-meta { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; }
+    .person .status { font-size: 12px; color: var(--muted); }
+    .station[data-online="true"] .status { color: var(--green); }
+    .station[data-online="false"] .status { color: var(--red); }
+    .initial { display: grid; grid-row: span 2; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #314559; color: #d5e7fc; font-size: 12px; font-weight: 700; }
+    .device { white-space: nowrap; color: var(--muted); font-size: 11px; font-weight: 450; }
+    .calendar { position: relative; display: grid; place-items: center; gap: 4px; min-width: 58px; height: 58px; border: 1px solid #3c5061; border-radius: 10px; background: #192633; color: #cfdda9; font-size: 11px; padding: 7px; }
+    .calendar-icon { position: relative; width: 16px; height: 15px; border: 1px solid currentColor; border-radius: 3px; border-top-width: 5px; }
+    .calendar-icon::before { content: ""; position: absolute; top: -8px; left: 2px; width: 2px; height: 5px; color: inherit; background: currentColor; box-shadow: 8px 0 currentColor; }
+    .wire { position: absolute; z-index: 1; height: 2px; transform-origin: left center; background: #53737b; }
+    .wire[data-online="false"] { background: repeating-linear-gradient(90deg, #64737f 0 4px, transparent 4px 9px); }
+    .wire.calendar-wire { background: #536358; }
+    .pulse, .packet { position: absolute; pointer-events: none; }
+    .pulse { inset: 0; border-radius: inherit; box-shadow: 0 0 8px var(--signal), inset 0 0 0 1px var(--signal); }
+    .packet { left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 10px var(--signal); }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; border-top: 1px solid var(--border); padding: 11px 18px; font-size: 12px; color: var(--muted); }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 2px; background: var(--signal); }
+    [data-tone="flow"] { --signal: var(--blue); }
+    [data-tone="calendar"] { --signal: var(--violet); }
+    [data-tone="decision"] { --signal: var(--green); }
+    [data-tone="wait"] { --signal: var(--amber); }
+    [data-tone="stop"] { --signal: var(--red); }
+    [data-tone="return"] { --signal: var(--teal); }
+    .feed-list { margin: 0; padding: 0; list-style: none; max-height: 366px; overflow: auto; }
+    .feed-list:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .feed-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 8px; border-bottom: 1px solid var(--border); padding: 9px 15px; }
+    .feed-list li:last-child { border: 0; }
+    .feed-list strong { color: var(--signal, var(--text)); font-weight: 630; }
+    .feed-list strong, .feed-list small { overflow-wrap: anywhere; }
+    .feed-list small { grid-column: 1 / -1; }
+    .feed-list time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #empty { padding: 16px; color: var(--muted); }
+    .controls { flex-wrap: wrap; justify-content: space-between; padding: 16px 18px; margin-top: 16px; }
+    .controls h2 { margin-bottom: 4px; }
+    .buttons { flex-wrap: wrap; align-items: start; }
+    button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: #78e6b350; padding: 8px 12px; border: 1px solid #46636d; border-radius: 9px; color: var(--text); background: #1f3441; }
+    .buttons button:first-child { color: #102822; border-color: var(--green); background: var(--green); }
+    #animation { font-size: 12px; padding: 5px 8px; }
+    #animation[aria-pressed="true"] { color: var(--green); border-color: #527366; }
+    button:hover:enabled { filter: brightness(1.14); }
+    :is(button, a):focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { cursor: default; opacity: .55; }
+    .scenario { font-size: 13px; color: var(--muted); }
+    #action-status { width: 100%; color: var(--amber); font-size: 13px; }
+    #action-status:empty { display: none; }
+    #fixture { font-variant-numeric: tabular-nums; }
+    .controls[hidden] { display: none; }
+    .mock-calendars { padding: 14px 18px 18px; border-top: 1px solid var(--border); }
+    .mock-calendars .panel-head { padding: 0 0 12px; border: 0; }
+    .mock-calendars input { color: var(--text); background: #192633; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+    .mock-calendar-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr)); gap: 10px; }
+    .mock-calendar-list article { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 12px; }
+    .mock-calendar-list h3 { margin: 0 0 9px; font-size: 15px; }
+    .mock-calendar-list ul { margin: 0; padding: 0; list-style: none; }
+    .mock-calendar-list li { display: grid; gap: 2px; padding: 7px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+    .mock-calendar-list time, #mock-calendar-status { color: var(--muted); font-size: 12px; }
+    @media (pointer: fine) { html { overscroll-behavior: none; } }
+    @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    @container (max-width: 510px) {
+      .map { height: 325px; }
+      .hub { --x: 16%; --y: 50%; width: 62px; height: 64px; }
+      .station[data-agent] { --x: 66%; }
+      .station[data-agent="agent-b"] { --y: 50%; }
+      .station[data-agent="agent-c"] { --y: 82%; }
+      .map[data-mode="managed"] { height: var(--narrow-height, 365px); }
+      .map[data-mode="managed"] .station { --x: 67%; --y: var(--narrow-y); }
+      .station { gap: 10px; }
+      .person { grid-template-columns: 1fr; width: 108px; padding: 7px 8px; }
+      .initial { display: none; }
+      .calendar { min-width: 52px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ana içeriğe geç</a>
+  <main id="main" tabindex="-1">
+    <header>
+      <div class="title">
+        <img class="brand" src="/brand/meetmesh-mark.svg" width="48" height="48" alt="">
+        <div><small translate="no">MeetMesh</small><h1>Test paneli</h1></div>
+      </div>
+      <span id="coverage" class="status" role="status">Hub bekleniyor</span>
+    </header>
+    <div class="layout">
+      <section class="panel graph" aria-labelledby="map-title">
+        <div class="panel-head">
+          <div><h2 id="map-title">Bağlantı haritası</h2><small id="calendar-scope">Sentetik takvimler</small></div>
+          <button type="button" id="animation" aria-pressed="false">Animasyon</button>
+        </div>
+        <div class="map" data-ready="false">
+          <div class="hub"><div><strong>Hub</strong><small translate="no">WSS</small></div></div>
+          <template id="station">
+            <div class="station">
+              <div class="person">
+                <span class="initial" aria-hidden="true"></span>
+                <strong><span class="name" translate="no"></span> · Ajan</strong>
+                <span class="person-meta"><span class="device" translate="no"></span> <span class="status">Bekleniyor</span></span>
+              </div>
+              <div class="calendar" title="Ajanın sentetik takvimi">
+                <span class="calendar-icon" aria-hidden="true"></span>Takvim
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="legend">
+          <span data-tone="flow">Mesaj</span><span data-tone="calendar">Takvim yanıtı</span>
+          <span data-tone="decision">Onay</span><span data-tone="stop">Ret veya kopma</span>
+          <span data-tone="return">Yeniden bağlanma</span>
+        </div>
+        <section class="mock-calendars" id="mock-calendars" aria-labelledby="mock-calendars-title" hidden>
+          <div class="panel-head">
+            <h2 id="mock-calendars-title">Mock ajan takvimleri</h2>
+            <label>Tarih <input id="mock-calendar-day" type="date"></label>
+          </div>
+          <p id="mock-calendar-status" role="status"></p>
+          <div class="mock-calendar-list"></div>
+        </section>
+      </section>
+      <section class="panel" aria-labelledby="feed-title">
+        <div class="panel-head"><h2 id="feed-title">Son olaylar</h2></div>
+        <p id="empty">Hub’dan olay bekleniyor.</p>
+        <ol class="feed-list" aria-labelledby="feed-title" tabindex="0"></ol>
+      </section>
+    </div>
+    <section class="panel controls" id="fixture-controls" aria-labelledby="controls-title">
+      <div>
+        <h2 id="controls-title">Toplantıyı dene</h2>
+        <p class="scenario">iPhone’da <strong>Planla</strong> ekranından <strong>Ece</strong> ve <strong>Deniz</strong>’i bulup ekle.</p>
+        <p class="scenario" id="fixture">Test takvimi yükleniyor…</p>
+        <p class="scenario">Ece’den davet gönderirsen iPhone’da <strong>Toplantılar</strong> ekranından yanıtla.</p>
+      </div>
+      <div class="buttons">
+        <button type="button" data-action="invite" disabled>Ece’den davet gönder</button>
+        <button type="button" data-action="toggle-deniz" disabled>Deniz’in bağlantısını kes</button>
+      </div>
+      <p id="action-status" role="status"></p>
+    </section>
+  </main>
+  <script>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const map = $('.map');
+    const hub = $('.hub');
+    const stations = new Map();
+    const coverage = $('#coverage');
+    const invite = $('[data-action="invite"]');
+    const toggle = $('[data-action="toggle-deniz"]');
+    const animationButton = $('#animation');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const activeAnimations = new Set();
+    const number = new Intl.NumberFormat('tr-TR');
+    let animationEnabled = true;
+    const motionAllowed = () => animationEnabled && !reducedMotion.matches;
+    let currentFixture;
+    const eventDate = new Intl.DateTimeFormat('tr-TR', {
+      dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Istanbul',
+    });
+    let formatDateTime = (value) => eventDate.format(new Date(value));
+    const labels = {
+      REQUEST: ['Toplantı isteği', 'flow'],
+      AVAILABILITY: ['Müsaitlik yanıtı', 'calendar'],
+      SELECTION: ['Saat önerisi', 'flow'],
+      ACCEPT: ['Katılımcı onayı', 'decision'],
+      REJECT: ['Katılımcı reddi', 'stop'],
+      COMMIT: ['Kayıt kararı', 'decision'],
+      ABORT: ['İptal kararı', 'stop'],
+      SYNC: ['Durum eşitleme', 'wait'],
+    };
+    let pending = [];
+    let lastEvent;
+    let playing = false;
+    let working = false;
+    let ready = false;
+    let pollTimer;
+    let fetching = false;
+    const mockDay = $('#mock-calendar-day');
+    const mockList = $('.mock-calendar-list');
+    const mockStatus = $('#mock-calendar-status');
+    const clock = new Intl.DateTimeFormat('tr-TR', {
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Istanbul',
+    });
+    mockDay.value = new Intl.DateTimeFormat('sv-SE', {
+      dateStyle: 'short', timeZone: 'Europe/Istanbul',
+    }).format(new Date());
+    let calendarPollAt = 0;
+    let shownCalendars;
+
+    async function pollCalendars() {
+      if (!mockDay.value) return;
+      calendarPollAt = Date.now();
+      const day = mockDay.value;
+      try {
+        const response = await fetch('/calendars?' + new URLSearchParams({ day }), {
+          cache: 'no-store', signal: AbortSignal.timeout(4000),
+        });
+        if (!response.ok) throw new Error();
+        const { calendars } = await response.json();
+        if (mockDay.value !== day) return;
+        mockStatus.textContent = calendars.length ? '' : 'Mock ajan takvimi yok.';
+        const signature = JSON.stringify([day, calendars]);
+        if (signature === shownCalendars) return;
+        shownCalendars = signature;
+        mockList.replaceChildren(...calendars.map(calendar => {
+          const card = document.createElement('article');
+          const title = document.createElement('h3');
+          title.textContent = calendar.name;
+          card.append(title);
+          if (!calendar.events.length) {
+            const empty = document.createElement('small');
+            empty.textContent = 'Etkinlik yok.';
+            card.append(empty);
+            return card;
+          }
+          const list = document.createElement('ul');
+          for (const event of calendar.events) {
+            const item = document.createElement('li');
+            const name = document.createElement('strong');
+            const time = document.createElement('time');
+            time.dateTime = event.start;
+            name.textContent = event.title;
+            time.textContent = clock.format(new Date(event.start)) + ' – ' + clock.format(new Date(event.end)) +
+              (event.kind === 'confirmed' ? ' · Onaylanan toplantı' : '');
+            item.append(name, time);
+            list.append(item);
+          }
+          card.append(list);
+          return card;
+        }));
+      } catch {
+        if (mockDay.value === day) mockStatus.textContent = 'Takvimler yüklenemedi.';
+      }
+    }
+
+    mockDay.addEventListener('change', () => {
+      shownCalendars = undefined;
+      mockList.replaceChildren();
+      if (mockDay.value) {
+        mockStatus.textContent = 'Takvimler yükleniyor…';
+        void pollCalendars();
+      } else mockStatus.textContent = 'Bir tarih seç.';
+    });
+
+    function wire(className = '') {
+      const element = document.createElement('div');
+      element.className = 'wire ' + className;
+      element.setAttribute('aria-hidden', 'true');
+      map.prepend(element);
+      return element;
+    }
+
+    function positionWires() {
+      const area = map.getBoundingClientRect();
+      const center = (node) => {
+        const rect = node.getBoundingClientRect();
+        return [rect.left - area.left + rect.width / 2, rect.top - area.top + rect.height / 2];
+      };
+      const hubCenter = center(hub);
+      const wires = [];
+      for (const { node, network, calendar } of stations.values()) {
+        const personCenter = center($('.person', node));
+        wires.push([network, personCenter, hubCenter]);
+        wires.push([calendar, center($('.calendar', node)), personCenter]);
+      }
+      for (const [line, [x, y], [endX, endY]] of wires) {
+        const width = Math.hypot(endX - x, endY - y) + 'px';
+        Object.assign(line.style, {
+          left: x + 'px', top: y + 'px', width,
+          transform: 'rotate(' + Math.atan2(endY - y, endX - x) + 'rad)',
+        });
+      }
+    }
+
+    function updateFixture(fixture) {
+      if (currentFixture?.zone === fixture.zone && currentFixture.start === fixture.start &&
+          currentFixture.end === fixture.end && currentFixture.durationMinutes === fixture.durationMinutes) return;
+      const timeZone = fixture.zone;
+      const date = new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone });
+      const time = new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone });
+      formatDateTime = (value) => {
+        const instant = new Date(value);
+        return date.format(instant) + ' ' + time.format(instant);
+      };
+      const zoneLabel = timeZone === 'Europe/Istanbul' ? 'Türkiye saati' : timeZone;
+      $('#fixture').textContent = formatDateTime(fixture.start) + ' – ' + formatDateTime(fixture.end) +
+        ' · ' + zoneLabel + ' · ' + number.format(fixture.durationMinutes) + ' dk';
+      currentFixture = fixture;
+    }
+    const resize = new ResizeObserver(positionWires);
+    resize.observe(map);
+
+    function updateAgents(agents, managed) {
+      const ids = new Set(agents.map(agent => agent.id));
+      let namesChanged = false;
+      for (const [id, station] of stations) {
+        if (ids.has(id)) continue;
+        namesChanged = true;
+        resize.unobserve($('.person', station.node));
+        station.node.remove();
+        station.network.remove();
+        station.calendar.remove();
+        stations.delete(id);
+      }
+      if (managed) {
+        map.style.setProperty('--desktop-height', Math.max(365, 42 + Math.ceil(agents.length / 2) * 130) + 'px');
+        map.style.setProperty('--narrow-height', Math.max(325, 20 + agents.length * 84) + 'px');
+      }
+      for (const [index, agent] of agents.entries()) {
+        if (!stations.has(agent.id)) {
+          const node = $('#station').content.firstElementChild.cloneNode(true);
+          node.dataset.agent = agent.id;
+          map.append(node);
+          stations.set(agent.id, { node, network: wire(), calendar: wire('calendar-wire') });
+          resize.observe($('.person', node));
+        }
+        const station = stations.get(agent.id);
+        namesChanged ||= station.name !== agent.name;
+        if (managed) {
+          const rows = Math.ceil(agents.length / 2);
+          station.node.style.setProperty('--managed-x', (index % 2 ? 75 : 25) + '%');
+          station.node.style.setProperty('--managed-y', (rows === 1 ? 20 : 18 + Math.floor(index / 2) * 64 / (rows - 1)) + '%');
+          station.node.style.setProperty('--narrow-y', (52 + index * 84) + 'px');
+          $('.calendar', station.node).title = agent.device === 'Mac' ? 'Sentetik takvim' : 'Google Takvim';
+        }
+        $('.initial', station.node).textContent = agent.name.charAt(0);
+        $('.name', station.node).textContent = agent.name;
+        $('.device', station.node).textContent = agent.device;
+        station.name = agent.name;
+        if (station.node.dataset.online !== String(agent.online)) {
+          station.online = agent.online;
+          station.node.dataset.online = station.network.dataset.online = agent.online;
+          $('.status', station.node).textContent = agent.online ? 'Bağlı' : 'Çevrimdışı';
+        }
+      }
+      const connected = number.format(agents.filter(agent => agent.online).length);
+      const total = number.format(agents.length);
+      const status = managed && !ready ? 'Hub kapalı' : connected + ' / ' + total + ' ajan bağlı';
+      if (coverage.textContent !== status) coverage.textContent = status;
+      positionWires();
+      updateButtons();
+      return namesChanged;
+    }
+
+    function updateButtons() {
+      invite.disabled = working || !ready || !stations.get('agent-a')?.online || !stations.get('agent-b')?.online;
+      const deniz = stations.get('agent-c');
+      toggle.disabled = working || !ready || !deniz;
+      toggle.textContent = deniz?.online ? 'Deniz’in bağlantısını kes' : 'Deniz’i yeniden bağla';
+    }
+
+    function describe(events) {
+      const disconnected = new Set();
+      const decisions = new Map();
+      const name = (id) => stations.get(id)?.name || id;
+      return events.map(event => {
+        if (event.kind === 'offline') {
+          disconnected.add(event.agent);
+          return { ...event, title: 'Bağlantı kesildi', tone: 'stop', detail: name(event.agent) };
+        }
+        if (event.kind === 'online') {
+          const rejoined = disconnected.delete(event.agent);
+          return { ...event, title: rejoined ? 'Yeniden bağlandı' : 'Bağlandı', tone: rejoined ? 'return' : 'decision', detail: name(event.agent) };
+        }
+        if (event.phase === 'COMMIT' || event.phase === 'ABORT') decisions.set(event.meeting, event.phase);
+        const wrote = event.phase === 'APPLIED' && decisions.get(event.meeting) === 'COMMIT';
+        const [title, tone] = wrote ? ['Takvim kayıt onayı', 'calendar']
+          : event.phase === 'APPLIED' ? ['Karar teyidi', 'decision']
+          : labels[event.phase] || labels[event.type] || ['Mesaj', 'flow'];
+        const detail = event.kind === 'queued' ? name(event.from) + ' → Hub' : 'Hub → ' + name(event.to);
+        return { ...event, title, tone, detail, calendar: event.phase === 'AVAILABILITY' || wrote };
+      });
+    }
+
+    function showEvents(events) {
+      $('#empty').hidden = events.length > 0;
+      $('.feed-list').replaceChildren(...events.slice(-15).reverse().map(event => {
+        const row = document.createElement('li');
+        row.dataset.tone = event.tone;
+        const title = document.createElement('strong');
+        const time = document.createElement('time');
+        const detail = document.createElement('small');
+        title.textContent = event.title;
+        time.dateTime = event.at;
+        time.textContent = formatDateTime(event.at);
+        detail.textContent = event.detail + (event.meeting ? ' · ' + event.meeting.slice(0, 8) : '');
+        row.append(title, time, detail);
+        return row;
+      }));
+    }
+
+    function animateSignal(parent, className, tone, keyframes, duration) {
+      const signal = document.createElement('span');
+      signal.className = className;
+      signal.dataset.tone = tone;
+      signal.setAttribute('aria-hidden', 'true');
+      parent.append(signal);
+      const animation = signal.animate(keyframes, { duration, easing: 'ease-in-out' });
+      activeAnimations.add(animation);
+      return animation.finished.catch(() => {}).finally(() => {
+        activeAnimations.delete(animation);
+        signal.remove();
+      });
+    }
+
+    function flash(element, tone, duration) {
+      return animateSignal(element, 'pulse', tone, [{ opacity: 1 }, { opacity: 0 }], duration);
+    }
+
+    function pulse(line, tone, reverse, duration) {
+      const from = 'translateX(0)';
+      const to = 'translateX(' + line.style.width + ')';
+      void flash(line, tone, duration);
+      return animateSignal(line, 'packet', tone, [
+        { transform: reverse ? to : from },
+        { transform: reverse ? from : to },
+      ], duration);
+    }
+
+    function stopAnimation() {
+      pending = [];
+      for (const animation of activeAnimations) animation.cancel();
+    }
+
+    function updateAnimation() {
+      animationButton.disabled = reducedMotion.matches;
+      animationButton.setAttribute('aria-pressed', String(motionAllowed()));
+      if (!motionAllowed()) stopAnimation();
+    }
+
+    animationButton.addEventListener('click', () => {
+      animationEnabled = !animationEnabled;
+      updateAnimation();
+    });
+    reducedMotion.addEventListener('change', updateAnimation);
+    updateAnimation();
+
+    async function play() {
+      if (playing) return;
+      playing = true;
+      try {
+        while (pending.length && !document.hidden && motionAllowed()) {
+          const event = pending.shift();
+          const duration = pending.length > 8 ? 140 : 270;
+          if (event.agent) {
+            const person = stations.get(event.agent)?.node.querySelector('.person');
+            if (person) await flash(person, event.tone, duration);
+          } else {
+            const outgoing = event.kind === 'queued';
+            const station = stations.get(outgoing ? event.from : event.to);
+            if (!station) continue;
+            if (outgoing && event.calendar) await pulse(station.calendar, 'calendar', event.phase === 'APPLIED', duration);
+            if (motionAllowed() && !document.hidden) await pulse(station.network, event.tone, !outgoing, duration);
+          }
+        }
+      } finally {
+        playing = false;
+      }
+    }
+
+    async function poll() {
+      if (fetching || document.hidden) return;
+      fetching = true;
+      try {
+        const res = await fetch('/state', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+        if (!res.ok) throw new Error('Hub bekleniyor');
+        const { agents, fixture, events, mode, hubOnline } = await res.json();
+        const managed = mode === 'managed';
+        ready = hubOnline ?? true;
+        coverage.dataset.ready = map.dataset.ready = String(ready);
+        map.dataset.mode = managed ? 'managed' : 'fixture';
+        $('#calendar-scope').textContent = managed ? 'Google ve sentetik takvimler' : 'Sentetik takvimler';
+        $('#fixture-controls').hidden = managed;
+        $('#mock-calendars').hidden = !managed;
+        if (managed && Date.now() - calendarPollAt > 2500) void pollCalendars();
+        const namesChanged = updateAgents(agents, managed);
+        if (fixture) updateFixture(fixture);
+        const latest = events.at(-1);
+        if (namesChanged || latest?.seq !== lastEvent?.seq || latest?.at !== lastEvent?.at) {
+          const items = describe(events);
+          showEvents(items);
+          if (lastEvent && latest?.seq > lastEvent.seq && motionAllowed() && !document.hidden) {
+            pending = pending.concat(items.filter(event => event.seq > lastEvent.seq)).slice(-30);
+            void play();
+          }
+          lastEvent = latest;
+        }
+      } catch {
+        ready = false;
+        if (coverage.textContent !== 'Hub bekleniyor') coverage.textContent = 'Hub bekleniyor';
+        coverage.dataset.ready = map.dataset.ready = 'false';
+        for (const { node, network } of stations.values()) {
+          node.removeAttribute('data-online');
+          network.dataset.online = 'false';
+          $('.status', node).textContent = 'Bilinmiyor';
+        }
+        stopAnimation();
+        lastEvent = undefined;
+        updateButtons();
+      } finally {
+        fetching = false;
+        if (!document.hidden) pollTimer = setTimeout(poll, 500);
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      clearTimeout(pollTimer);
+      if (document.hidden) {
+        stopAnimation();
+      } else {
+        lastEvent = undefined;
+        void poll();
+      }
+    });
+
+    for (const button of [invite, toggle]) {
+      button.addEventListener('click', async () => {
+        working = true;
+        updateButtons();
+        $('#action-status').textContent = 'İşlem sürüyor…';
+        try {
+          const res = await fetch('/' + button.dataset.action, {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+            signal: AbortSignal.timeout(12000),
+          });
+          const result = await res.json();
+          if (!res.ok || !result.ok) {
+            $('#action-status').textContent = result.error || 'İşlem tamamlanamadı. Bağlantıyı kontrol edip tekrar dene.';
+            return;
+          }
+          $('#action-status').textContent = button === invite
+            ? 'Davet başlatıldı. iPhone’da Toplantılar ekranını aç.'
+            : 'Deniz’in durumu bağlantı haritasında güncellenecek.';
+        } catch {
+          $('#action-status').textContent = 'İşlem tamamlanamadı. Hub bağlantısını kontrol et.';
+        } finally {
+          working = false;
+          updateButtons();
+        }
+      });
+    }
+    void poll();
+  </script>
+</body>
+</html>

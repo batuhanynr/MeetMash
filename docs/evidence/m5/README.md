@@ -10,7 +10,7 @@ The unsigned iOS device build succeeded during development. iOS installation and
 
 ## Run the remaining acceptance checks serially
 
-Use a clean checkout and keep the revision checked out until the session finishes. Set up the disposable PostgreSQL databases, Flutter dependencies, development certificates and demo credentials as described above. Make sure Docker is available for the Linux phases and your local Ollama server has the [models installed](../../m5-intelligence.md).
+Use a clean checkout and keep the revision checked out until the session finishes. Set up the disposable PostgreSQL databases, Flutter dependencies, development certificates and demo credentials as described above. Make sure Docker is available for the Linux phases and the [OpenRouter API key is configured](../../m5-intelligence.md).
 
 ```sh
 npm run verify:acceptance -- --session=release-check

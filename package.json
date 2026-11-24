@@ -15,6 +15,7 @@
     "packages/runtime"
   ],
   "scripts": {
+    "dev": "node --env-file=.env scripts/dev.ts",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "doctor": "node scripts/doctor.ts",
@@ -49,6 +50,7 @@
     "lab:smoke": "node scripts/m4/smoke.mjs",
     "demo:m5": "node --env-file-if-exists=.env scripts/mobile-mixed.ts",
     "demo:m5:devices": "node --env-file-if-exists=.env scripts/m5-devices.ts",
+    "demo:m5:phone": "node --env-file-if-exists=.env scripts/m5-devices.ts --single-phone",
     "test:intelligence": "node --test tests/intelligence/*.test.ts",
     "test:gate:m4": "npm run test:gate:m3 && npm run bench:network",
     "test:gate:m5": "npm run test:gate:m3 && npm run test:intelligence && npm run check:mobile && npm run demo:m5",

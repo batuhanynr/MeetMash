@@ -24,9 +24,12 @@ try {
   await migrate(database);
   const store = new PgDirectoryStore(database);
   const secret = randomBytes(24).toString('hex');
-  for (const [id, name, visibility] of [['host','Ali','public'], ['target','Ada','public'], ['hidden','Bora','private']] as const) {
+  for (const [id, name, visibility] of [
+    ['host','Ev Sahibi','public'], ['target','Ada','public'], ['hidden','Bora','private'],
+    ['deniz','Deniz','public'], ['ali','Ali','public'], ['ayse','Ayşe','public'],
+  ] as const) {
     await provisionIdentity(database, { agentId: id, userId: id, secret });
-    await store.upsertProfile({ agentId: id, displayName: name, visibility, capabilities: id === 'host' ? [] : ['Türkçe Almanca çeviri'] });
+    await store.upsertProfile({ agentId: id, displayName: name, visibility });
   }
   const certificates = process.env.CERT_DIR ?? '.state/certs';
   hub = await startM2Hub(database, { host:'127.0.0.1',port:0,tls: {
@@ -45,19 +48,27 @@ try {
       });
     } finally { clearTimeout(timer); handlers.delete(requestId); }
   }
-  const discovery = await request({kind:'directory.lookup',by:'semantic',term:'I need documents translated into German'});
-  assert.equal(discovery.mode,'semantic');
-  assert.deepEqual(discovery.agents, [{agentId:'target',displayName:'Ada'}]);
   const preview = await request({kind:'meeting.preview',timeZone:'Europe/Istanbul',text:'Yarın 14:00 ile 16:00 arasında Ada ile 30 dakika görüşelim.'});
   assert.equal(preview.status,'ready');
   assert.deepEqual(preview.participantAgentIds,['host','target']);
   assert.equal(preview.durationMinutes,30);
+  const suffix = await request({kind:'meeting.preview',timeZone:'Europe/Istanbul',text:'yarın denizle yarım saat görüşmem gerek'});
+  assert.equal(suffix.status,'ready');
+  assert.deepEqual(suffix.participantAgentIds,['host','deniz']);
+  assert.equal(suffix.durationMinutes,30);
+  assert.ok(suffix.window);
+  const swimming = await request({kind:'meeting.preview',timeZone:'Europe/Istanbul',text:'ali ve ayse ile yarın denize yüzmeye gideceğiz'});
+  assert.deepEqual((swimming.participantAgentIds as string[]).toSorted(),['ali','ayse','host']);
+  assert.equal(swimming.status,'clarify');
+  assert.equal(swimming.durationMinutes,null);
+  assert.deepEqual(swimming.questions,['Toplantı süresini gir.']);
+  assert.ok(swimming.window);
   const mailboxRows = Number((await database.query('SELECT count(*) AS n FROM mailbox')).rows[0].n);
   assert.equal(mailboxRows,0);
   const evidenceDir = process.env.M5_AI_EVIDENCE_DIR ?? '.state/evidence/m5-ai';
   mkdirSync(evidenceDir,{recursive:true});
-  writeFileSync(join(evidenceDir,'wss-smoke.json'), JSON.stringify({ timestamp:new Date().toISOString(),discovery,preview,mailboxRows },null,2) + '\n');
-  console.log('Passed WSS discovery and preview with real models. Database mailbox rows after preview: 0');
+  writeFileSync(join(evidenceDir,'wss-smoke.json'), JSON.stringify({ timestamp:new Date().toISOString(),preview,suffix,swimming,mailboxRows },null,2) + '\n');
+  console.log('Passed WSS preview with real models. Database mailbox rows after preview: 0');
 } finally {
   socket?.close();
   await hub?.close();

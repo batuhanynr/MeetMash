@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
+import { DatabaseSync } from 'node:sqlite';
 import { M2Cluster } from './lib/m2-cluster.ts';
 import { waitFor } from './lib/processes.ts';
 import fixture from '../packages/protocol/fixtures/calendar-v1.json' with { type: 'json' };
@@ -43,7 +44,8 @@ const cluster = new M2Cluster({
   agentIds: ids,
   agentArgs,
 });
-type View = { status: string; eventCount: number; selected: { start: string; end: string; score?: number } };
+type View = { status: string; title: string; eventCount: number; selected: { start: string; end: string; score?: number } };
+const finalTitle = 'Tasarım değerlendirmesi - son hâl';
 const secrets = loadSecrets(secretsFile);
 async function startMobile() {
   const account = join(root, 'account.json'),
@@ -135,14 +137,16 @@ try {
     coordinator = cluster.agent('agent-a');
   let approval: object | undefined;
   if (usePreview) {
-    const text = 'Yarın 10:00 ile 16:00 arasında Alpha ve Bravo ile 60 dakika görüşelim.';
+    const text = 'Yarın 10:00 ile 16:00 arasında Alpha ve Bravo ile 60 dakika görüşelim. Konu: Tasarım değerlendirmesi.';
     const preview = (await mobile.command({ command: 'preview', text })).preview as {
       status: string;
+      title: string;
       participantAgentIds: string[];
       durationMinutes: number;
       window: { start: string; end: string };
     };
     assert.equal(preview.status, 'ready', 'Model could not prepare a meeting preview');
+    assert.ok(preview.title && 'tasarım değerlendirmesi'.includes(preview.title.toLocaleLowerCase('tr')));
     assert.deepEqual([...preview.participantAgentIds].sort(), ids);
     assert.equal(preview.durationMinutes, 60);
     assert.equal(Date.parse(preview.window.start), Date.parse(synthetic.window.start));
@@ -155,6 +159,7 @@ try {
       participantAgentIds: preview.participantAgentIds,
       window: preview.window,
       durationMinutes: preview.durationMinutes,
+      title: finalTitle,
     });
   } else
     await coordinator.command({
@@ -163,6 +168,7 @@ try {
       participantAgentIds: ids,
       window: fixture.window,
       durationMinutes: fixture.durationMinutes,
+      title: finalTitle,
     });
   const readNode = async (id: string) =>
     (await cluster.agent(id).command({ command: 'meeting', meetingId })).meeting as View;
@@ -178,12 +184,20 @@ try {
     c = await mobile.view(meetingId);
   assert(c);
   for (const m of [a, b, c]) {
+    assert.equal(m.title, finalTitle);
     assert.equal(m.eventCount, 1);
     assert.equal(
       Date.parse(m.selected.start),
       Date.parse((usePreview ? tomorrow : '2026-11-10') + 'T14:00:00+03:00'),
     );
   }
+  for (const id of ['agent-a', 'agent-b']) {
+    const db = new DatabaseSync(join(root, id, 'meetings.sqlite'), { readOnly: true });
+    try {
+      assert.equal(db.prepare('SELECT title FROM calendar_events WHERE meeting=?').get(meetingId)?.title, finalTitle);
+    } finally { db.close(); }
+  }
+  assert.equal(JSON.parse(readFileSync(join(root, 'state.json'), 'utf8')).events[meetingId].title, finalTitle);
   const ranked = owner as View & { ranked?: Array<{ score: number }> };
   const score = owner.selected.score ?? ranked.ranked?.[0]?.score;
   assert.equal(score, 220);
@@ -192,9 +206,11 @@ try {
   const recovered = await mobile.view(meetingId);
   assert.equal(recovered?.eventCount, 1);
   assert.equal(recovered?.status, c.status);
+  assert.equal(recovered?.title, finalTitle);
   const report = {
     runId,
     meetingId,
+    title: finalTitle,
     transport: 'WSS',
     coordinator: usePreview ? 'Dart' : 'Node',
     participants: ['Node', 'Node', 'Dart foreground core'],
