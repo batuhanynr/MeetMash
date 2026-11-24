@@ -15,10 +15,6 @@ The hub never holds pair keys and relays `auth` untouched; MAC gives integrity a
 confidentiality. `relay.persisted` is a hub control frame sent after the Postgres commit; `recipient.persisted`
 stays an end-to-end agent ACK and only it marks a mailbox row DELIVERED.
 
-## Human acceptance still required
+## Verification scope
 
-- A second team member should run `npm run demo:m2` after `db:up` / `certs` / `secrets`.
-- The branch requires review and merge.
-- GitHub Actions is billing-locked on this account, so CI has not run; verification is local only.
-- Dev secrets and certificates are synthetic and live under `.state/`; they are not a production key-management system.
-- MM-401 (Air network lab) and MM-501 (mobile binaries) remain open for later milestones.
+To reproduce the local scenarios, run `npm run demo:m2` after the [PostgreSQL, certificate, and demo-credential setup](../README.md#m2-demo-and-verification). The generated credentials and certificates are for development, not production key management. External network and device checks are tracked in the [network measurements](evidence/m4/README.md) and [mobile verification](evidence/m5/README.md).

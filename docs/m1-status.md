@@ -1,6 +1,6 @@
 # M1 implementation status
 
-Implemented on `m1/agent-setup`. The proposal calls the product MeetMesh; the existing repository name is retained.
+This historical record covers the runnable monorepo and protocol demonstrated in M1.
 
 | Plan item | Implementation / verification |
 | --- | --- |
@@ -16,13 +16,6 @@ conflicting message ID rejection, sender and receiver SIGKILL recovery, independ
 The M1 effect is a synthetic durable row. It demonstrates delivery idempotency, not a negotiated meeting or a calendar write.
 The hub is a relay adaptation of the proposal, not a direct P2P registrar. See [ADR 001](decisions/001-runtime-and-routing.md).
 
-## Human acceptance still required
+## Verification scope
 
-- A second team member must run `npm run demo:m1` from the README.
-- The branch requires review and merge before the plan's shared definition of done is satisfied.
-- The local `m1-demo` tag identifies the tested code revision in archived evidence; it is not pushed automatically.
-- CI configuration is committed; a hosted GitHub Actions run requires pushing the branch.
-
-No human review or second-member run is claimed by the automated evidence.
-MM-501 remains open: local Flutter analysis/widget checks are available; Android/iOS binaries are not verified.
-MM-401 Air access was not checked as part of this local M1 implementation.
+The [recorded M1 evidence](evidence/m1/README.md) covers the local protocol scenarios. It does not claim a second member's independent run or verification of Android/iOS binaries or the external Air lab. See the [current mobile and mixed-agent evidence](evidence/m5/README.md) for later checks.
