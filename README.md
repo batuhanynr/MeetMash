@@ -1,10 +1,11 @@
 # MeetMesh
 
-Flutter and Node.js monorepo for the CSE476 personal-agent project.
-The implementation scope is defined in [the milestone plan](MeetMesh_Implementation_Plan_and_Issues.md).
+MeetMesh is a CSE476 project in which personal agents negotiate a common meeting time through a relay. The agents share candidate availability, not the titles or descriptions of existing calendar events. The hub routes messages and provides discovery and offline delivery; the agents choose the slot and write to their own calendars.
+
+The repository includes a Node.js reference agent, a Flutter app with a Dart agent, and a shared JSON protocol. The app supports manual scheduling and a Turkish natural-language preview. The scheduling demo can use synthetic calendars without a language model.
 
 ```text
-apps/hub          Local relay (Node.js + TypeScript)
+apps/hub          Relay, directory, mailbox, and request preview
 apps/agent-node   Independent reference agent (Node.js + SQLite)
 apps/mobile       Flutter application (Android + iOS)
 packages/protocol Portable message schemas, fixtures, and validator
@@ -15,30 +16,27 @@ docs/decisions    Architecture decisions
 docs/evidence     Small reproducible validation records
 ```
 
-Requirements: Node.js 26, npm 11, Flutter 3.38.7 / Dart 3.10.7.
-Use the installed SDKs; do not upgrade them to run M1.
+## Setup
+
+Use Node.js 26 and npm 11. Mobile development also requires Flutter 3.38.7 (Dart 3.10.7). Docker is needed for the bundled PostgreSQL and network lab; an existing PostgreSQL instance can replace the bundled database.
 
 ```sh
-npm ci --offline --ignore-scripts
-cd apps/mobile
-flutter pub get --offline
-cd ../..
+npm ci --ignore-scripts
 npm run check
 npm run build
 npm run doctor
 ```
 
-If a fresh machine has no package cache, omit `--offline` for the dependency restore.
-See [runtime and routing](docs/decisions/001-runtime-and-routing.md) for SOLID boundaries and the relay adaptation.
+For Flutter, run `flutter pub get` in `apps/mobile`. See the [architecture decision](docs/decisions/001-runtime-and-routing.md) for the relay and runtime design.
 
-## Local processes
+## Quick start: local protocol demo
 
 ```sh
 cp .env.example .env
 npm run local
 ```
 
-This starts one hub and A/B/C as **four separate processes**, each agent with its own SQLite directory.
+This starts the M1 demo environment: one hub and three agents as four separate processes, with a SQLite directory per agent.
 Check `http://127.0.0.1:8787/health` from another terminal. Ctrl+C / SIGTERM stops all four processes.
 Port and identity collisions fail explicitly. To clear synthetic local data, stop the cluster and run:
 
@@ -75,14 +73,14 @@ Every scenario uses clean isolated state, closes its processes, and removes its 
 - `test:protocol`: portable schema/semantic vectors, without networking.
 - `test:unit`: SQLite transactions, ownership, duplicate identity, ACK binding, expiry, and reset.
 - `test:integration`: ten scenarios with real TCP connections and separate hub/agent processes.
-- `test`: all Node tests.
-- `test:gate:m1`: TypeScript check, JavaScript build, and all Node tests; exits nonzero on any failure.
-- `test:regression`: the implemented M1 gate; later milestones extend it.
+- `test`: the M1 Node protocol, unit, and integration suites.
+- `test:gate:m1`: TypeScript check, JavaScript build, and the M1 Node suites.
+- `test:regression`: an alias for the M1 gate.
 
 Gate results go to `.state/evidence/m1/`; demo results go to `.state/evidence/demo-m1/`.
 Set `M1_EVIDENCE_DIR` to choose the gate destination. Reports contain the code commit, dirty-worktree flag,
 runtime/dependency versions, synthetic test data, retry settings, outcome metrics, and sampled structured logs.
-The [M1 status record](docs/m1-status.md) maps the plan to commands and remaining human checks.
+The [M1 status record](docs/m1-status.md) documents commands and remaining manual checks.
 CI runs the Node gate and Flutter analysis/widget test, and uploads the gate evidence on success or failure.
 
 Default retries wait 1s, doubling up to 8s, with at most five retries. Gate scenarios explicitly shorten waits to 100/150ms.
@@ -125,15 +123,14 @@ Secrets and certificates live under `.state/` and are never committed. `test:hub
 unit and hub-core tests; `test:gate:m2` runs the typecheck, build, M1 regression, `test:hub`, and the M2 scenarios.
 See the [M2 status record](docs/m2-status.md) and [ADR 002](docs/decisions/002-m2-hub-persistence-and-security.md).
 
-## Current mobile environment
+## Scheduling, mobile, and evaluation
 
-The Flutter shell was generated using the installed SDK. `flutter pub get --offline`, analysis, and the widget test run locally.
-Android command-line tools are missing and Xcode cannot enumerate simulator runtimes on this machine.
-Android/iOS binary builds are **not verified** by M1. See [the mobile README](apps/mobile/README.md); MM-501 remains open.
-Directory discovery, durable hub mailboxes, authentication/MAC/TLS, scheduling, and mobile agent features remain in M2-M5.
+| Area | How to run or review |
+| --- | --- |
+| Deterministic scheduling (M3) | [Scheduling guide](docs/m3.md) and [recorded runs](docs/evidence/m3/runs.json) |
+| Degraded networks (M4) | [Network lab guide](infra/network/README.md) and [recorded results](docs/evidence/m4/README.md) |
+| Flutter/Dart and Google Calendar | [Mobile setup and device demo](apps/mobile/README.md) |
+| Natural-language preview and semantic discovery | [Model setup](docs/m5-intelligence.md) and [model evaluation](docs/evidence/m5/intelligence/README.md) |
+| Mixed Node/Dart scheduling (M5) | [Verification commands and outstanding checks](docs/evidence/m5/README.md) |
 
-The [M3 scheduling guide](docs/m3.md) includes a three-agent meeting request, the recovery states and the commands for the repeatability tests.
-
-Run `npm run lab:smoke` to check a local Linux data-path interruption, or `npm run demo:m4` for four network scenarios. The [network lab guide](infra/network/README.md) covers the measurement matrix and resource limits. The [recorded runs](docs/evidence/m4/README.md) include the interrupted series and the separate Dart smoke run.
-
-The [mobile guide](apps/mobile/README.md) covers the device hub, fixture meeting and Google test calendar setup. `npm run demo:m5` runs one foreground Dart agent with two Node peers and synthetic calendars on a disposable database. See the [M5 checks](docs/evidence/m5/README.md) for commands and verification status.
+The recorded mixed Node/Dart run used synthetic calendars. An unsigned iOS build succeeded during development, but installation and launch still need verification. The Android debug build stopped during native toolchain setup. The live Google Calendar exercise and full network matrix are not part of the completed verification. See the evidence records for the individual results and their limits.
