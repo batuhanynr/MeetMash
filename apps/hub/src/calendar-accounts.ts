@@ -90,6 +90,13 @@ export class CalendarAccounts {
     const client = await database.connect();
     try {
       await client.query('BEGIN');
+      for (const [oldId, newId] of [['ege', 'ferhat'], ['deniz', 'elif']]) {
+        if (this.accounts.mockAgents?.some(agent => agent.agentId === newId) &&
+            !this.accounts.mockAgents.some(agent => agent.agentId === oldId)) {
+          await client.query("UPDATE agent_profiles SET visibility = 'private' WHERE agent_id = $1 AND EXISTS (SELECT 1 FROM agent_identities WHERE agent_id = $1 AND user_id = $2)",
+            [oldId, `mock-calendar:${oldId}`]);
+        }
+      }
       for (const a of [...this.byAgent.values(), ...(this.accounts.mockAgents ?? [])]) {
         const userId = `${this.byAgent.has(a.agentId) ? 'calendar' : 'mock-calendar'}:${a.agentId}`;
         await client.query('INSERT INTO agent_identities(agent_id,user_id,bootstrap_secret_hash) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',

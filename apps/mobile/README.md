@@ -57,7 +57,7 @@ node scripts/connect-calendar.ts agent-a person-a@example.com Ada
 node scripts/connect-calendar.ts agent-b person-b@example.com Ece
 ```
 
-Run `node scripts/setup-mock-calendars.ts` to add Ege and Deniz to the same managed hub and prepare their synthetic calendars under `.state/m5-calendars/mock-agents`. Restart the hub after setup. In two terminals, choose `DEMO_AGENT=ege` or `DEMO_AGENT=deniz` and run the command below with the same `MEETMESH_DATA_HOST` and `CERT_DIR` as the hub. Re-run setup and restart both mock agents if you add a Google test account later.
+Run `node --env-file=.env scripts/setup-mock-calendars.ts` to add Ferhat and Elif to the same managed hub and prepare their synthetic calendars under `.state/m5-calendars/mock-agents`. Restart the hub after setup. In two terminals, choose `DEMO_AGENT=ferhat` or `DEMO_AGENT=elif` and run the command below with the same `MEETMESH_DATA_HOST` and `CERT_DIR` as the hub. Re-run setup and restart both mock agents if you add a Google test account later.
 
 ```sh
 MOCK_ROOT=.state/m5-calendars/mock-agents
