@@ -14,7 +14,8 @@ try {
   const catalog = loadCalendarAccounts(catalogPath);
   if (!catalog.accounts.length) throw new Error('Connect a Google test account first.');
   catalog.mockAgents ??= [];
-  for (const [agentId, displayName] of [['ege', 'Ferhat'], ['deniz', 'Elif']] as const) {
+  catalog.mockAgents = catalog.mockAgents.filter(agent => !['ege', 'deniz'].includes(agent.agentId));
+  for (const [agentId, displayName] of [['ferhat', 'Ferhat'], ['elif', 'Elif']] as const) {
     if (catalog.accounts.some(account => account.agentId === agentId)) throw new Error(`Google account already uses ${agentId}.`);
     const existing = catalog.mockAgents.find(agent => agent.agentId === agentId);
     if (existing) existing.displayName = displayName;
@@ -28,7 +29,7 @@ try {
   }
 
   const year = new Intl.DateTimeFormat('en', { timeZone: 'Europe/Istanbul', year: 'numeric' }).format(new Date());
-  for (const agent of catalog.mockAgents.filter(agent => ['ege', 'deniz'].includes(agent.agentId))) {
+  for (const agent of catalog.mockAgents.filter(agent => ['ferhat', 'elif'].includes(agent.agentId))) {
     const { agentId, bootstrap } = agent;
     const directory = join(root, agentId);
     mkdirSync(directory, { recursive: true, mode: 0o700 });
@@ -42,7 +43,7 @@ try {
       const at = (time: string) => new Date(`${date}T${time}:00+03:00`).toISOString();
       profile.working.push({ start: at('09:00'), end: at('20:00') });
       if (day.getUTCDay() === 0) continue;
-      const [title, start, end] = agentId === 'ege'
+      const [title, start, end] = agentId === 'ferhat'
         ? ['Proje çalışması', '10:00', '11:30']
         : ['Atölye', '15:00', '16:30'];
       profile.busy.push({ title, start: at(start!), end: at(end!), description: 'Demo etkinliği' });

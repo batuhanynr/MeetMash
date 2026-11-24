@@ -42,7 +42,7 @@ hub.stdout!.on('data', chunk => {
     try { event = JSON.parse(line); } catch { continue; }
     if (event.event !== 'hub.ready') continue;
     start('panel', ['scripts/calendar-panel.ts'], { MEETMESH_PANEL_HUB: `https://${host}:${port}`, MEETMESH_PANEL_LOG: logPath });
-    for (const id of ['ege', 'deniz']) {
+    for (const id of ['ferhat', 'elif']) {
       start(id, ['apps/agent-node/src/m2-main.ts', '--id', id, '--hub', `wss://${host}:${port}`,
         '--state-root', root, '--secrets', join(root, id, 'secrets.json'), '--calendar-file', join(root, id, 'calendar.json')]);
     }
