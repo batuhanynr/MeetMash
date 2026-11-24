@@ -46,9 +46,7 @@ export const scenarios: Scenario[] = [
     async run(cluster) {
       const byName = (await cluster.agent('agent-a').command({ command: 'lookup', by: 'name', term: 'Carol' })).agents as { agentId: string }[];
       assert.deepEqual(byName.map(a => a.agentId), ['agent-c']);
-      const byCapability = (await cluster.agent('agent-a').command({ command: 'lookup', by: 'capability', term: 'scheduling' })).agents as { agentId: string }[];
-      assert.deepEqual(byCapability.map(a => a.agentId).sort(), ['agent-a', 'agent-b', 'agent-c']);
-      return { discoveredByName: byName[0]!.agentId, discoveredByCapability: byCapability.length };
+      return { discoveredByName: byName[0]!.agentId };
     },
   },
   {

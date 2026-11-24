@@ -2,8 +2,8 @@ import { closeSync, constants, fstatSync, openSync, readFileSync } from 'node:fs
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-export const calendarTitle = 'Meetmash Takvimim';
-export const googleClientPath = () => process.env.MEETMESH_GOOGLE_OAUTH_FILE ?? join(homedir(), '.config/meetmash/google-oauth-web.json');
+export const calendarTitle = 'MeetMash Takvimim';
+export const googleClientPath = () => process.env.MEETMESH_GOOGLE_OAUTH_FILE ?? join(homedir(), '.config/meetmesh/google-oauth-web.json');
 export const calendarScopes = [
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/calendar.calendarlist.readonly',

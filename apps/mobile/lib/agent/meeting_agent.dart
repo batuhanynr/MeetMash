@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'meeting_title.dart';
 import 'protocol.dart';
 import 'store.dart';
 import '../calendar/calendar.dart';
+
+class CalendarOverlapNeedsApproval implements Exception {
+  const CalendarOverlapNeedsApproval();
+}
 
 class MeetingAgent {
   final String id;
@@ -78,8 +83,35 @@ class MeetingAgent {
 
   String _queue(Json s, Json m, String to, String type, Json payload) {
     final msg = _envelope(s, to, m['meetingId'], type, payload, m);
+    _recordMove(m, msg);
     s['outbox'][msg['messageId']] = {'message': msg, 'next': 0, 'attempts': 0};
     return msg['messageId'];
+  }
+
+  void _recordMove(Json meeting, Json message) {
+    final payload = message['payload'] as Json? ?? const {};
+    final move = <String, dynamic>{
+      'at': message['createdAt'] ?? utc(now()),
+      'from': message['fromAgentId'],
+      'to': message['toAgentId'],
+      'type': message['type'],
+      if (payload['phase'] case final String phase) 'phase': phase,
+      if (payload['slots'] case final List slots) 'count': slots.length,
+      if (payload['slot'] case final Json slot) 'slot': times(slot),
+      if (payload['reasonCode'] case final String reason) 'reason': reason,
+    };
+    final moves = (meeting['moves'] ??= <Json>[]) as List;
+    // Protocol retries describe the same move, even with a new envelope ID.
+    bool sameMove(Json previous) =>
+        previous['from'] == move['from'] &&
+        previous['to'] == move['to'] &&
+        previous['type'] == move['type'] &&
+        previous['phase'] == move['phase'] &&
+        previous['reason'] == move['reason'] &&
+        canonical(previous['slot']) == canonical(move['slot']);
+    if (moves.cast<Json>().any(sameMove)) return;
+    moves.add(move);
+    if (moves.length > 256) moves.removeAt(0);
   }
 
   void _flush() {
@@ -135,9 +167,11 @@ class MeetingAgent {
     String round,
     int version,
     String deadline,
+    String title,
   ) => {
     'meetingId': meeting,
     'coordinator': coordinator,
+    'title': title,
     'participants': participants,
     'window': window,
     'duration': duration,
@@ -156,6 +190,8 @@ class MeetingAgent {
     int duration, {
     Duration timeout = const Duration(seconds: 120),
     String? meetingId,
+    String? title,
+    bool allowCalendarOverlap = false,
   }) => _serial(() async {
     validateWindow(window, duration);
     final peers = {id, ...participants}.toList()..sort();
@@ -170,6 +206,22 @@ class MeetingAgent {
     if (s['meetings'].containsKey(meeting)) {
       throw StateError('Meeting already exists');
     }
+    final reserved = _reserved(s, meeting);
+    var slots = await calendar.candidates(window, duration, reserved);
+    var calendarOverlapApproved = false;
+    if (slots.isEmpty) {
+      slots = await calendar.candidates(
+        window,
+        duration,
+        reserved,
+        allowCalendarOverlap: true,
+      );
+      if (slots.isEmpty) {
+        throw StateError('Bu aralıkta toplantı için uygun bir saat yok.');
+      }
+      if (!allowCalendarOverlap) throw const CalendarOverlapNeedsApproval();
+      calendarOverlapApproved = true;
+    }
     final m = _new(
       meeting,
       id,
@@ -179,19 +231,25 @@ class MeetingAgent {
       newId(),
       1,
       utc(now().add(timeout)),
+      normalizeMeetingTitle(title),
     );
-    m['offers'][id] = await calendar.candidates(
-      window,
-      duration,
-      _reserved(s, meeting),
-    );
+    if (calendarOverlapApproved) m['calendarOverlapApproved'] = true;
+    m['offers'][id] = slots;
     s['meetings'][meeting] = m;
+    _recordMove(m, {
+      'fromAgentId': id,
+      'type': calendarOverlapApproved
+          ? 'LOCAL_OVERLAP_APPROVED'
+          : 'LOCAL_AVAILABILITY',
+      'payload': {'slots': m['offers'][id]},
+    });
     for (final to in peers.where((p) => p != id)) {
       _queue(s, m, to, 'REQUEST', {
         'participantAgentIds': peers,
         'durationMinutes': duration,
         'window': window,
         'deadline': m['deadline'],
+        'title': m['title'],
       });
     }
     _save(s);
@@ -272,8 +330,10 @@ class MeetingAgent {
         msg['roundId'],
         msg['decisionVersion'],
         p['deadline'],
+        normalizeMeetingTitle(p['title']),
       );
       s['meetings'][meeting] = m;
+      _recordMove(m, msg);
       try {
         validateWindow(m['window'], m['duration']);
         m['offers'][id] = await calendar.candidates(
@@ -300,9 +360,11 @@ class MeetingAgent {
     if (m == null ||
         m['roundId'] != msg['roundId'] ||
         m['decisionVersion'] != msg['decisionVersion'] ||
-        !(m['participants'] as List).contains(peer)) {
+        !(m['participants'] as List).contains(peer) ||
+        (m['coordinator'] != id && peer != m['coordinator'])) {
       return;
     }
+    _recordMove(m, msg);
     if (m['coordinator'] == id) {
       if (m['decision'] == null &&
           !DateTime.parse(m['deadline']).isAfter(now())) {
@@ -330,6 +392,7 @@ class MeetingAgent {
           return;
         }
         if (!available) {
+          m['error'] = 'Önerilen saat artık takviminde müsait değil.';
           _decide(s, m, false, 'DECLINED');
           return;
         }
@@ -352,7 +415,14 @@ class MeetingAgent {
           _decide(s, m, true, '');
         }
       } else if (msg['type'] == 'REJECT' && m['decision'] == null) {
-        _decide(s, m, false, p['reasonCode'] == 'NO_AVAILABILITY' ? 'NO_COMMON_SLOT' : p['reasonCode']);
+        _decide(
+          s,
+          m,
+          false,
+          p['reasonCode'] == 'NO_AVAILABILITY'
+              ? 'NO_COMMON_SLOT'
+              : p['reasonCode'],
+        );
       } else if (msg['type'] == 'CONFIRM' &&
           p['phase'] == 'APPLIED' &&
           m['decision'] == 'COMMIT' &&
@@ -366,7 +436,6 @@ class MeetingAgent {
       }
       return;
     }
-    if (peer != m['coordinator']) return;
     if (msg['type'] == 'REQUEST' && m['status'] == 'COLLECTING') {
       _queue(s, m, peer, 'PROPOSE', {
         'phase': 'AVAILABILITY',
@@ -425,6 +494,8 @@ class MeetingAgent {
       m['window'],
       m['duration'],
       _reserved(s, m['meetingId']),
+      allowCalendarOverlap:
+          m['coordinator'] == id && m['calendarOverlapApproved'] == true,
     );
     return slots.any((slot) => sameSlot(slot, m['selected']));
   }
@@ -519,13 +590,24 @@ class MeetingAgent {
         _decide(s, m, false, 'TIMEOUT');
       }
       final t = now().millisecondsSinceEpoch;
-      if (m['decision'] == 'COMMIT' && m['applied'][id] != true &&
+      if (m['decision'] == 'COMMIT' &&
+          m['applied'][id] != true &&
           (m['retryWriteAt'] ?? 0) <= t) {
         try {
-          await calendar.ensureEvent(m['meetingId'], id, m['selected']);
-          s['events'][m['meetingId']] = m['selected'];
+          final title = normalizeMeetingTitle(m['title']);
+          await calendar.ensureEvent(
+            m['meetingId'],
+            id,
+            m['selected'],
+            title: title,
+          );
+          s['events'][m['meetingId']] = {
+            ...m['selected'] as Json,
+            'title': title,
+          };
           m['held'] = false;
           m['applied'][id] = true;
+          _recordMove(m, {'fromAgentId': id, 'type': 'LOCAL_CALENDAR'});
           m.remove('error');
           m.remove('retryWriteAt');
           m.remove('writeAttempts');

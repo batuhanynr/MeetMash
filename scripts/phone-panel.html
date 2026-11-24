@@ -59,6 +59,8 @@
     .station[data-agent="agent-a"] { --x: 50%; --y: 18%; }
     .station[data-agent="agent-b"] { --x: 23%; --y: 80%; }
     .station[data-agent="agent-c"] { --x: 77%; --y: 80%; }
+    .map[data-mode="managed"] { height: var(--desktop-height, 365px); }
+    .map[data-mode="managed"] .station { --x: var(--managed-x); --y: var(--managed-y); }
     .person { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 8px; width: 142px; padding: 8px 10px; border: 1px solid #3c5061; border-radius: 12px; background: #192633; }
     .person strong { display: block; overflow-wrap: anywhere; }
     .person-meta { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; }
@@ -107,6 +109,16 @@
     #action-status { width: 100%; color: var(--amber); font-size: 13px; }
     #action-status:empty { display: none; }
     #fixture { font-variant-numeric: tabular-nums; }
+    .controls[hidden] { display: none; }
+    .mock-calendars { padding: 14px 18px 18px; border-top: 1px solid var(--border); }
+    .mock-calendars .panel-head { padding: 0 0 12px; border: 0; }
+    .mock-calendars input { color: var(--text); background: #192633; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+    .mock-calendar-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr)); gap: 10px; }
+    .mock-calendar-list article { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 12px; }
+    .mock-calendar-list h3 { margin: 0 0 9px; font-size: 15px; }
+    .mock-calendar-list ul { margin: 0; padding: 0; list-style: none; }
+    .mock-calendar-list li { display: grid; gap: 2px; padding: 7px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+    .mock-calendar-list time, #mock-calendar-status { color: var(--muted); font-size: 12px; }
     @media (pointer: fine) { html { overscroll-behavior: none; } }
     @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
     @container (max-width: 510px) {
@@ -115,6 +127,8 @@
       .station[data-agent] { --x: 66%; }
       .station[data-agent="agent-b"] { --y: 50%; }
       .station[data-agent="agent-c"] { --y: 82%; }
+      .map[data-mode="managed"] { height: var(--narrow-height, 365px); }
+      .map[data-mode="managed"] .station { --x: 67%; --y: var(--narrow-y); }
       .station { gap: 10px; }
       .person { grid-template-columns: 1fr; width: 108px; padding: 7px 8px; }
       .initial { display: none; }
@@ -128,14 +142,14 @@
     <header>
       <div class="title">
         <img class="brand" src="/brand/meetmesh-mark.svg" width="48" height="48" alt="">
-        <div><small translate="no">MeetMesh</small><h1>Tek telefon test paneli</h1></div>
+        <div><small translate="no">MeetMesh</small><h1>Test paneli</h1></div>
       </div>
       <span id="coverage" class="status" role="status">Hub bekleniyor</span>
     </header>
     <div class="layout">
       <section class="panel graph" aria-labelledby="map-title">
         <div class="panel-head">
-          <div><h2 id="map-title">Bağlantı haritası</h2><small>Sentetik takvimler</small></div>
+          <div><h2 id="map-title">Bağlantı haritası</h2><small id="calendar-scope">Sentetik takvimler</small></div>
           <button type="button" id="animation" aria-pressed="false">Animasyon</button>
         </div>
         <div class="map" data-ready="false">
@@ -158,6 +172,14 @@
           <span data-tone="decision">Onay</span><span data-tone="stop">Ret veya kopma</span>
           <span data-tone="return">Yeniden bağlanma</span>
         </div>
+        <section class="mock-calendars" id="mock-calendars" aria-labelledby="mock-calendars-title" hidden>
+          <div class="panel-head">
+            <h2 id="mock-calendars-title">Mock ajan takvimleri</h2>
+            <label>Tarih <input id="mock-calendar-day" type="date"></label>
+          </div>
+          <p id="mock-calendar-status" role="status"></p>
+          <div class="mock-calendar-list"></div>
+        </section>
       </section>
       <section class="panel" aria-labelledby="feed-title">
         <div class="panel-head"><h2 id="feed-title">Son olaylar</h2></div>
@@ -165,7 +187,7 @@
         <ol class="feed-list" aria-labelledby="feed-title" tabindex="0"></ol>
       </section>
     </div>
-    <section class="panel controls" aria-labelledby="controls-title">
+    <section class="panel controls" id="fixture-controls" aria-labelledby="controls-title">
       <div>
         <h2 id="controls-title">Toplantıyı dene</h2>
         <p class="scenario">iPhone’da <strong>Planla</strong> ekranından <strong>Ece</strong> ve <strong>Deniz</strong>’i bulup ekle.</p>
@@ -194,7 +216,10 @@
     let animationEnabled = true;
     const motionAllowed = () => animationEnabled && !reducedMotion.matches;
     let currentFixture;
-    let formatDateTime;
+    const eventDate = new Intl.DateTimeFormat('tr-TR', {
+      dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Istanbul',
+    });
+    let formatDateTime = (value) => eventDate.format(new Date(value));
     const labels = {
       REQUEST: ['Toplantı isteği', 'flow'],
       AVAILABILITY: ['Müsaitlik yanıtı', 'calendar'],
@@ -212,6 +237,72 @@
     let ready = false;
     let pollTimer;
     let fetching = false;
+    const mockDay = $('#mock-calendar-day');
+    const mockList = $('.mock-calendar-list');
+    const mockStatus = $('#mock-calendar-status');
+    const clock = new Intl.DateTimeFormat('tr-TR', {
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Istanbul',
+    });
+    mockDay.value = new Intl.DateTimeFormat('sv-SE', {
+      dateStyle: 'short', timeZone: 'Europe/Istanbul',
+    }).format(new Date());
+    let calendarPollAt = 0;
+    let shownCalendars;
+
+    async function pollCalendars() {
+      if (!mockDay.value) return;
+      calendarPollAt = Date.now();
+      const day = mockDay.value;
+      try {
+        const response = await fetch('/calendars?' + new URLSearchParams({ day }), {
+          cache: 'no-store', signal: AbortSignal.timeout(4000),
+        });
+        if (!response.ok) throw new Error();
+        const { calendars } = await response.json();
+        if (mockDay.value !== day) return;
+        mockStatus.textContent = calendars.length ? '' : 'Mock ajan takvimi yok.';
+        const signature = JSON.stringify([day, calendars]);
+        if (signature === shownCalendars) return;
+        shownCalendars = signature;
+        mockList.replaceChildren(...calendars.map(calendar => {
+          const card = document.createElement('article');
+          const title = document.createElement('h3');
+          title.textContent = calendar.name;
+          card.append(title);
+          if (!calendar.events.length) {
+            const empty = document.createElement('small');
+            empty.textContent = 'Etkinlik yok.';
+            card.append(empty);
+            return card;
+          }
+          const list = document.createElement('ul');
+          for (const event of calendar.events) {
+            const item = document.createElement('li');
+            const name = document.createElement('strong');
+            const time = document.createElement('time');
+            time.dateTime = event.start;
+            name.textContent = event.title;
+            time.textContent = clock.format(new Date(event.start)) + ' – ' + clock.format(new Date(event.end)) +
+              (event.kind === 'confirmed' ? ' · Onaylanan toplantı' : '');
+            item.append(name, time);
+            list.append(item);
+          }
+          card.append(list);
+          return card;
+        }));
+      } catch {
+        if (mockDay.value === day) mockStatus.textContent = 'Takvimler yüklenemedi.';
+      }
+    }
+
+    mockDay.addEventListener('change', () => {
+      shownCalendars = undefined;
+      mockList.replaceChildren();
+      if (mockDay.value) {
+        mockStatus.textContent = 'Takvimler yükleniyor…';
+        void pollCalendars();
+      } else mockStatus.textContent = 'Bir tarih seç.';
+    });
 
     function wire(className = '') {
       const element = document.createElement('div');
@@ -261,19 +352,42 @@
     const resize = new ResizeObserver(positionWires);
     resize.observe(map);
 
-    function updateAgents(agents) {
-      for (const agent of agents) {
+    function updateAgents(agents, managed) {
+      const ids = new Set(agents.map(agent => agent.id));
+      let namesChanged = false;
+      for (const [id, station] of stations) {
+        if (ids.has(id)) continue;
+        namesChanged = true;
+        resize.unobserve($('.person', station.node));
+        station.node.remove();
+        station.network.remove();
+        station.calendar.remove();
+        stations.delete(id);
+      }
+      if (managed) {
+        map.style.setProperty('--desktop-height', Math.max(365, 42 + Math.ceil(agents.length / 2) * 130) + 'px');
+        map.style.setProperty('--narrow-height', Math.max(325, 20 + agents.length * 84) + 'px');
+      }
+      for (const [index, agent] of agents.entries()) {
         if (!stations.has(agent.id)) {
           const node = $('#station').content.firstElementChild.cloneNode(true);
           node.dataset.agent = agent.id;
-          $('.initial', node).textContent = agent.name.charAt(0);
-          $('.name', node).textContent = agent.name;
-          $('.device', node).textContent = agent.device;
           map.append(node);
           stations.set(agent.id, { node, network: wire(), calendar: wire('calendar-wire') });
           resize.observe($('.person', node));
         }
         const station = stations.get(agent.id);
+        namesChanged ||= station.name !== agent.name;
+        if (managed) {
+          const rows = Math.ceil(agents.length / 2);
+          station.node.style.setProperty('--managed-x', (index % 2 ? 75 : 25) + '%');
+          station.node.style.setProperty('--managed-y', (rows === 1 ? 20 : 18 + Math.floor(index / 2) * 64 / (rows - 1)) + '%');
+          station.node.style.setProperty('--narrow-y', (52 + index * 84) + 'px');
+          $('.calendar', station.node).title = agent.device === 'Mac' ? 'Sentetik takvim' : 'Google Takvim';
+        }
+        $('.initial', station.node).textContent = agent.name.charAt(0);
+        $('.name', station.node).textContent = agent.name;
+        $('.device', station.node).textContent = agent.device;
         station.name = agent.name;
         if (station.node.dataset.online !== String(agent.online)) {
           station.online = agent.online;
@@ -283,9 +397,11 @@
       }
       const connected = number.format(agents.filter(agent => agent.online).length);
       const total = number.format(agents.length);
-      const status = connected + ' / ' + total + ' ajan bağlı';
+      const status = managed && !ready ? 'Hub kapalı' : connected + ' / ' + total + ' ajan bağlı';
       if (coverage.textContent !== status) coverage.textContent = status;
+      positionWires();
       updateButtons();
+      return namesChanged;
     }
 
     function updateButtons() {
@@ -410,13 +526,19 @@
       try {
         const res = await fetch('/state', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
         if (!res.ok) throw new Error('Hub bekleniyor');
-        const { agents, fixture, events } = await res.json();
-        ready = true;
-        coverage.dataset.ready = map.dataset.ready = 'true';
-        updateAgents(agents);
-        updateFixture(fixture);
+        const { agents, fixture, events, mode, hubOnline } = await res.json();
+        const managed = mode === 'managed';
+        ready = hubOnline ?? true;
+        coverage.dataset.ready = map.dataset.ready = String(ready);
+        map.dataset.mode = managed ? 'managed' : 'fixture';
+        $('#calendar-scope').textContent = managed ? 'Google ve sentetik takvimler' : 'Sentetik takvimler';
+        $('#fixture-controls').hidden = managed;
+        $('#mock-calendars').hidden = !managed;
+        if (managed && Date.now() - calendarPollAt > 2500) void pollCalendars();
+        const namesChanged = updateAgents(agents, managed);
+        if (fixture) updateFixture(fixture);
         const latest = events.at(-1);
-        if (latest?.seq !== lastEvent?.seq || latest?.at !== lastEvent?.at) {
+        if (namesChanged || latest?.seq !== lastEvent?.seq || latest?.at !== lastEvent?.at) {
           const items = describe(events);
           showEvents(items);
           if (lastEvent && latest?.seq > lastEvent.seq && motionAllowed() && !document.hidden) {

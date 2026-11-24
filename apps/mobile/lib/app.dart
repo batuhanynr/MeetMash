@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'agent/agent_picker.dart';
 import 'agent/connection.dart';
+import 'agent/meeting_agent.dart';
+import 'agent/meeting_timeline.dart';
+import 'agent/meeting_title.dart';
 import 'agent/protocol.dart';
 import 'calendar/calendar.dart';
 import 'calendar/calendar_clock.dart';
@@ -37,25 +41,25 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       email = TextEditingController(),
       password = TextEditingController(),
       name = TextEditingController(),
-      capabilities = TextEditingController(),
-      search = TextEditingController(),
       natural = TextEditingController(),
+      meetingTitle = TextEditingController(),
       duration = TextEditingController(text: '60');
-  var zone = 'Europe/Istanbul',
-      vis = 'public',
-      by = 'name',
-      tab = 0,
-      busy = false;
+  var zone = 'Europe/Istanbul', vis = 'public', tab = 0, busy = false;
   final people = <String>{};
+  final agents = <String, String>{};
+  final calendarPreview = GlobalKey<CalendarPreviewState>();
+  bool agentsLoading = false;
+  String? agentsError;
   final agentNames = <String, String>{};
   final requestedNames = <String>{};
-  List results = [], friends = [], incoming = [];
+  List friends = [], incoming = [];
   MeetingWindow? window;
   DateTime? calendarDay;
   int calendarAuthorization = 0;
   bool wasOnline = false;
   bool restoring = true;
   String? notice;
+  String? previewHint;
 
   CalendarClock get clock => CalendarClock(zone);
   Map<String, dynamic> get meetings =>
@@ -154,9 +158,8 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       email,
       password,
       name,
-      capabilities,
-      search,
       natural,
+      meetingTitle,
       duration,
     ]) {
       c.dispose();
@@ -189,6 +192,66 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
   Future<Json> call(String kind, [Json? value]) =>
       rt.connection!.control({'kind': kind, ...?value});
 
+  void selectAgent(String id, bool selected) {
+    setState(() {
+      if (selected) {
+        people.add(id);
+      } else {
+        people.remove(id);
+      }
+    });
+  }
+
+  Future<void> loadAgents() async {
+    final connection = rt.connection;
+    if (agentsLoading) return;
+    if (connection?.online != true) {
+      setState(() => agentsError = 'Ajanları görmek için yeniden bağlan.');
+      return;
+    }
+    setState(() {
+      agentsLoading = true;
+      agentsError = null;
+    });
+    try {
+      final res = await connection!.control({'kind': 'directory.list'});
+      if (!mounted || connection != rt.connection) return;
+      final profiles = (res['agents'] as List).cast<Json>()
+        ..sort(
+          (a, b) => (a['displayName'] as String).compareTo(
+            b['displayName'] as String,
+          ),
+        );
+      setState(() {
+        agents.clear();
+        for (final p in profiles) {
+          rememberName(p);
+          agents[p['agentId']] = p['displayName'];
+        }
+      });
+    } catch (_) {
+      if (mounted && connection == rt.connection) {
+        setState(() => agentsError = 'Ajan listesi yüklenemedi.');
+      }
+    } finally {
+      if (mounted && connection == rt.connection) {
+        setState(() => agentsLoading = false);
+      }
+    }
+  }
+
+  Widget refreshableCalendar(Widget child) {
+    return SafeArea(
+      child: tab == 2 && rt.agent != null
+          ? RefreshIndicator(
+              onRefresh: () async =>
+                  await calendarPreview.currentState?.refresh(),
+              child: child,
+            )
+          : child,
+    );
+  }
+
   Future<void> signOut() async {
     await rt.signOut();
     if (!mounted) return;
@@ -196,22 +259,24 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
       email,
       password,
       name,
-      capabilities,
-      search,
       natural,
+      meetingTitle,
     ]) {
       controller.clear();
     }
     duration.text = '60';
     people.clear();
+    agents.clear();
+    agentsLoading = false;
+    agentsError = null;
     agentNames.clear();
     requestedNames.clear();
-    results = [];
     friends = [];
     incoming = [];
     tab = 0;
     vis = 'public';
     window = null;
+    previewHint = null;
     calendarDay = null;
   }
 
@@ -220,7 +285,6 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     if (p != null) {
       rememberName(p);
       name.text = p['displayName'];
-      capabilities.text = (p['capabilities'] as List).join(', ');
       vis = p['visibility'];
     }
     final f = await call('friends.list');
@@ -232,12 +296,14 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     String label,
     TextEditingController c, {
     int lines = 1,
+    int? maxLength,
     bool secret = false,
     TextInputType? keyboard,
   }) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: TextField(
       controller: c,
+      maxLength: maxLength,
       enabled: !busy,
       keyboardType: keyboard,
       autocorrect: false,
@@ -330,8 +396,10 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 ),
               ],
             ),
-      body: SafeArea(
-        child: ListView(
+      body: refreshableCalendar(
+        ListView(
+          key: PageStorageKey(tab),
+          physics: tab == 2 ? const AlwaysScrollableScrollPhysics() : null,
           padding: const EdgeInsets.all(18),
           children: [
             if (notice != null ||
@@ -359,6 +427,7 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
               }),
               if (configuredHub.isEmpty)
                 ExpansionTile(
+                  key: const PageStorageKey('test-account'),
                   title: const Text('Test hesabı yapılandırması'),
                   children: [
                     field('Hesap yapılandırması', config, secret: true),
@@ -375,9 +444,10 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 for (final m in meetings.values.toList().reversed)
                   Card(
                     child: ExpansionTile(
-                      title: Text(status(m)),
+                      key: PageStorageKey('meeting-${m['meetingId']}'),
+                      title: Text(normalizeMeetingTitle(m['title'])),
                       subtitle: Text(
-                        meetingRange(m['selected'] ?? m['window']),
+                        '${status(m)} · ${meetingRange(m['selected'] ?? m['window'])}',
                       ),
                       children: [
                         ListTile(
@@ -388,6 +458,11 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                                 .map(agentLabel)
                                 .join(', '),
                           ),
+                        ),
+                        MeetingTimeline(
+                          moves: (m['moves'] as List? ?? const []).cast<Json>(),
+                          agentLabel: agentLabel,
+                          clock: clock,
                         ),
                         if (m['status'] == 'COMMIT_PENDING' &&
                             m['coordinator'] == rt.config!.id)
@@ -419,76 +494,58 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
               if (tab == 1) ...[
                 field('Toplantı isteğini yaz', natural, lines: 2),
                 button('Önizlemeyi hazırla', () async {
+                  setState(() => previewHint = null);
                   final res = await call('meeting.preview', {
                     'text': natural.text,
                     'timeZone': zone,
                   });
-                  if (res['status'] != 'ready') {
-                    notice = (res['questions'] as List?)?.join(' ');
-                    if (notice == null || notice!.isEmpty) {
-                      notice = 'İsteği aşağıdaki formdan tamamla.';
-                    }
+                  if (!mounted) return;
+                  final questions = (res['questions'] as List?)?.join(' ');
+                  if (res['status'] == 'unavailable' ||
+                      res['kind'] == 'error') {
+                    notice =
+                        questions ??
+                        'Önizleme hazırlanamadı. Formu kullanabilirsin.';
                     return;
                   }
-                  people
-                    ..clear()
-                    ..addAll(
-                      List<String>.from(res['participantAgentIds'])
-                        ..remove(rt.config!.id),
-                    );
-                  duration.text = '${res['durationMinutes']}';
-                  final draft = res['window'] as Json;
-                  window = (start: startOf(draft), end: endOf(draft));
-                  notice = 'Katılımcıları ve saati kontrol edip onayla.';
+                  if (res['title'] is String) {
+                    meetingTitle.text = normalizeMeetingTitle(res['title']);
+                  }
+                  final suggestedPeople = (res['participantAgentIds'] as List)
+                      .cast<String>()
+                      .where((id) => id != rt.config!.id)
+                      .toSet();
+                  if (suggestedPeople.isNotEmpty) {
+                    people
+                      ..clear()
+                      ..addAll(suggestedPeople);
+                    if (people.any((id) => !agents.containsKey(id))) {
+                      unawaited(loadAgents());
+                    }
+                  }
+                  final minutes = res['durationMinutes'];
+                  if (minutes is int) duration.text = '$minutes';
+                  final draft = res['window'] as Json?;
+                  if (draft != null) {
+                    window = (start: startOf(draft), end: endOf(draft));
+                  }
+                  previewHint = questions == null || questions.isEmpty
+                      ? 'Önizlemeyi kontrol edip onayla.'
+                      : questions;
                 }),
-                dropdown(
-                  by,
-                  ['name', 'id', 'semantic'],
-                  (v) => by = v,
-                  labels: const {
-                    'name': 'Ada göre',
-                    'id': 'Kimliğe göre',
-                    'semantic': 'Anlama göre',
-                  },
+                if (previewHint != null) Text(previewHint!),
+                field(
+                  'Toplantı adı',
+                  meetingTitle,
+                  maxLength: maxMeetingTitleLength,
                 ),
-                field('Ajan ara', search),
-                button('Ara', () async {
-                  final res = await call('directory.lookup', {
-                    'by': by,
-                    'term': search.text,
-                  });
-                  results = res['agents'];
-                  for (final item in results.cast<Json>()) {
-                    rememberName(item);
-                  }
-                  if (res['mode'] == 'unavailable') {
-                    notice =
-                        'Anlamsal arama kullanılamıyor. İsim veya kimlikle arayabilirsin.';
-                  }
-                }),
-                for (final p in results.where(
-                  (p) => p['agentId'] != rt.config!.id,
-                ))
-                  ListTile(
-                    title: Text(agentLabel(p['agentId'])),
-                    onTap: () => setState(() => people.add(p['agentId'])),
-                    trailing: IconButton(
-                      tooltip: 'Arkadaşlık isteği',
-                      icon: const Icon(Icons.person_add_alt),
-                      onPressed: () => run(() async {
-                        await call('friends.request', {'target': p['agentId']});
-                        notice = 'İstek gönderildi';
-                      }),
-                    ),
-                  ),
-                Wrap(
-                  children: [
-                    for (final p in people)
-                      InputChip(
-                        label: Text(agentLabel(p)),
-                        onDeleted: () => setState(() => people.remove(p)),
-                      ),
-                  ],
+                AgentPicker(
+                  agents: agents,
+                  selected: people,
+                  onChanged: selectAgent,
+                  onOpen: loadAgents,
+                  loading: agentsLoading,
+                  error: agentsError,
                 ),
                 dropdown(
                   zone,
@@ -532,34 +589,87 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                       'Toplantı süresini 1–1440 dakika arasında gir.',
                     );
                   }
-                  await rt.agent!.schedule(people.toList(), {
+                  final agent = rt.agent!;
+                  final participants = people.toList();
+                  final slot = {
                     'start': utc(selected.start),
                     'end': utc(selected.end),
-                  }, minutes);
+                  };
+                  final title = meetingTitle.text;
+                  try {
+                    await agent.schedule(
+                      participants,
+                      slot,
+                      minutes,
+                      title: title,
+                    );
+                  } on CalendarOverlapNeedsApproval {
+                    if (!context.mounted) return;
+                    final approved = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: const Text('Takvim çakışması'),
+                        content: const Text(
+                          'Seçtiğin aralıkta takvimindeki etkinlikler nedeniyle '
+                          'toplantı süresine yetecek boş zaman yok. Yine de '
+                          'toplantı isteğini göndermek ister misin?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, false),
+                            child: const Text('Vazgeç'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(dialogContext, true),
+                            child: const Text('Yine de gönder'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (approved != true || !mounted || rt.agent != agent) {
+                      return;
+                    }
+                    if (rt.connection?.displaced == true) {
+                      throw StateError('Bu oturum başka cihaza geçti.');
+                    }
+                    await agent.schedule(
+                      participants,
+                      slot,
+                      minutes,
+                      title: title,
+                      allowCalendarOverlap: true,
+                    );
+                  }
                   tab = 0;
                 }),
               ],
               if (tab == 2) ...[
                 Text(
-                  rt.config!.calendarName ??
-                      (rt.config!.liveCalendar
-                          ? 'Google Takvim'
-                          : 'Örnek takvim'),
+                  rt.config!.liveCalendar
+                      ? GoogleCalendar.title
+                      : 'Örnek takvim',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (rt.google != null) ...[
                   button('Google hesabına izin ver', () async {
-                    await rt.google!.authorize();
-                    calendarAuthorization++;
+                    try {
+                      await rt.google!.authorize();
+                    } finally {
+                      (rt.agent!.calendar as GoogleCalendar).clearEventCache();
+                      calendarAuthorization++;
+                    }
                     await rt.agent!.retryCalendarWrites();
                   }),
                   button('Google iznini kaldır', () async {
                     await rt.google!.revoke();
+                    (rt.agent!.calendar as GoogleCalendar).clearEventCache();
                     calendarAuthorization++;
                     notice = 'Google takvim izni kaldırıldı.';
                   }),
                 ],
                 CalendarPreview(
+                  key: calendarPreview,
                   clock: clock,
                   calendar: rt.agent!.calendar,
                   savedEvents: events.values.cast<Json>(),
@@ -582,17 +692,11 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
                 if (rt.config?.email case final address?) Text(address),
                 if (connected) button('Profili yenile', profile),
                 field('Görünen ad', name),
-                field('Yetenekler (virgülle)', capabilities),
                 dropdown(vis, ['private', 'friends', 'public'], (v) => vis = v),
                 button('Profili kaydet', () async {
                   await call('profile.save', {
                     'displayName': name.text,
                     'visibility': vis,
-                    'capabilities': capabilities.text
-                        .split(',')
-                        .map((v) => v.trim())
-                        .where((v) => v.isNotEmpty)
-                        .toList(),
                   });
                   await profile();
                 }),
@@ -632,7 +736,12 @@ class _DeskState extends State<Desk> with WidgetsBindingObserver {
     'CONFIRMED' => 'Tamamlandı',
     'APPLIED' => 'Takvimine kaydedildi',
     'DECLINED' => 'Reddedildi',
-    'ABORTED' => 'Toplantı iptal edildi (${m['reason']})',
+    'ABORTED' => switch (m['reason']) {
+      'NO_COMMON_SLOT' => 'Ortak müsait saat bulunamadı',
+      'TIMEOUT' => 'Yanıt süresi doldu',
+      'DECLINED' => 'Toplantı reddedildi',
+      _ => 'Toplantı iptal edildi',
+    },
     _ => m['status'],
   };
 }

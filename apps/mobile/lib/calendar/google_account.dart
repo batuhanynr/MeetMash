@@ -8,6 +8,7 @@ class CalendarAccount {
   static const scopes = [
     'https://www.googleapis.com/auth/calendar.freebusy',
     'https://www.googleapis.com/auth/calendar.events.owned',
+    'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
   ];
   CalendarAccount(this.email) {
     const ios = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID'),

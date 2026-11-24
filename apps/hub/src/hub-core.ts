@@ -85,9 +85,9 @@ export class HubCore {
       }
     }
     if (value.kind === 'directory.lookup') {
+      if (value.by !== 'name' && value.by !== 'id') { this.reject(agentId, 'INVALID_REQUEST'); return; }
       const term = String(value.term ?? '');
-      const profiles = value.by === 'capability' ? await this.directory.searchByCapability(agentId, term)
-        : value.by === 'id' ? [await this.directory.lookup(agentId, term)].filter(p => p !== undefined)
+      const profiles = value.by === 'id' ? [await this.directory.lookup(agentId, term)].filter(p => p !== undefined)
         : await this.directory.searchByName(agentId, term);
       if (this.connections.get(agentId)?.generation !== generation) return;
       this.send(agentId, { kind: 'directory.result', requestId: value.requestId, agents: profiles.map(p => ({ agentId: p.agentId, displayName: p.displayName })) });

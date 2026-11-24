@@ -7,7 +7,7 @@ import { loadSecrets } from '../../apps/agent-node/src/m2-security.ts';
 // Pass a separately provisioned demo identity; connecting rotates that identity's hub session.
 const [command, agentId, ...parts] = process.argv.slice(2);
 const text = parts.join(' ').trim();
-if ((command !== 'preview' && command !== 'semantic') || !agentId || !text) throw new Error('Use preview|semantic <agentId> "<text>"');
+if (command !== 'preview' || !agentId || !text) throw new Error('Use preview <agentId> "<text>"');
 const secret = loadSecrets(process.env.SECRETS_FILE ?? '.state/secrets.json').bootstrap[agentId];
 if (!secret) throw new Error('Missing demo credential');
 const url = new URL(process.env.HUB_URL ?? 'wss://localhost:8787');
@@ -20,7 +20,6 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 try {
   await transport.connect(() => {}, frame => { if (frame.requestId === requestId) resolveReply(frame); }, () => rejectReply(new Error('Hub disconnected')));
   timer = setTimeout(() => rejectReply(new Error('Hub reply timed out')), 70_000);
-  transport.sendControl(command === 'preview' ? { kind: 'meeting.preview', requestId, text, timeZone: process.env.MEETING_TIME_ZONE ?? 'Europe/Istanbul' }
-    : { kind: 'directory.lookup', requestId, by: 'semantic', term: text });
+  transport.sendControl({ kind: 'meeting.preview', requestId, text, timeZone: process.env.MEETING_TIME_ZONE ?? 'Europe/Istanbul' });
   console.log(JSON.stringify(await reply, null, 2));
 } finally { clearTimeout(timer); transport.close(); }

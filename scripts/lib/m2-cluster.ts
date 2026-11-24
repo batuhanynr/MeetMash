@@ -31,7 +31,7 @@ export class M2Cluster {
       const directory = new Directory(new PgDirectoryStore(database));
       for (const agentId of this.options.agentIds) {
         await provisionIdentity(database, { agentId, userId: `user-${agentId}`, secret: secrets.bootstrap[agentId]! });
-        await directory.putProfile({ agentId, displayName: DISPLAY_NAMES[agentId] ?? agentId, visibility: 'public', capabilities: ['scheduling'] });
+        await directory.putProfile({ agentId, displayName: DISPLAY_NAMES[agentId] ?? agentId, visibility: 'public' });
       }
       // Mutual friendships so friends-only lookups would also resolve among the demo agents.
       for (const a of this.options.agentIds) for (const b of this.options.agentIds) if (a !== b) await directory.addFriend(a, b);

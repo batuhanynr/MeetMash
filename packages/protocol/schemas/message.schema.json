@@ -163,6 +163,10 @@
                 "minimum": 1,
                 "maximum": 1440
               },
+              "title": {
+                "type": "string",
+                "maxLength": 100
+              },
               "window": {
                 "$ref": "#/definitions/slot"
               },

@@ -47,14 +47,25 @@ The bundled synthetic calendars cover November 10, 2026. For a fixture run use t
 
 ### Sign in with a MeetMesh email and password
 
-Use a dedicated M2 hub for the Google test accounts. Give each person a distinct agent ID. For example, use `batuhan` and `fatma`. Each person creates a secondary calendar named **Meetmash Takvimim** in their own Google account. Add the consenting accounts as OAuth test users and register `http://127.0.0.1:8791/google/callback` as an authorized redirect URI for the web OAuth client. Keep the downloaded client JSON at `~/.config/meetmash/google-oauth-web.json` (mode `600`), or set `MEETMESH_GOOGLE_OAUTH_FILE` to its private path.
+Use a dedicated M2 hub for the Google test accounts. Give each person a distinct agent ID. For example, use `batuhan` and `fatma`. Each person creates a secondary calendar named **MeetMash Takvimim** in their own Google account. Add the consenting accounts as OAuth test users and register `http://127.0.0.1:8791/google/callback` as an authorized redirect URI for the web OAuth client. Keep the downloaded client JSON at `~/.config/meetmesh/google-oauth-web.json` (mode `600`), or set `MEETMESH_GOOGLE_OAUTH_FILE` to its private path.
 
-On the Mac, run the setup command for each person and open the URL it prints. The person approves access from the matching Google account. Setup selects the one secondary calendar they own with the exact name above. It saves that calendar's ID and the offline Google authorization on the Mac. A new person's generated MeetMesh password is written to `~/.config/meetmash/meetmesh-password-<agent-id>.txt` (mode `600`). Share it privately with that person. Running setup again renews Google authorization and keeps their MeetMesh password.
+On the Mac, run the setup command for each person and open the URL it prints. The person approves access from the matching Google account. Setup selects the owned secondary calendar with the exact name above. It saves that calendar's ID and the offline Google authorization on the Mac. A new person's generated MeetMesh password is written to `~/.config/meetmesh/meetmesh-password-<agent-id>.txt` (mode `600`). Share it privately with that person. Running setup again renews Google authorization and keeps their MeetMesh password.
 
 ```sh
-export MEETMESH_ACCOUNTS_FILE="$HOME/.config/meetmash/calendar-accounts.json"
+export MEETMESH_ACCOUNTS_FILE="$HOME/.config/meetmesh/calendar-accounts.json"
 node scripts/connect-calendar.ts batuhan batuhan@example.com Batuhan
 node scripts/connect-calendar.ts fatma fatma@example.com Fatma
+```
+
+Run `node scripts/seed-test-calendars.ts` with this catalog to fill the linked `batuhan` and `fatma` demo calendars through December 31. Re-running verifies existing demo events using stable IDs.
+
+Run `node scripts/setup-mock-calendars.ts` to add Ege and Deniz to the same managed hub and prepare their synthetic calendars under `.state/m5-calendars/mock-agents`. Restart the hub after setup. In two terminals, choose `DEMO_AGENT=ege` or `DEMO_AGENT=deniz` and run the command below with the same `MEETMESH_DATA_HOST` and `CERT_DIR` as the hub. Re-run setup and restart both mock agents if you add a Google test account later.
+
+```sh
+MOCK_ROOT=.state/m5-calendars/mock-agents
+npm run agent:m2 -- --id "$DEMO_AGENT" --hub "wss://$MEETMESH_DATA_HOST:8792" \
+  --state-root "$MOCK_ROOT" --secrets "$MOCK_ROOT/$DEMO_AGENT/secrets.json" \
+  --calendar-file "$MOCK_ROOT/$DEMO_AGENT/calendar.json"
 ```
 
 Start the managed hub with a dedicated database. Use the Mac's reachable LAN address (`<LAN_IP>` below) and the certificate directory whose server certificate includes that address. Restart the managed hub after updating the account file. The synthetic phone panel and its Mac agents use their existing dedicated lab hub.
@@ -69,6 +80,10 @@ npm run hub:m2 -- --host "$MEETMESH_DATA_HOST" --port 8792 \
 
 For either mobile build, set `--dart-define=MEETMESH_HUB_URL=wss://<LAN_IP>:8792`. For a local development CA also set `--dart-define="MEETMESH_HUB_CA_BASE64=$(base64 < "$CERT_DIR/ca.crt" | tr -d '\n')"`. Use the public CA certificate file, `ca.crt`. Both phones can then sign in with their own MeetMesh email and password. The **Takvim** tab lists events from their selected Google calendar. Meeting availability and confirmed writes use that same calendar. An OAuth project in Testing may require renewed Google permission after seven days.
 
+To open the managed test panel, use the hub's `DATABASE_URL`, `MEETMESH_ACCOUNTS_FILE` and `CERT_DIR`, set `MEETMESH_PANEL_HUB=https://<LAN_IP>:8792`, and run `node scripts/calendar-panel.ts`. Open `http://127.0.0.1:8790` for current names, connection status, recent hub activity and a daily view of each mock agent's calendar. If the fixture demo panel is running, stop it first to free port 8790.
+
+Use the updated hub and clients together for meeting titles. The form accepts an editable title and uses `MeetMesh` when left blank. Updated clients also use this default for older meetings and incoming requests without a title. The meeting timeline records protocol activity as each client observes it.
+
 ### Use the device demo with direct Google authorization
 
 Enable the Calendar API in the demo's Google Cloud project and add the consenting test accounts to its OAuth consent configuration. Register the Android package and iOS bundle ID `com.meetmesh.meetmesh`. Android also needs the SHA-1 of the certificate signing the installed build. On iOS, put the reversed iOS client ID into an untracked `ios/Flutter/Google.local.xcconfig`:
@@ -79,7 +94,7 @@ GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.YOUR_IOS_CLIENT_ID
 
 Supply the iOS client ID to the corresponding Flutter build with `--dart-define=GOOGLE_IOS_CLIENT_ID=...`. Use `--dart-define=GOOGLE_WEB_CLIENT_ID=...` for the web client ID associated with the Android project. Both accounts must come from the same demo provisioning configuration; set `M5_GOOGLE_A` and `M5_GOOGLE_B` to their distinct email addresses before starting the device hub. Use fresh app installations for this live run so no previous fixture identity or reservations carry over.
 
-Each account holder opens “Takvim”, chooses “Google hesabına izin ver” and signs in with the assigned account. Schedule a **future** test window. Free/busy queries and the local reservation check run before voting. Calendar contents can still change outside MeetMesh after a vote. After COMMIT, the client looks up a stable per-agent event ID and reconciles a lost write response. A missing grant or failed write leaves the meeting pending. The organizer sees which participant has not written. On that participant's device, a missing grant prompts them to authorize again under “Takvim”. Restoring access lets the same write resume. “Google iznini kaldır” revokes the grant.
+Each account holder opens “Takvim”, chooses “Google hesabına izin ver” and signs in with the assigned account. The app uses the same owned secondary calendar selection as the managed setup for the agenda, availability and confirmed meetings. Schedule a **future** test window. Free/busy queries and the local reservation check run before voting. Calendar contents can still change outside MeetMesh after a vote. After COMMIT, the client looks up a stable per-agent event ID and reconciles a lost write response. A missing grant or failed write leaves the meeting pending. The organizer sees which participant has not written. On that participant's device, a missing grant prompts them to authorize again under “Takvim”. Restoring access lets the same write resume. “Google iznini kaldır” revokes the grant.
 
 ## Verification
 

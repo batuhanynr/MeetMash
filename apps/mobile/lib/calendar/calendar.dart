@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import '../agent/meeting_title.dart';
 import '../agent/protocol.dart';
 
 DateTime startOf(Json slot) => DateTime.parse(slot['start']);
@@ -13,8 +14,18 @@ bool sameSlot(Json a, Json b) =>
 Json times(Json slot) => {'start': utc(startOf(slot)), 'end': utc(endOf(slot))};
 
 abstract interface class MeetingCalendar {
-  Future<List<Json>> candidates(Json window, int duration, List<Json> reserved);
-  Future<void> ensureEvent(String meeting, String agent, Json slot);
+  Future<List<Json>> candidates(
+    Json window,
+    int duration,
+    List<Json> reserved, {
+    bool allowCalendarOverlap = false,
+  });
+  Future<void> ensureEvent(
+    String meeting,
+    String agent,
+    Json slot, {
+    String? title,
+  });
 }
 
 void validateWindow(Json window, int duration) {
@@ -109,30 +120,44 @@ class FixtureCalendar implements MeetingCalendar {
   Future<List<Json>> candidates(
     Json window,
     int duration,
-    List<Json> reserved,
-  ) async => generate(
+    List<Json> reserved, {
+    bool allowCalendarOverlap = false,
+  }) async => generate(
     window,
     duration,
     List<Json>.from(profile['working']),
-    [...List<Json>.from(profile['busy']), ...reserved],
+    [
+      if (!allowCalendarOverlap) ...List<Json>.from(profile['busy']),
+      ...reserved,
+    ],
     List<Json>.from(profile['preferences']),
   );
   // The caller commits the synthetic event together with APPLIED in its local snapshot.
   @override
-  Future<void> ensureEvent(String meeting, String agent, Json slot) async {}
+  Future<void> ensureEvent(
+    String meeting,
+    String agent,
+    Json slot, {
+    String? title,
+  }) async {}
 }
 
 class GoogleCalendar implements MeetingCalendar {
+  static const title = 'MeetMash Takvimim';
   final http.Client? _client;
   final Future<String> Function()? _token;
   final Future<Json> Function(Json)? _hubRequest;
+  final _eventCache = <(DateTime, DateTime, String), List<CalendarEntry>>{};
+  final _eventLoads =
+      <(DateTime, DateTime, String), Future<List<CalendarEntry>>>{};
+  String? _selectedId;
   GoogleCalendar(this._client, this._token) : _hubRequest = null;
   GoogleCalendar.managed(this._hubRequest) : _client = null, _token = null;
   static String eventId(String meeting, String agent) =>
       sha256.convert(utf8.encode(jsonEncode([agent, meeting]))).toString();
   Future<http.Response> _call(
     String method,
-    String path, {
+    List<String> path, {
     required Json managed,
     Json? body,
     Map<String, String>? query,
@@ -155,7 +180,12 @@ class GoogleCalendar implements MeetingCalendar {
     }
     final request = http.Request(
       method,
-      Uri.https('www.googleapis.com', '/calendar/v3/$path', query),
+      Uri(
+        scheme: 'https',
+        host: 'www.googleapis.com',
+        pathSegments: ['calendar', 'v3', ...path],
+        queryParameters: query,
+      ),
     );
     request.headers.addAll({
       'authorization': 'Bearer ${await _token!()}',
@@ -172,20 +202,123 @@ class GoogleCalendar implements MeetingCalendar {
     return res;
   }
 
+  Future<String> _calendarId() async {
+    // The managed adapter resolves the calendar on the hub.
+    if (_hubRequest != null) return 'primary';
+    final ids = <String>{}, pages = <String>{};
+    final query = {
+      'minAccessRole': 'owner',
+      'showHidden': 'true',
+      'fields': 'nextPageToken,items(id,summary,primary,accessRole)',
+    };
+    while (true) {
+      final response = await _call(
+        'GET',
+        ['users', 'me', 'calendarList'],
+        managed: const {},
+        query: query,
+      );
+      if (response.statusCode != 200) {
+        throw StateError('Google takvim listesi yüklenemedi.');
+      }
+      final page = jsonDecode(response.body) as Json;
+      for (final item in (page['items'] as List? ?? []).whereType<Json>()) {
+        final id = item['id'];
+        if (id is! String ||
+            id.isEmpty ||
+            item['primary'] == true ||
+            item['accessRole'] != 'owner') {
+          continue;
+        }
+        if (item['summary'] == title) ids.add(id);
+      }
+      final token = page['nextPageToken'];
+      if (token is! String || token.isEmpty) break;
+      if (!pages.add(token)) {
+        throw StateError('Google takvim sayfası tekrarlanıyor.');
+      }
+      query['pageToken'] = token;
+    }
+    if (ids.length != 1) throw const CalendarSelectionRequired();
+    final id = ids.single;
+    if (_selectedId != null && _selectedId != id) _eventCache.clear();
+    _selectedId = id;
+    return id;
+  }
+
+  List<CalendarEntry>? cachedEvents(
+    DateTime start,
+    DateTime end,
+    String zone,
+  ) => _eventCache[(start, end, zone)];
+
+  void clearEventCache() {
+    _eventCache.clear();
+    _eventLoads.clear();
+  }
+
+  Future<List<CalendarEntry>> refreshEvents(
+    DateTime start,
+    DateTime end,
+    String zone,
+  ) {
+    final key = (start, end, zone);
+    return _eventLoads.putIfAbsent(key, () {
+      final load = eventsOn(start, end, zone);
+      late final Future<List<CalendarEntry>> pending;
+      pending = load
+          .then(
+            (entries) {
+              if (_eventLoads[key] == pending) {
+                _eventCache.remove(key);
+                _eventCache[key] = entries;
+                if (_eventCache.length > 12) {
+                  _eventCache.remove(_eventCache.keys.first);
+                }
+              }
+              return entries;
+            },
+            onError: (Object error, StackTrace trace) {
+              if (_eventLoads[key] == pending &&
+                  (error is CalendarAuthorizationRequired ||
+                      error is CalendarSelectionRequired)) {
+                clearEventCache();
+              }
+              Error.throwWithStackTrace(error, trace);
+            },
+          )
+          .whenComplete(() {
+            if (_eventLoads[key] == pending) _eventLoads.remove(key);
+          });
+      return pending;
+    });
+  }
+
   @override
   Future<List<Json>> candidates(
     Json window,
     int duration,
-    List<Json> reserved,
-  ) async {
+    List<Json> reserved, {
+    bool allowCalendarOverlap = false,
+  }) async {
     validateWindow(window, duration);
     final now = DateTime.now();
     if (!endOf(window).isAfter(now)) {
       throw const FormatException('Geçmiş takvim aralığı');
     }
+    final working = [
+      {
+        'start': startOf(window).isBefore(now) ? utc(now) : window['start'],
+        'end': window['end'],
+      },
+    ];
+    if (allowCalendarOverlap) {
+      return generate(window, duration, working, reserved, []);
+    }
+    final calendarId = await _calendarId();
     final res = await _call(
       'POST',
-      'freeBusy',
+      ['freeBusy'],
       managed: {
         'operation': 'busy',
         'start': window['start'],
@@ -195,29 +328,21 @@ class GoogleCalendar implements MeetingCalendar {
         'timeMin': window['start'],
         'timeMax': window['end'],
         'items': [
-          {'id': 'primary'},
+          {'id': calendarId},
         ],
       },
     );
     if (res.statusCode != 200) {
       throw StateError('Calendar availability unavailable');
     }
-    final cal = jsonDecode(res.body)['calendars']['primary'];
+    final cal = jsonDecode(res.body)['calendars'][calendarId];
     if (cal?['busy'] is! List || cal['errors'] != null) {
       throw StateError('Calendar availability unavailable');
     }
-    return generate(
-      window,
-      duration,
-      [
-        {
-          'start': startOf(window).isBefore(now) ? utc(now) : window['start'],
-          'end': window['end'],
-        },
-      ],
-      [...List<Json>.from(cal['busy']), ...reserved],
-      [],
-    );
+    return generate(window, duration, working, [
+      ...List<Json>.from(cal['busy']),
+      ...reserved,
+    ], []);
   }
 
   Future<List<CalendarEntry>> eventsOn(
@@ -225,6 +350,7 @@ class GoogleCalendar implements MeetingCalendar {
     DateTime end,
     String zone,
   ) async {
+    final calendarId = await _calendarId();
     final entries = <CalendarEntry>[];
     final query = {
       'timeMin': utc(start),
@@ -237,7 +363,7 @@ class GoogleCalendar implements MeetingCalendar {
     while (true) {
       final res = await _call(
         'GET',
-        'calendars/primary/events',
+        ['calendars', calendarId, 'events'],
         query: query,
         managed: {
           'operation': 'events',
@@ -284,13 +410,19 @@ class GoogleCalendar implements MeetingCalendar {
   }
 
   @override
-  Future<void> ensureEvent(String meeting, String agent, Json slot) async {
+  Future<void> ensureEvent(
+    String meeting,
+    String agent,
+    Json slot, {
+    String? title,
+  }) async {
     final id = eventId(meeting, agent);
-    final path = 'calendars/primary/events';
+    final summary = normalizeMeetingTitle(title);
+    final path = ['calendars', await _calendarId(), 'events'];
     Future<bool> existing() async {
       final res = await _call(
         'GET',
-        '$path/$id',
+        [...path, id],
         managed: {'operation': 'event', 'id': id},
       );
       if (res.statusCode == 404) return false;
@@ -307,14 +439,22 @@ class GoogleCalendar implements MeetingCalendar {
       return true;
     }
 
-    if (await existing()) return;
+    if (await existing()) {
+      clearEventCache();
+      return;
+    }
     final res = await _call(
       'POST',
       path,
-      managed: {'operation': 'insert', 'meeting': meeting, ...times(slot)},
+      managed: {
+        'operation': 'insert',
+        'meeting': meeting,
+        'title': summary,
+        ...times(slot),
+      },
       body: {
         'id': id,
-        'summary': 'MeetMesh',
+        'summary': summary,
         'start': {'dateTime': slot['start']},
         'end': {'dateTime': slot['end']},
         'extendedProperties': {
@@ -322,8 +462,17 @@ class GoogleCalendar implements MeetingCalendar {
         },
       },
     );
-    if (res.statusCode >= 200 && res.statusCode < 300) return;
-    if (res.statusCode == 409 && await existing()) return;
+    if (res.statusCode >= 200 && res.statusCode < 300 ||
+        res.statusCode == 409 && await existing()) {
+      clearEventCache();
+      return;
+    }
     throw StateError('Calendar write pending');
   }
+}
+
+class CalendarSelectionRequired implements Exception {
+  const CalendarSelectionRequired();
+  String get description =>
+      'Google hesabında “${GoogleCalendar.title}” adlı tek bir özel takvim olmalı.';
 }

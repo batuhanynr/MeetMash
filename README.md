@@ -1,7 +1,7 @@
 # MeetMesh
 
 Flutter and Node.js monorepo for the CSE476 personal-agent project.
-The implementation scope is defined in [the milestone plan](MeetMesh_Implementation_Plan_and_Issues.md).
+Meeting previews use OpenRouter; see [configuration](docs/m5-intelligence.md).
 
 ```text
 apps/hub          Local relay (Node.js + TypeScript)
@@ -130,7 +130,7 @@ See the [M2 status record](docs/m2-status.md) and [ADR 002](docs/decisions/002-m
 The Flutter shell was generated using the installed SDK. `flutter pub get --offline`, analysis, and the widget test run locally.
 Android command-line tools are missing and Xcode cannot enumerate simulator runtimes on this machine.
 Android/iOS binary builds are **not verified** by M1. See [the mobile README](apps/mobile/README.md); MM-501 remains open.
-Directory discovery, durable hub mailboxes, authentication/MAC/TLS, scheduling, and mobile agent features remain in M2-M5.
+Directory discovery, secure messaging, scheduling and mobile agent features are implemented in later milestones.
 
 The [M3 scheduling guide](docs/m3.md) includes a three-agent meeting request, the recovery states and the commands for the repeatability tests.
 

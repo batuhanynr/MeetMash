@@ -24,10 +24,10 @@ async function seed(profiles: (Profile & { friends?: string[] })[]): Promise<voi
 beforeEach(async () => {
   // agent-b is friends-only and has added agent-a as a friend; agent-c is private; two agents share a display name.
   await seed([
-    { agentId: 'agent-a', displayName: 'Alice', visibility: 'public', capabilities: ['Mobile', 'scheduling'] },
-    { agentId: 'agent-b', displayName: 'Scheduler', visibility: 'friends', capabilities: ['calendar'], friends: ['agent-a'] },
-    { agentId: 'agent-c', displayName: 'Carol', visibility: 'private', capabilities: ['calendar'] },
-    { agentId: 'agent-d', displayName: 'Scheduler', visibility: 'public', capabilities: ['calendar'] },
+    { agentId: 'agent-a', displayName: 'Alice', visibility: 'public' },
+    { agentId: 'agent-b', displayName: 'Scheduler', visibility: 'friends', friends: ['agent-a'] },
+    { agentId: 'agent-c', displayName: 'Carol', visibility: 'private' },
+    { agentId: 'agent-d', displayName: 'Scheduler', visibility: 'public' },
   ]);
 });
 
@@ -55,15 +55,6 @@ test('friends-only profile is visible to a friend and hidden from a stranger', a
   assert.equal(await directory.lookup('agent-d', 'agent-b'), undefined);
 });
 
-test('capability search returns only visible agents', async () => {
-  const directory = new Directory(store);
-  // agent-a is a friend of agent-b, so both calendar agents visible to it exclude the private agent-c.
-  const forA = await directory.searchByCapability('agent-a', 'calendar');
-  assert.deepEqual(forA.map(p => p.agentId).sort(), ['agent-b', 'agent-d']);
-  const forD = await directory.searchByCapability('agent-d', 'calendar');
-  assert.deepEqual(forD.map(p => p.agentId).sort(), ['agent-d']);
-});
-
 test('making a profile private invalidates cached results without waiting for the TTL', async () => {
   const clock = 1_000_000;
   const directory = new Directory(store, () => clock, 30_000);
@@ -80,7 +71,6 @@ test('the 30s cache avoids repeat store reads within the TTL', async () => {
     findByName: (name) => { reads++; return store.findByName(name); },
     isFriend: (owner, candidate) => store.isFriend(owner, candidate),
     getProfile: (id) => store.getProfile(id),
-    findByCapability: (cap) => store.findByCapability(cap),
     upsertProfile: (p) => store.upsertProfile(p),
     setVisibility: (id, v) => store.setVisibility(id, v),
     addFriend: (o, f) => store.addFriend(o, f),

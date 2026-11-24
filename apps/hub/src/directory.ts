@@ -1,5 +1,5 @@
 export type Visibility = 'private' | 'friends' | 'public';
-export type Profile = { agentId: string; displayName: string; visibility: Visibility; capabilities: string[] };
+export type Profile = { agentId: string; displayName: string; visibility: Visibility };
 
 // Reads and writes the directory. The Postgres adapter implements this; the service depends only on it.
 export interface DirectoryStore {
@@ -8,7 +8,6 @@ export interface DirectoryStore {
   addFriend(ownerAgentId: string, friendAgentId: string): Promise<void>;
   getProfile(agentId: string): Promise<Profile | undefined>;
   findByName(normalizedName: string): Promise<Profile[]>;
-  findByCapability(normalizedCapability: string): Promise<Profile[]>;
   isFriend(ownerAgentId: string, candidateAgentId: string): Promise<boolean>;
 }
 
@@ -67,11 +66,6 @@ export class Directory {
   async searchByName(requesterAgentId: string, name: string): Promise<Profile[]> {
     const normalized = normalize(name);
     return this.cached(JSON.stringify(['name', requesterAgentId, normalized]), requesterAgentId, p => normalize(p.displayName) === normalized, async () => this.filter(requesterAgentId, await this.store.findByName(normalized)));
-  }
-
-  async searchByCapability(requesterAgentId: string, capability: string): Promise<Profile[]> {
-    const normalized = normalize(capability);
-    return this.cached(JSON.stringify(['cap', requesterAgentId, normalized]), requesterAgentId, p => p.capabilities.includes(normalized), async () => this.filter(requesterAgentId, await this.store.findByCapability(normalized)));
   }
 
   async putProfile(profile: Profile): Promise<void> {

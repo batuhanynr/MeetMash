@@ -14,10 +14,11 @@ const email = inputEmail.trim().toLowerCase(), displayName = name.trim();
 if (!validAgentId.test(agentId) || !validEmail.test(email) || email.length > 254 || !displayName || displayName.length > 100 || extra.length) {
   throw new Error('Usage: node scripts/connect-calendar.ts <agent-id> <google-email> <display-name>');
 }
-const catalog = resolve(process.env.MEETMESH_ACCOUNTS_FILE ?? join(homedir(), '.config/meetmash/calendar-accounts.json'));
+const catalog = resolve(process.env.MEETMESH_ACCOUNTS_FILE ?? join(homedir(), '.config/meetmesh/calendar-accounts.json'));
 const oauth = loadGoogleClient(googleClientPath());
 const load = (): CalendarAccountsFile => existsSync(catalog) ? loadCalendarAccounts(catalog) : { accounts: [], pairKeys: {} };
 function existing(data: CalendarAccountsFile) {
+  if (data.mockAgents?.some(a => a.agentId === agentId)) throw new Error('This agent ID belongs to a mock agent.');
   const account = data.accounts.find(a => a.agentId === agentId || a.email === email);
   if (account && (account.agentId !== agentId || account.email !== email)) throw new Error('Email and agent ID must match the existing account.');
   return account;
@@ -78,7 +79,7 @@ try {
     agentId, email, displayName, calendarId, refreshToken: token.refresh_token,
     passwordHash: prior?.passwordHash ?? hashSecret(password!), bootstrap: prior?.bootstrap ?? randomToken(),
   };
-  for (const peer of data.accounts) {
+  for (const peer of [...data.accounts, ...(data.mockAgents ?? [])]) {
     if (peer.agentId !== agentId) data.pairKeys[pairId(agentId, peer.agentId)] ??= randomToken();
   }
   data.accounts = [...data.accounts.filter(a => a.agentId !== agentId), account];

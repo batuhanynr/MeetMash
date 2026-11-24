@@ -1,6 +1,7 @@
 import { createHash, scrypt, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { promisify } from 'node:util';
+import { normalizeMeetingTitle } from '../../../packages/protocol/src/meeting-title.ts';
 import { pairId } from '../../../packages/protocol/src/mac.ts';
 import type { Database } from './db.ts';
 import { calendarTitle, exchangeGoogleToken, GoogleAuthorizationRequired, googleRequest, loadGoogleClient, readPrivateJson } from './google-calendar.ts';
@@ -10,7 +11,10 @@ export type CalendarAccount = {
   agentId: string; email: string; displayName: string; passwordHash: string;
   bootstrap: string; calendarId: string; refreshToken: string;
 };
-export type CalendarAccountsFile = { accounts: CalendarAccount[]; pairKeys: Record<string, string> };
+type MockCalendarAgent = Pick<CalendarAccount, 'agentId' | 'displayName' | 'bootstrap'>;
+export type CalendarAccountsFile = {
+  accounts: CalendarAccount[]; mockAgents?: MockCalendarAgent[]; pairKeys: Record<string, string>;
+};
 export const validAgentId = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
 export const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const derivedHash = /^[a-f0-9]{32}:[a-f0-9]{64}$/;
@@ -34,11 +38,23 @@ export function loadCalendarAccounts(path: string): CalendarAccountsFile {
       throw new Error('Invalid or duplicate MeetMesh calendar account.');
     }
     emails.add(a.email);
-    for (const peer of ids) {
-      if (!randomKey.test(data.pairKeys[pairId(a.agentId, peer)] ?? '')) throw new Error('Missing MeetMesh calendar account pair key.');
-    }
     ids.add(a.agentId);
     calendars.add(a.calendarId);
+  }
+  if (data.mockAgents !== undefined && !Array.isArray(data.mockAgents)) throw new Error('Invalid mock calendar agents.');
+  for (const agent of data.mockAgents ?? []) {
+    if (!agent || typeof agent.agentId !== 'string' || !validAgentId.test(agent.agentId) ||
+        ids.has(agent.agentId) || typeof agent.displayName !== 'string' || !agent.displayName.trim() ||
+        agent.displayName.length > 100 || typeof agent.bootstrap !== 'string' || !randomKey.test(agent.bootstrap)) {
+      throw new Error('Invalid or duplicate mock calendar agent.');
+    }
+    ids.add(agent.agentId);
+  }
+  const peers = [...ids];
+  for (const [index, id] of peers.entries()) {
+    for (const peer of peers.slice(0, index)) {
+      if (!randomKey.test(data.pairKeys[pairId(id, peer)] ?? '')) throw new Error('Missing MeetMesh calendar account pair key.');
+    }
   }
   return data;
 }
@@ -63,7 +79,8 @@ export class CalendarAccounts {
 
   keysFor(agentId: string): Record<string, string> | undefined {
     if (!this.byAgent.has(agentId)) return;
-    return Object.fromEntries([...this.byAgent.keys()].filter(id => id !== agentId).map(id => {
+    const ids = [...this.byAgent.keys(), ...(this.accounts.mockAgents ?? []).map(agent => agent.agentId)];
+    return Object.fromEntries(ids.filter(id => id !== agentId).map(id => {
       const keyId = pairId(id, agentId);
       return [keyId, this.accounts.pairKeys[keyId]!];
     }));
@@ -73,8 +90,8 @@ export class CalendarAccounts {
     const client = await database.connect();
     try {
       await client.query('BEGIN');
-      for (const a of this.byAgent.values()) {
-        const userId = `calendar:${a.agentId}`;
+      for (const a of [...this.byAgent.values(), ...(this.accounts.mockAgents ?? [])]) {
+        const userId = `${this.byAgent.has(a.agentId) ? 'calendar' : 'mock-calendar'}:${a.agentId}`;
         await client.query('INSERT INTO agent_identities(agent_id,user_id,bootstrap_secret_hash) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
           [a.agentId, userId, hashSecret(a.bootstrap)]);
         const { rows } = await client.query('SELECT user_id,bootstrap_secret_hash FROM agent_identities WHERE agent_id=$1', [a.agentId]);
@@ -187,12 +204,13 @@ const time = (value: unknown) => typeof value === 'string' && rfc3339.test(value
 export function calendarRequest(calendarId: string, agentId: string, frame: Record<string, unknown>):
   { path: string; method?: string; body?: unknown } | undefined {
   const path = `/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
-  const { operation, id, start, end, zone, pageToken, meeting } = frame;
+  const { operation, id, start, end, zone, pageToken, meeting, title } = frame;
   if (operation === 'event' && typeof id === 'string' && eventId.test(id)) {
     return { path: `${path}/${id}?fields=status,start,end,extendedProperties%28private%28meetmesh%29%29` };
   }
   const from = time(start), to = time(end);
-  if (!(from < to && to - from <= 64 * 60 * 60 * 1000)) return;
+  const maxHours = operation === 'events' ? 32 * 24 : 64;
+  if (!(from < to && to - from <= maxHours * 60 * 60 * 1000)) return;
   if (operation === 'busy') {
     return { path: '/calendar/v3/freeBusy', method: 'POST', body: { timeMin: start, timeMax: end, items: [{ id: calendarId }] } };
   }
@@ -203,10 +221,10 @@ export function calendarRequest(calendarId: string, agentId: string, frame: Reco
     if (pageToken) query.set('pageToken', pageToken);
     return { path: `${path}?${query}` };
   }
-  if (operation === 'insert' && typeof meeting === 'string' && meeting.length > 0 && meeting.length <= 128 && to - from <= 24 * 60 * 60 * 1000) {
+  if (operation === 'insert' && typeof meeting === 'string' && meeting.length > 0 && meeting.length <= 128 && to - from <= 24 * 60 * 60 * 1000 && (title === undefined || typeof title === 'string')) {
     const id = createHash('sha256').update(JSON.stringify([agentId, meeting])).digest('hex');
     return { path: `${path}?fields=id`, method: 'POST', body: {
-      id, summary: 'MeetMesh', start: { dateTime: start }, end: { dateTime: end }, extendedProperties: { private: { meetmesh: id } },
+      id, summary: normalizeMeetingTitle(title), start: { dateTime: start }, end: { dateTime: end }, extendedProperties: { private: { meetmesh: id } },
     } };
   }
 }

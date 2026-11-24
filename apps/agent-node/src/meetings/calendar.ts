@@ -1,5 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Slot } from '../../../../packages/protocol/src/index.ts';
+import { defaultMeetingTitle, normalizeMeetingTitle } from '../../../../packages/protocol/src/meeting-title.ts';
 import { candidates, overlaps, sameSlot, type CalendarProfile } from './slots.ts';
 
 export interface Calendar {
@@ -7,7 +8,7 @@ export interface Calendar {
   reserve(meetingId: string, slot: Slot): boolean;
   release(meetingId: string): void;
   event(meetingId: string): Slot | undefined;
-  ensureEvent(meetingId: string, slot: Slot): void;
+  ensureEvent(meetingId: string, slot: Slot, title?: string): void;
 }
 
 // Each agent owns this database. The write lock covers the overlap check and reservation.
@@ -18,7 +19,10 @@ export class LocalCalendar implements Calendar {
     this.db = db;
     db.exec(`CREATE TABLE IF NOT EXISTS calendar_config(id INTEGER PRIMARY KEY, data TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS reservations(meeting TEXT PRIMARY KEY, start TEXT NOT NULL, end TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS calendar_events(meeting TEXT PRIMARY KEY, start TEXT NOT NULL, end TEXT NOT NULL);`);
+      CREATE TABLE IF NOT EXISTS calendar_events(meeting TEXT PRIMARY KEY, start TEXT NOT NULL, end TEXT NOT NULL, title TEXT NOT NULL DEFAULT 'MeetMesh');`);
+    if (!db.prepare('PRAGMA table_info(calendar_events)').all().some(column => column.name === 'title')) {
+      db.exec(`ALTER TABLE calendar_events ADD COLUMN title TEXT NOT NULL DEFAULT '${defaultMeetingTitle}'`);
+    }
     db.prepare('INSERT OR IGNORE INTO calendar_config VALUES(1,?)').run(JSON.stringify(seed));
     this.profile = JSON.parse(String(db.prepare('SELECT data FROM calendar_config WHERE id=1').get()!.data));
   }
@@ -50,9 +54,9 @@ export class LocalCalendar implements Calendar {
     const r = this.db.prepare('SELECT start,end FROM calendar_events WHERE meeting=?').get(id);
     return r ? { start: String(r.start), end: String(r.end) } : undefined;
   }
-  ensureEvent(id: string, slot: Slot) {
+  ensureEvent(id: string, slot: Slot, title?: string) {
     const existing = this.event(id);
     if (existing && !sameSlot(existing, slot)) throw new Error('EVENT_CONFLICT');
-    this.db.prepare('INSERT OR IGNORE INTO calendar_events VALUES(?,?,?)').run(id, slot.start, slot.end);
+    this.db.prepare('INSERT OR IGNORE INTO calendar_events(meeting,start,end,title) VALUES(?,?,?,?)').run(id, slot.start, slot.end, normalizeMeetingTitle(title));
   }
 }

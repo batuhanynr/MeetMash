@@ -22,7 +22,8 @@ export async function startM2Hub(database: Database, config: M2HubConfig, log: L
   }
   const profiles = new PgDirectoryStore(database);
   const directory = new Directory(profiles);
-  const controls = [new IntelligenceControls(id => profiles.visibleProfiles(id)), new MobileDirectoryControl(database, directory)];
+  const visibleProfiles = (id: string) => profiles.visibleProfiles(id);
+  const controls = [new IntelligenceControls(visibleProfiles), new MobileDirectoryControl(database, directory, visibleProfiles)];
   const accounts = config.calendarAccounts;
   if (accounts) await accounts.provision(database);
   const hub = new HubCore(new Registrar(new PgRegistrarStore(database)), directory, new Mailbox(new PgMailboxStore(database)), log, accounts ? [accounts, ...controls] : controls, config.traceDelivery);

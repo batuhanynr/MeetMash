@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'calendar_clock.dart';
 
@@ -57,13 +58,54 @@ class MeetingWindowFields extends StatelessWidget {
     required bool start,
   }) async {
     final instant = start ? current.start : current.end;
-    final time = await showTimePicker(
+    var selection = TimeOfDay.fromDateTime(clock.local(instant));
+    final time = await showModalBottomSheet<TimeOfDay>(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(clock.local(instant)),
-      helpText: start ? 'Başlangıç saati' : 'Bitiş saati',
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: Text(start ? 'Başlangıç saati' : 'Bitiş saati')),
+            Flexible(
+              child: SizedBox(
+                height: 196,
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  use24hFormat: true,
+                  initialDateTime: DateTime(
+                    2000,
+                    1,
+                    1,
+                    selection.hour,
+                    selection.minute,
+                  ),
+                  onDateTimeChanged: (value) =>
+                      selection = TimeOfDay.fromDateTime(value),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: OverflowBar(
+                alignment: MainAxisAlignment.end,
+                spacing: 8,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(sheetContext),
+                    child: const Text('Vazgeç'),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(sheetContext, selection),
+                    child: const Text('Seç'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
     if (time == null || !context.mounted) return;

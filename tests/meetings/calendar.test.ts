@@ -41,9 +41,10 @@ test('same instant, midnight and touching boundaries preserve availability; conf
     assert.equal(slot?.start, '2026-11-10T20:30:00.000Z');
     assert.ok(calendar.reserve('m', slot!));
     assert.equal(calendar.reserve('other', slot!), false);
-    calendar.ensureEvent('m', slot!);
+    calendar.ensureEvent('m', slot!, '  Tasarım   değerlendirmesi  ');
     calendar.release('m');
     calendar.ensureEvent('m', slot!);
+    assert.equal(db.prepare('SELECT title FROM calendar_events WHERE meeting=?').get('m')?.title, 'Tasarım değerlendirmesi');
     assert.equal(calendar.reserve('other', slot!), false);
   } finally {
     db.close();

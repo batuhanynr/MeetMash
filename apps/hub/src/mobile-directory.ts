@@ -1,22 +1,30 @@
 import type { Database } from './db.ts';
-import type { Directory, Visibility } from './directory.ts';
+import type { Directory, Profile, Visibility } from './directory.ts';
 
 // The socket supplies the actor. Clients can request access, but only the recipient can approve it.
 export class MobileDirectoryControl {
   readonly db: Database;
   readonly directory: Directory;
-  constructor(db: Database, directory: Directory) { this.db = db; this.directory = directory; }
+  private readonly visibleProfiles: (actor: string) => Promise<Profile[]>;
+  constructor(db: Database, directory: Directory, visibleProfiles: (actor: string) => Promise<Profile[]>) {
+    this.db = db;
+    this.directory = directory;
+    this.visibleProfiles = visibleProfiles;
+  }
 
   async handle(actor: string, frame: { kind: string; [key: string]: unknown }): Promise<Record<string, unknown> | undefined> {
     const response = (value: Record<string, unknown>) => ({ kind: frame.kind + '.result', requestId: frame.requestId, ...value });
     switch (frame.kind) {
+      case 'directory.list': {
+        const profiles = await this.visibleProfiles(actor);
+        return response({ agents: profiles.filter(p => p.agentId !== actor).map(({ agentId, displayName }) => ({ agentId, displayName })) });
+      }
       case 'profile.get': return response({ profile: await this.directory.lookup(actor, actor) });
       case 'profile.save': {
-        const { displayName, visibility, capabilities } = frame;
+        const { displayName, visibility } = frame;
         if (typeof displayName !== 'string' || !displayName.trim() || displayName.length > 100 ||
-            !['private', 'friends', 'public'].includes(String(visibility)) || !Array.isArray(capabilities) ||
-            capabilities.length > 32 || !capabilities.every(c => typeof c === 'string' && c.length <= 80)) return response({ error: 'INVALID_PROFILE' });
-        await this.directory.putProfile({ agentId: actor, displayName: displayName.trim(), visibility: visibility as Visibility, capabilities });
+            !['private', 'friends', 'public'].includes(String(visibility))) return response({ error: 'INVALID_PROFILE' });
+        await this.directory.putProfile({ agentId: actor, displayName: displayName.trim(), visibility: visibility as Visibility });
         return response({ saved: true });
       }
       case 'friends.list': {

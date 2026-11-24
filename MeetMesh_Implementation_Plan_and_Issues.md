@@ -1,11 +1,13 @@
+> Historical planning document: capability search and provider choices described below no longer reflect the current implementation.
+
 # MeetMesh — 5 Aşamalı Geliştirme Planı ve GitHub Issue Listesi
 
-**Sürüm:** 1.0  
-**Hazırlanma tarihi:** 4 Kasım 2026  
-**Durum:** Uygulama planı; aşağıdaki özelliklerin tamamlandığı veya testlerin çalıştırıldığı anlamına gelmez.  
-**Hedef platform:** Flutter / iOS + Android  
-**Referans ajan ve servisler:** Node.js + TypeScript  
-**Sunum:** Dersin 10. haftası. Kesin takvim tarihi bu planda varsayılmamıştır.  
+**Sürüm:** 1.0
+**Hazırlanma tarihi:** 4 Kasım 2026
+**Durum:** Uygulama planı; aşağıdaki özelliklerin tamamlandığı veya testlerin çalıştırıldığı anlamına gelmez.
+**Hedef platform:** Flutter / iOS + Android
+**Referans ajan ve servisler:** Node.js + TypeScript
+**Sunum:** Dersin 10. haftası. Kesin takvim tarihi bu planda varsayılmamıştır.
 **İş kırılımı:** 5 milestone, 27 issue. Bu doküman GitHub'da issue açmaz; aktarılacak içerikleri tanımlar.
 
 > **Ana kural:** Bir aşama, yalnızca kod yazıldığı için bitmiş sayılmaz. Aşama sonundaki demo tekrar çalıştırılmalı, geçiş testleri geçmeli ve kanıtlar aynı kod sürümüyle saklanmalıdır.
@@ -236,8 +238,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-101 — Depo iskeletini ve çalıştırılabilir yerel ortamı kur
 
-**GitHub başlığı:** `[M1][MM-101] Depo iskeletini ve çalıştırılabilir yerel ortamı kur`  
-**Bağımlılıklar:** Yok  
+**GitHub başlığı:** `[M1][MM-101] Depo iskeletini ve çalıştırılabilir yerel ortamı kur`
+**Bağımlılıklar:** Yok
 **Etiketler:** `backend`, `agent`, `docs`
 
 **Amaç / çıktı:** Bir geliştirici README'yi izleyerek hub ve A/B/C ajanlarını ayrı süreçler olarak başlatabilsin.
@@ -254,8 +256,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-102 — Mesaj sözleşmesini ve doğrulayıcıyı oluştur
 
-**GitHub başlığı:** `[M1][MM-102] Mesaj sözleşmesini ve doğrulayıcıyı oluştur`  
-**Bağımlılıklar:** MM-101  
+**GitHub başlığı:** `[M1][MM-102] Mesaj sözleşmesini ve doğrulayıcıyı oluştur`
+**Bağımlılıklar:** MM-101
 **Etiketler:** `protocol`, `test`
 
 **Amaç / çıktı:** Node ve ileride Dart tarafından aynı şekilde yorumlanabilen sürümlü JSON sözleşmesi.
@@ -272,8 +274,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-103 — Relay üzerinden üç ajan arasında mesaj taşı
 
-**GitHub başlığı:** `[M1][MM-103] Relay üzerinden üç ajan arasında mesaj taşı`  
-**Bağımlılıklar:** MM-101, MM-102  
+**GitHub başlığı:** `[M1][MM-103] Relay üzerinden üç ajan arasında mesaj taşı`
+**Bağımlılıklar:** MM-101, MM-102
 **Etiketler:** `backend`, `agent`, `protocol`
 
 **Amaç / çıktı:** A'nın B ve C'ye ayrı mesaj gönderebildiği, cevapların doğru ajana döndüğü bağlantı katmanı.
@@ -290,8 +292,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-104 — Kalıcı inbox/outbox, ACK ve tekrar işlemeyi önleme ekle
 
-**GitHub başlığı:** `[M1][MM-104] Kalıcı inbox/outbox, ACK ve tekrar işlemeyi önleme ekle`  
-**Bağımlılıklar:** MM-102, MM-103  
+**GitHub başlığı:** `[M1][MM-104] Kalıcı inbox/outbox, ACK ve tekrar işlemeyi önleme ekle`
+**Bağımlılıklar:** MM-102, MM-103
 **Etiketler:** `agent`, `protocol`, `test`
 
 **Amaç / çıktı:** ACK kaybolduğunda mesaj tekrar gitsin fakat aynı iş iki kez yapılmasın.
@@ -308,8 +310,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-105 — M1 demo komutunu, log görünümünü ve geçiş testini hazırla
 
-**GitHub başlığı:** `[M1][MM-105] M1 demo komutunu, log görünümünü ve geçiş testini hazırla`  
-**Bağımlılıklar:** MM-101–104  
+**GitHub başlığı:** `[M1][MM-105] M1 demo komutunu, log görünümünü ve geçiş testini hazırla`
+**Bağımlılıklar:** MM-101–104
 **Etiketler:** `test`, `docs`
 
 **Amaç / çıktı:** Bir komutla çalışan protokol demosu ve yeşil / kırmızı sonucu açık M1 testi.
@@ -352,8 +354,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-201 — Agent Directory, profil ve bulunabilirlik kurallarını oluştur
 
-**GitHub başlığı:** `[M2][MM-201] Agent Directory, profil ve bulunabilirlik kurallarını oluştur`  
-**Bağımlılıklar:** MM-101, MM-102  
+**GitHub başlığı:** `[M2][MM-201] Agent Directory, profil ve bulunabilirlik kurallarını oluştur`
+**Bağımlılıklar:** MM-101, MM-102
 **Etiketler:** `backend`, `security`
 
 **Amaç / çıktı:** İsim / kimlik / yetenek etiketiyle aranan ajan yalnız yetkili kullanıcıya bulunabilsin.
@@ -370,8 +372,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-202 — Kimlik doğrulamalı Registrar ve bağlantı yaşam döngüsü ekle
 
-**GitHub başlığı:** `[M2][MM-202] Kimlik doğrulamalı Registrar ve bağlantı yaşam döngüsü ekle`  
-**Bağımlılıklar:** MM-201, MM-103  
+**GitHub başlığı:** `[M2][MM-202] Kimlik doğrulamalı Registrar ve bağlantı yaşam döngüsü ekle`
+**Bağımlılıklar:** MM-201, MM-103
 **Etiketler:** `backend`, `protocol`, `security`
 
 **Amaç / çıktı:** Sabit ajan kimliği doğru aktif bağlantıya bağlansın; eski oturum yeni oturumu bozamamasın.
@@ -388,8 +390,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-203 — Kalıcı çevrimdışı posta kutusunu ve teslim durumlarını uygula
 
-**GitHub başlığı:** `[M2][MM-203] Kalıcı çevrimdışı posta kutusunu ve teslim durumlarını uygula`  
-**Bağımlılıklar:** MM-104, MM-202  
+**GitHub başlığı:** `[M2][MM-203] Kalıcı çevrimdışı posta kutusunu ve teslim durumlarını uygula`
+**Bağımlılıklar:** MM-104, MM-202
 **Etiketler:** `backend`, `protocol`, `test`
 
 **Amaç / çıktı:** Kapalı ajana gönderilen mesaj DB'de beklesin, yeniden bağlantıda güvenli şekilde teslim edilsin.
@@ -407,8 +409,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-204 — TLS, mesaj MAC'i ve tekrar oynatma koruması ekle
 
-**GitHub başlığı:** `[M2][MM-204] TLS, mesaj MAC'i ve tekrar oynatma koruması ekle`  
-**Bağımlılıklar:** MM-102, MM-202, MM-203  
+**GitHub başlığı:** `[M2][MM-204] TLS, mesaj MAC'i ve tekrar oynatma koruması ekle`
+**Bağımlılıklar:** MM-102, MM-202, MM-203
 **Etiketler:** `security`, `protocol`, `test`
 
 **Amaç / çıktı:** Yanlış kimlik, değiştirilmiş içerik veya eski mesaj geçerli yeni işlem gibi kabul edilmesin.
@@ -426,8 +428,8 @@ Bunlar ölçüm öncesi başlangıç ayarlarıdır. Değiştirilecekse gerekçes
 
 ### MM-205 — Bulma → çevrimdışı bekletme → yeniden teslim demosunu birleştir
 
-**GitHub başlığı:** `[M2][MM-205] Bulma → çevrimdışı bekletme → yeniden teslim demosunu birleştir`  
-**Bağımlılıklar:** MM-201–204  
+**GitHub başlığı:** `[M2][MM-205] Bulma → çevrimdışı bekletme → yeniden teslim demosunu birleştir`
+**Bağımlılıklar:** MM-201–204
 **Etiketler:** `test`, `docs`
 
 **Amaç / çıktı:** M2'nin parçaları tek senaryoda, kullanıcıya görünen durumlarla çalışsın.
@@ -491,8 +493,8 @@ Ortak adaylar: **11.00–12.00** ve **14.00–15.00**.
 
 ### MM-301 — Takvim adaptörü, tercihler ve deterministik fixture'lar oluştur
 
-**GitHub başlığı:** `[M3][MM-301] Takvim adaptörü, tercihler ve deterministik fixture'lar oluştur`  
-**Bağımlılıklar:** MM-102, MM-104  
+**GitHub başlığı:** `[M3][MM-301] Takvim adaptörü, tercihler ve deterministik fixture'lar oluştur`
+**Bağımlılıklar:** MM-102, MM-104
 **Etiketler:** `agent`, `calendar`, `test`
 
 **Amaç / çıktı:** Takvim sağlayıcısı sonradan değişse de aynı zaman / rezervasyon sözleşmesi kullanılsın.
@@ -509,8 +511,8 @@ Ortak adaylar: **11.00–12.00** ve **14.00–15.00**.
 
 ### MM-302 — Ortak slot bulma ve tercih puanlama algoritmasını yaz
 
-**GitHub başlığı:** `[M3][MM-302] Ortak slot bulma ve tercih puanlama algoritmasını yaz`  
-**Bağımlılıklar:** MM-301  
+**GitHub başlığı:** `[M3][MM-302] Ortak slot bulma ve tercih puanlama algoritmasını yaz`
+**Bağımlılıklar:** MM-301
 **Etiketler:** `agent`, `test`
 
 **Amaç / çıktı:** Başlatan ajan, herkesin uygun olduğu adaylardan en iyi olanı hesaplasın.
@@ -527,8 +529,8 @@ Ortak adaylar: **11.00–12.00** ve **14.00–15.00**.
 
 ### MM-303 — Müzakere durum makinesini ve geçici rezervasyonu uygula
 
-**GitHub başlığı:** `[M3][MM-303] Müzakere durum makinesini ve geçici rezervasyonu uygula`  
-**Bağımlılıklar:** MM-205, MM-302  
+**GitHub başlığı:** `[M3][MM-303] Müzakere durum makinesini ve geçici rezervasyonu uygula`
+**Bağımlılıklar:** MM-205, MM-302
 **Etiketler:** `agent`, `protocol`, `test`
 
 **Amaç / çıktı:** Ortak saat yalnız bütün katılımcılar gerçekten kabul ettiğinde kesin karara dönüşsün.
@@ -546,8 +548,8 @@ Ortak adaylar: **11.00–12.00** ve **14.00–15.00**.
 
 ### MM-304 — Takvim yazımını tekilleştir ve yarım kalan kararı kurtar
 
-**GitHub başlığı:** `[M3][MM-304] Takvim yazımını tekilleştir ve yarım kalan kararı kurtar`  
-**Bağımlılıklar:** MM-301, MM-303  
+**GitHub başlığı:** `[M3][MM-304] Takvim yazımını tekilleştir ve yarım kalan kararı kurtar`
+**Bağımlılıklar:** MM-301, MM-303
 **Etiketler:** `agent`, `calendar`, `test`
 
 **Amaç / çıktı:** Tekrar gönderilen onay veya yeniden başlayan süreç ikinci bir toplantı oluşturmadan işi tamamlasın.
@@ -565,8 +567,8 @@ Ortak adaylar: **11.00–12.00** ve **14.00–15.00**.
 
 ### MM-305 — Üç ajanlı toplantı demosunu ve başarısızlık senaryolarını tamamla
 
-**GitHub başlığı:** `[M3][MM-305] Üç ajanlı toplantı demosunu ve başarısızlık senaryolarını tamamla`  
-**Bağımlılıklar:** MM-301–304  
+**GitHub başlığı:** `[M3][MM-305] Üç ajanlı toplantı demosunu ve başarısızlık senaryolarını tamamla`
+**Bağımlılıklar:** MM-301–304
 **Etiketler:** `test`, `docs`
 
 **Amaç / çıktı:** Gerçek seçim algoritması ve protokolün birlikte çalıştığı, doğrulanabilir toplantı demosu.
@@ -628,8 +630,8 @@ Ajan mesajları yanlışlıkla ayrı yönetim bağlantısından dolaşırsa NetE
 
 ### MM-401 — Air erişimini ve Linux test yeteneklerini erken doğrula
 
-**GitHub başlığı:** `[M4][MM-401] Air erişimini ve Linux test yeteneklerini erken doğrula`  
-**Bağımlılıklar:** Başlamak için yok; M1 ile paralel  
+**GitHub başlığı:** `[M4][MM-401] Air erişimini ve Linux test yeteneklerini erken doğrula`
+**Bağımlılıklar:** Başlamak için yok; M1 ile paralel
 **Etiketler:** `network-lab`, `docs`
 
 **Amaç / çıktı:** Deney ortamının gerçekten erişilebilir olduğunu geliştirme başında öğren.
@@ -646,8 +648,8 @@ Ajan mesajları yanlışlıkla ayrı yönetim bağlantısından dolaşırsa NetE
 
 ### MM-402 — Hub ve üç ajanı tekrar kurulabilir Air topolojisine dağıt
 
-**GitHub başlığı:** `[M4][MM-402] Hub ve üç ajanı tekrar kurulabilir Air topolojisine dağıt`  
-**Bağımlılıklar:** MM-401, M3 geçişi  
+**GitHub başlığı:** `[M4][MM-402] Hub ve üç ajanı tekrar kurulabilir Air topolojisine dağıt`
+**Bağımlılıklar:** MM-401, M3 geçişi
 **Etiketler:** `network-lab`, `backend`, `docs`
 
 **Amaç / çıktı:** Yereldeki aynı kod sürümü dört ayrı Linux düğümünde çalışsın.
@@ -664,8 +666,8 @@ Ajan mesajları yanlışlıkla ayrı yönetim bağlantısından dolaşırsa NetE
 
 ### MM-403 — Ağ profilleri ve uygulama seviyesinde hata enjeksiyonu ekle
 
-**GitHub başlığı:** `[M4][MM-403] Ağ profilleri ve uygulama seviyesinde hata enjeksiyonu ekle`  
-**Bağımlılıklar:** MM-402, MM-104  
+**GitHub başlığı:** `[M4][MM-403] Ağ profilleri ve uygulama seviyesinde hata enjeksiyonu ekle`
+**Bağımlılıklar:** MM-402, MM-104
 **Etiketler:** `network-lab`, `protocol`, `test`
 
 **Amaç / çıktı:** Her koşuda hangi arızanın nerede uygulandığı belli olsun; deney sonrası ortam temizlenebilsin.
@@ -683,8 +685,8 @@ Ajan mesajları yanlışlıkla ayrı yönetim bağlantısından dolaşırsa NetE
 
 ### MM-404 — Ağ deneylerini otomatikleştir ve metrik raporu üret
 
-**GitHub başlığı:** `[M4][MM-404] Ağ deneylerini otomatikleştir ve metrik raporu üret`  
-**Bağımlılıklar:** MM-403  
+**GitHub başlığı:** `[M4][MM-404] Ağ deneylerini otomatikleştir ve metrik raporu üret`
+**Bağımlılıklar:** MM-403
 **Etiketler:** `network-lab`, `test`
 
 **Amaç / çıktı:** Tek seferlik demo yerine tekrar sayısı ve hata nedenleri görülen karşılaştırma.
@@ -702,8 +704,8 @@ Ajan mesajları yanlışlıkla ayrı yönetim bağlantısından dolaşırsa NetE
 
 ### MM-405 — Ağ demosunu, ölçüm yorumunu ve sunum kanıtını tamamla
 
-**GitHub başlığı:** `[M4][MM-405] Ağ demosunu, ölçüm yorumunu ve sunum kanıtını tamamla`  
-**Bağımlılıklar:** MM-402–404  
+**GitHub başlığı:** `[M4][MM-405] Ağ demosunu, ölçüm yorumunu ve sunum kanıtını tamamla`
+**Bağımlılıklar:** MM-402–404
 **Etiketler:** `network-lab`, `docs`, `test`
 
 **Amaç / çıktı:** Sunumda hem çalışan davranış hem de onun ölçüm kanıtı gösterilebilsin.
@@ -767,8 +769,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-501 — Flutter iskeletini ve iOS / Android derlemelerini doğrula
 
-**GitHub başlığı:** `[M5][MM-501] Flutter iskeletini ve iOS / Android derlemelerini doğrula`  
-**Bağımlılıklar:** Başlamak için MM-101; M1 sırasında yapılabilir  
+**GitHub başlığı:** `[M5][MM-501] Flutter iskeletini ve iOS / Android derlemelerini doğrula`
+**Bağımlılıklar:** Başlamak için MM-101; M1 sırasında yapılabilir
 **Etiketler:** `mobile`, `test`
 
 **Amaç / çıktı:** Android APK sorunu henüz boş uygulama aşamasında çözülmüş, iki platformda açılan bir başlangıç uygulaması.
@@ -786,8 +788,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-502 — Dart ajanını ve Node–Dart protokol uyumluluğunu uygula
 
-**GitHub başlığı:** `[M5][MM-502] Dart ajanını ve Node–Dart protokol uyumluluğunu uygula`  
-**Bağımlılıklar:** MM-501, MM-204, MM-304  
+**GitHub başlığı:** `[M5][MM-502] Dart ajanını ve Node–Dart protokol uyumluluğunu uygula`
+**Bağımlılıklar:** MM-501, MM-204, MM-304
 **Etiketler:** `mobile`, `agent`, `protocol`, `security`
 
 **Amaç / çıktı:** Flutter uygulaması yalnız ekran değil, aynı protokolü konuşan gerçek bir ajan olsun.
@@ -805,8 +807,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-503 — Profil, arkadaşlar, toplantı ve takvim ekranlarını bağla
 
-**GitHub başlığı:** `[M5][MM-503] Profil, arkadaşlar, toplantı ve takvim ekranlarını bağla`  
-**Bağımlılıklar:** MM-501, MM-502, MM-201  
+**GitHub başlığı:** `[M5][MM-503] Profil, arkadaşlar, toplantı ve takvim ekranlarını bağla`
+**Bağımlılıklar:** MM-501, MM-502, MM-201
 **Etiketler:** `mobile`, `agent`, `test`
 
 **Amaç / çıktı:** Kullanıcı ajan bulabilsin, toplantı başlatabilsin ve hangi aşamada olduğunu anlayabilsin.
@@ -824,8 +826,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-504 — Doğal dil isteğini güvenli ve doğrulanmış REQUEST'e dönüştür
 
-**GitHub başlığı:** `[M5][MM-504] Doğal dil isteğini güvenli ve doğrulanmış REQUEST'e dönüştür`  
-**Bağımlılıklar:** MM-102, MM-301; MM-503 mobil bağlantı için, CLI prototipi için zorunlu değil  
+**GitHub başlığı:** `[M5][MM-504] Doğal dil isteğini güvenli ve doğrulanmış REQUEST'e dönüştür`
+**Bağımlılıklar:** MM-102, MM-301; MM-503 mobil bağlantı için, CLI prototipi için zorunlu değil
 **Etiketler:** `ai`, `backend`, `test`
 
 **Amaç / çıktı:** Türkçe isteği katılımcı / süre / tarih aralığı / tercihlere çeviren gerçek model adaptörü.
@@ -843,8 +845,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-505 — Agent Directory'ye anlamsal yetenek araması ekle
 
-**GitHub başlığı:** `[M5][MM-505] Agent Directory'ye anlamsal yetenek araması ekle`  
-**Bağımlılıklar:** MM-201, MM-204  
+**GitHub başlığı:** `[M5][MM-505] Agent Directory'ye anlamsal yetenek araması ekle`
+**Bağımlılıklar:** MM-201, MM-204
 **Etiketler:** `ai`, `backend`, `test`
 
 **Amaç / çıktı:** İsim eşleşmesi dışında, yetenek açıklamasının anlamına göre yetkili ajanları bulabilmek.
@@ -862,8 +864,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-506 — Google Calendar yetkilendirme, free/busy ve tekil yazımı entegre et
 
-**GitHub başlığı:** `[M5][MM-506] Google Calendar yetkilendirme, free/busy ve tekil yazımı entegre et`  
-**Bağımlılıklar:** MM-301, MM-304, MM-502  
+**GitHub başlığı:** `[M5][MM-506] Google Calendar yetkilendirme, free/busy ve tekil yazımı entegre et`
+**Bağımlılıklar:** MM-301, MM-304, MM-502
 **Etiketler:** `calendar`, `security`, `test`
 
 **Amaç / çıktı:** Sahte sağlayıcı yerine açıkça izin veren kullanıcıların gerçek takvimleriyle çalışmak.
@@ -882,8 +884,8 @@ Varsayılan katılımcı sayısı 3; her koşuda yeni toplantı ve temiz fixture
 
 ### MM-507 — Uçtan uca mobil demoyu ve final regresyonunu tamamla
 
-**GitHub başlığı:** `[M5][MM-507] Uçtan uca mobil demoyu ve final regresyonunu tamamla`  
-**Bağımlılıklar:** MM-501–506, M4 geçişi  
+**GitHub başlığı:** `[M5][MM-507] Uçtan uca mobil demoyu ve final regresyonunu tamamla`
+**Bağımlılıklar:** MM-501–506, M4 geçişi
 **Etiketler:** `mobile`, `test`, `docs`
 
 **Amaç / çıktı:** Telefondaki kullanıcı isteğinden takvim kaydına kadar tam sistem ve güvenilir final kanıtı.
@@ -1043,49 +1045,49 @@ Bir testte beklenen sonucun başarısızlık olması, testin başarısız olduğ
 
 ### Proje kaynakları
 
-**[P1] `CSE476_MeetMash_Proposal.pdf`**  
+**[P1] `CSE476_MeetMesh_Proposal.pdf`**
 19 Ekim 2026 tarihli öneri. Sayfa 1, bölümler 2–5: amaç, kapsam, protokol, güvenlik, AI ve başarı kriterleri. Sayfa 2: Directory / Registrar ayrımı ve katman mimarisi.
 
-**[P2] `CSE 476 575 F26 Term project guidelines.pdf`**  
+**[P2] `CSE 476 575 F26 Term project guidelines.pdf`**
 Ders yönergesi. Sayfa 1: kod yazma zorunluluğu, AI/ML ve mobil iletişim odağı, sunum / rapor şartları.
 
-**[P3] `MeetMesh_Project_Context.md` ve bu konuşmadaki ekip kararları**  
+**[P3] `MeetMesh_Project_Context.md` ve bu konuşmadaki ekip kararları**
 Sunumun 10. hafta olması; beş ana geliştirme adımı; Flutter tercihi ve Android APK derleme sorunu. Context dosyasının kendisi bir ilerleme raporu değildir.
 
 ### Yalnız uygulama yapılabilirliğini doğrulamak için kullanılan dış teknik belgeler
 
 Bu kaynaklar projenin zorunlu kapsamını belirlemez. Erişim bilgileri ve dokümantasyon 4 Kasım 2026'da kontrol edilmiştir; platform erişimi ekip hesabında ayrıca doğrulanmalıdır.
 
-**[W1] NVIDIA DSX Air — Custom Topology**  
-Özel topoloji, sunucu düğümleri ve topoloji dosyası desteği.  
+**[W1] NVIDIA DSX Air — Custom Topology**
+Özel topoloji, sunucu düğümleri ve topoloji dosyası desteği.
 `https://docs.nvidia.com/dsx-air/custom-topology`
 
-**[W2] NVIDIA DSX Air — Account Setup**  
-NGC hesabı / organizasyonu, giriş ve uygunluğa bağlı deneme erişimi.  
+**[W2] NVIDIA DSX Air — Account Setup**
+NGC hesabı / organizasyonu, giriş ve uygunluğa bağlı deneme erişimi.
 `https://docs.nvidia.com/dsx-air/account-setup`
 
-**[W3] Linux Kernel Documentation — tc netlink specification**  
-NetEm gecikme, jitter, kayıp ve paket çoğaltma parametreleri.  
+**[W3] Linux Kernel Documentation — tc netlink specification**
+NetEm gecikme, jitter, kayıp ve paket çoğaltma parametreleri.
 `https://origin.kernel.org/doc/html/next/netlink/specs/tc.html`
 
-**[W4] Flutter — Communicate with WebSockets**  
-Dart / Flutter tarafında çift yönlü WebSocket iletişimi.  
+**[W4] Flutter — Communicate with WebSockets**
+Dart / Flutter tarafında çift yönlü WebSocket iletişimi.
 `https://docs.flutter.dev/cookbook/networking/web-sockets`
 
-**[W5] Google Calendar API — Freebusy: query**  
-Takvim müsaitlik sorgusu ve busy aralıklarının biçimi.  
+**[W5] Google Calendar API — Freebusy: query**
+Takvim müsaitlik sorgusu ve busy aralıklarının biçimi.
 `https://developers.google.com/workspace/calendar/api/v3/reference/freebusy/query`
 
-**[W6] Flutter — Set up Android development**  
-Android geliştirme araç zinciri.  
+**[W6] Flutter — Set up Android development**
+Android geliştirme araç zinciri.
 `https://docs.flutter.dev/platform-integration/android/setup`
 
-**[W7] Flutter — Build and release an Android app**  
-APK üretimi ve Android derleme çıktıları.  
+**[W7] Flutter — Build and release an Android app**
+APK üretimi ve Android derleme çıktıları.
 `https://docs.flutter.dev/deployment/android`
 
-**[W8] Google Calendar API — Events: insert**  
-Etkinlik oluşturma, yetkilendirme ve sağlanan event ID'nin biçim kuralları.  
+**[W8] Google Calendar API — Events: insert**
+Etkinlik oluşturma, yetkilendirme ve sağlanan event ID'nin biçim kuralları.
 `https://developers.google.com/workspace/calendar/api/v3/reference/events/insert`
 
 ### Kaynak ile tasarım arasındaki sınır

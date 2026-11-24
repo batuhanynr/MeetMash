@@ -43,7 +43,7 @@ beforeEach(async () => {
   const directory = new Directory(new PgDirectoryStore(database));
   for (const [id, name, secret] of [['agent-a', 'Alice', 'secret-a'], ['agent-b', 'Bravo', 'secret-b']] as const) {
     await provisionIdentity(database, { agentId: id, userId: `user-${id}`, secret });
-    await directory.putProfile({ agentId: id, displayName: name, visibility: 'public', capabilities: ['scheduling'] });
+    await directory.putProfile({ agentId: id, displayName: name, visibility: 'public' });
   }
 });
 

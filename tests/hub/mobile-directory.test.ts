@@ -9,7 +9,8 @@ import { MobileDirectoryControl } from '../../apps/hub/src/mobile-directory.ts';
 test('only the intended recipient can accept a friend request and unlock friends visibility',async()=>{
   const db=await freshDatabase();
   try {
-    const directory=new Directory(new PgDirectoryStore(db)), mobile=new MobileDirectoryControl(db,directory);
+    const profiles=new PgDirectoryStore(db), directory=new Directory(profiles);
+    const mobile=new MobileDirectoryControl(db,directory,id=>profiles.visibleProfiles(id));
     for(const agentId of ['alice','bob','carol']){
       await provisionIdentity(db,{agentId,userId:agentId,secret:'test-secret'});
       await mobile.handle(agentId,{kind:'profile.save',displayName:agentId,visibility:'public',capabilities:[]});
@@ -17,10 +18,14 @@ test('only the intended recipient can accept a friend request and unlock friends
     assert.equal((await mobile.handle('alice',{kind:'friends.request',target:'bob'}))?.requested,true);
     await mobile.handle('bob',{kind:'profile.save',displayName:'bob',visibility:'friends',capabilities:[]});
     assert.equal(await directory.lookup('alice','bob'),undefined);
+    assert.deepEqual((await mobile.handle('alice',{kind:'directory.list'}))?.agents,[{agentId:'carol',displayName:'carol'}]);
     assert.equal((await mobile.handle('carol',{kind:'friends.accept',target:'alice'}))?.error,'NO_REQUEST');
     assert.deepEqual((await mobile.handle('bob',{kind:'friends.list'}))?.incoming,['alice']);
     assert.equal((await mobile.handle('bob',{kind:'friends.accept',target:'alice'}))?.accepted,true);
     assert.equal((await directory.lookup('alice','bob'))?.displayName,'bob');
     assert.equal(await directory.lookup('carol','bob'),undefined);
+    assert.deepEqual((await mobile.handle('alice',{kind:'directory.list'}))?.agents,[
+      {agentId:'bob',displayName:'bob'}, {agentId:'carol',displayName:'carol'},
+    ]);
   }finally{await db.end();}
 });

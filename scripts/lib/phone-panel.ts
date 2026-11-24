@@ -6,17 +6,25 @@ import calendar from '../../packages/protocol/fixtures/calendar-v1.json' with { 
 import { ManagedProcess } from './processes.ts';
 
 export const phoneAgents = [
-  { id: 'agent-a', name: 'Ada', device: 'iPhone' },
+  { id: 'agent-a', name: 'Batuhan', device: 'iPhone' },
   { id: 'agent-b', name: 'Ece', device: 'Mac' },
   { id: 'agent-c', name: 'Deniz', device: 'Mac' },
 ] as const;
 
-type PanelEvent = { seq: number; at: string } & (
+export type PanelEvent = { seq: number; at: string } & (
   { kind: 'online' | 'offline'; agent: string } |
   { kind: 'queued' | 'forwarded'; from: string; to: string; type: string; phase?: string; meeting: string }
 );
 
-export function phonePanel(options: { directory: string; certs: string; secrets: string }) {
+export type ManagedPanelState = {
+  agents: { id: string; name: string; device: string; online: boolean }[];
+  hubOnline: boolean;
+  events: PanelEvent[];
+};
+
+export function phonePanel(options:
+  { directory: string; certs: string; secrets: string } | { state: () => Promise<ManagedPanelState>; calendars: (day: string) => unknown },
+) {
   const host = '127.0.0.1';
   const port = 8790;
   const origin = `http://${host}:${port}`;
@@ -40,6 +48,7 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
   };
 
   const startAgent = async (id: string) => {
+    if ('state' in options) throw new Error('The managed panel does not start agents.');
     const agent = new ManagedProcess('agent-node', [
       '--id', id, '--hub', hub, '--state-root', options.directory,
       '--secrets', options.secrets, '--cert-dir', options.certs,
@@ -71,7 +80,24 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
       return;
     }
     if (request.method === 'GET' && request.url === '/state') {
+      if ('state' in options) {
+        try { return json(200, { mode: 'managed', ...await options.state() }); }
+        catch { return json(503, { error: 'Panel verileri yüklenemedi.' }); }
+      }
       return json(200, { agents: phoneAgents.map(agent => ({ ...agent, online: online.has(agent.id) })), fixture, events });
+    }
+    if ('state' in options) {
+      const url = URL.parse(request.url ?? '/', origin);
+      if (request.method === 'GET' && url?.pathname === '/calendars') {
+        const day = url.searchParams.get('day') ?? '';
+        const date = new Date(day);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(+date) || date.toISOString().slice(0, 10) !== day) {
+          return json(400, { error: 'Geçerli bir tarih seç.' });
+        }
+        try { return json(200, { calendars: options.calendars(day) }); }
+        catch { return json(503, { error: 'Takvimler yüklenemedi.' }); }
+      }
+      return json(404, { error: 'Sayfa bulunamadı.' });
     }
     if (request.method !== 'POST' || !['/invite', '/toggle-deniz'].includes(request.url ?? '')) return json(404, { error: 'Sayfa bulunamadı.' });
     if (request.headers.origin !== origin || request.headers['content-type'] !== 'application/json') {
@@ -84,7 +110,7 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
       if (request.url === '/invite') {
         const ece = agents.get('agent-b');
         if (!ece || !online.has('agent-a') || !online.has('agent-b')) {
-          return json(409, { error: 'Önce Ada ve Ece bağlanmalı.' });
+          return json(409, { error: 'Önce Batuhan ve Ece bağlanmalı.' });
         }
         await ece.command({
           command: 'schedule', meetingId: randomUUID(), participantAgentIds: phoneAgents.map(agent => agent.id),
@@ -128,9 +154,11 @@ export function phonePanel(options: { directory: string; certs: string; secrets:
       }
       if (events.length > 160) events.shift();
     },
-    async start(hubUrl: string) {
+    async start(hubUrl = '') {
       hub = hubUrl;
-      for (const agent of phoneAgents) if (agent.device === 'Mac') await startAgent(agent.id);
+      if (!('state' in options)) {
+        for (const agent of phoneAgents) if (agent.device === 'Mac') await startAgent(agent.id);
+      }
       await new Promise<void>((done, fail) => {
         server.once('error', fail);
         server.listen(port, host, () => { server.off('error', fail); done(); });

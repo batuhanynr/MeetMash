@@ -99,6 +99,7 @@ Future<void> main(List<String> args) async {
               c['window'],
               c['durationMinutes'],
               meetingId: c['meetingId'],
+              title: c['title'],
             );
             reply({'requestId': c['requestId'], 'meetingId': id});
             break;
