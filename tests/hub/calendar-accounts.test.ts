@@ -8,14 +8,14 @@ import { hashSecret } from '../../apps/hub/src/secrets.ts';
 
 test('a month-long request is allowed for the agenda only', () => {
   const range = { start: '2026-11-30T21:00:00Z', end: '2026-12-31T21:00:00Z', zone: 'Europe/Istanbul' };
-  assert.ok(calendarRequest('demo-calendar', 'fatma', { ...range, operation: 'events' }));
-  assert.equal(calendarRequest('demo-calendar', 'fatma', { ...range, operation: 'busy' }), undefined);
-  assert.equal(calendarRequest('demo-calendar', 'fatma', { ...range, end: '2027-02-01T00:00:00Z', operation: 'events' }), undefined);
+  assert.ok(calendarRequest('demo-calendar', 'ece', { ...range, operation: 'events' }));
+  assert.equal(calendarRequest('demo-calendar', 'ece', { ...range, operation: 'busy' }), undefined);
+  assert.equal(calendarRequest('demo-calendar', 'ece', { ...range, end: '2027-02-01T00:00:00Z', operation: 'events' }), undefined);
 });
 
 test('MeetMesh login verifies the password and keeps the Google grant on the hub', async () => {
   const service = new CalendarAccounts({ accounts: [{
-    agentId: 'fatma', email: 'fatma@example.test', displayName: 'Fatma', bootstrap: 'agent-bootstrap',
+    agentId: 'ece', email: 'ece@example.test', displayName: 'Ece', bootstrap: 'agent-bootstrap',
     calendarId: 'private-calendar', refreshToken: 'private-token', passwordHash: hashSecret('test-password'),
   }], pairKeys: {} }, { client_id: 'test-client', client_secret: 'test-secret' });
   async function login(email: string, password: string) {
@@ -27,26 +27,26 @@ test('MeetMesh login verifies the password and keeps the Google grant on the hub
     await service.login(request as unknown as IncomingMessage, response as unknown as ServerResponse);
     return { status, body };
   }
-  assert.deepEqual(await login(' Fatma@EXAMPLE.TEST ', 'test-password'), { status: 200, body: {
-    agentId: 'fatma', email: 'fatma@example.test', calendar: 'managed', calendarName: 'MeetMash Takvimim', secret: 'agent-bootstrap', pairKeys: {},
+  assert.deepEqual(await login(' Ece@EXAMPLE.TEST ', 'test-password'), { status: 200, body: {
+    agentId: 'ece', email: 'ece@example.test', calendar: 'managed', calendarName: 'MeetMash Takvimim', secret: 'agent-bootstrap', pairKeys: {},
   } });
-  assert.deepEqual(await login('fatma@example.test', 'wrong'), { status: 401, body: { code: 'LOGIN_FAILED' } });
+  assert.deepEqual(await login('ece@example.test', 'wrong'), { status: 401, body: { code: 'LOGIN_FAILED' } });
   assert.deepEqual(await login('unknown@example.test', 'test-password'), { status: 401, body: { code: 'LOGIN_FAILED' } });
 });
 
 test('Google account verification selects the owned secondary calendar across pages', async t => {
   const fetch = t.mock.method(globalThis, 'fetch', async (url: string) => {
-    if (url.includes('/userinfo')) return Response.json({ email: 'fatma@example.test', verified_email: true });
+    if (url.includes('/userinfo')) return Response.json({ email: 'ece@example.test', verified_email: true });
     const page = new URL(url).searchParams.get('pageToken');
     return Response.json(page ? { items: [
-      { id: 'fatma-calendar', summary: 'MeetMash Takvimim', accessRole: 'owner' },
+      { id: 'ece-calendar', summary: 'MeetMash Takvimim', accessRole: 'owner' },
     ] } : { nextPageToken: '2', items: [
-      { id: 'fatma@example.test', primary: true, summary: 'MeetMash Takvimim', accessRole: 'owner' },
+      { id: 'ece@example.test', primary: true, summary: 'MeetMash Takvimim', accessRole: 'owner' },
       { id: 'shared-calendar', summary: 'MeetMash Takvimim', accessRole: 'writer' },
       { id: 'previous-calendar', summary: 'Meetmash Takvimim', accessRole: 'owner' },
     ] });
   });
-  assert.equal(await findTestCalendar('test-token', 'fatma@example.test'), 'fatma-calendar');
+  assert.equal(await findTestCalendar('test-token', 'ece@example.test'), 'ece-calendar');
   assert.equal(fetch.mock.callCount(), 3);
   await assert.rejects(findTestCalendar('test-token', 'batuhan@example.test'), /email must match/);
   assert.equal(fetch.mock.callCount(), 4);
@@ -54,9 +54,9 @@ test('Google account verification selects the owned secondary calendar across pa
 
 test('a previous spelling cannot substitute for the requested calendar', async t => {
   t.mock.method(globalThis, 'fetch', async (url: string) => url.includes('/userinfo')
-    ? Response.json({ email: 'fatma@example.test', verified_email: true })
+    ? Response.json({ email: 'ece@example.test', verified_email: true })
     : Response.json({ items: [{ id: 'existing-calendar', summary: 'Meetmash Takvimim', accessRole: 'owner' }] }));
-  await assert.rejects(findTestCalendar('test-token', 'fatma@example.test'), /exactly one secondary calendar/);
+  await assert.rejects(findTestCalendar('test-token', 'ece@example.test'), /exactly one secondary calendar/);
 });
 
 test('calendar control scopes Google tokens, reads, writes and pair keys to the authenticated agent', async t => {
@@ -65,22 +65,22 @@ test('calendar control scopes Google tokens, reads, writes and pair keys to the 
     calendarId: `${agentId}@group.calendar.google.com`, refreshToken: `${agentId}-refresh`,
   });
   const accounts = new CalendarAccounts({
-    accounts: ['batuhan', 'fatma', 'other'].map(account),
+    accounts: ['batuhan', 'ece', 'other'].map(account),
     mockAgents: [{ agentId: 'ege', displayName: 'Ege', bootstrap: 'mock-bootstrap' }],
-    pairKeys: { 'batuhan:fatma': 'shared', 'batuhan:other': 'never-return', 'fatma:other': 'other-pair',
-      'batuhan:ege': 'batuhan-mock', 'ege:fatma': 'fatma-mock', 'ege:other': 'other-mock' },
+    pairKeys: { 'batuhan:ece': 'shared', 'batuhan:other': 'never-return', 'ece:other': 'other-pair',
+      'batuhan:ege': 'batuhan-mock', 'ece:ege': 'ece-mock', 'ege:other': 'other-mock' },
   }, { client_id: 'test-client', client_secret: 'test-secret' });
-  assert.deepEqual(accounts.keysFor('fatma'), { 'batuhan:fatma': 'shared', 'fatma:other': 'other-pair', 'ege:fatma': 'fatma-mock' });
+  assert.deepEqual(accounts.keysFor('ece'), { 'batuhan:ece': 'shared', 'ece:other': 'other-pair', 'ece:ege': 'ece-mock' });
   const calls: { path: string; method?: string; body?: unknown }[] = [];
-  const own = 'fatma@group.calendar.google.com';
+  const own = 'ece@group.calendar.google.com';
   let refreshes = 0;
   t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
     if (url === 'https://oauth2.googleapis.com/token') {
       refreshes++;
-      assert.equal((init.body as URLSearchParams).get('refresh_token'), 'fatma-refresh');
-      return Response.json({ access_token: 'fatma-token', expires_in: 3600 });
+      assert.equal((init.body as URLSearchParams).get('refresh_token'), 'ece-refresh');
+      return Response.json({ access_token: 'ece-token', expires_in: 3600 });
     }
-    assert.equal(new Headers(init.headers).get('authorization'), 'Bearer fatma-token');
+    assert.equal(new Headers(init.headers).get('authorization'), 'Bearer ece-token');
     calls.push({ path: new URL(url).pathname, method: init.method ?? '', ...(init.body ? { body: JSON.parse(String(init.body)) } : {}) });
     return Response.json(url.endsWith('freeBusy') ? { calendars: { [own]: { busy: [] } } } : {});
   });
@@ -89,9 +89,9 @@ test('calendar control scopes Google tokens, reads, writes and pair keys to the 
     agentId: 'batuhan', calendarId: 'primary', attendees: [{ email: 'someone@example.test' }],
   };
   const [busy, events, insert, unauthorized] = await Promise.all([
-    accounts.handle('fatma', { ...frame, operation: 'busy' }),
-    accounts.handle('fatma', { ...frame, operation: 'events', zone: 'Europe/Istanbul' }),
-    accounts.handle('fatma', { ...frame, operation: 'insert', meeting: 'my-meeting', title: '  Tasarım   değerlendirmesi  ' }),
+    accounts.handle('ece', { ...frame, operation: 'busy' }),
+    accounts.handle('ece', { ...frame, operation: 'events', zone: 'Europe/Istanbul' }),
+    accounts.handle('ece', { ...frame, operation: 'insert', meeting: 'my-meeting', title: '  Tasarım   değerlendirmesi  ' }),
     accounts.handle('not-enrolled', { ...frame, operation: 'busy' }),
   ]);
   assert.equal(unauthorized?.status, 403);

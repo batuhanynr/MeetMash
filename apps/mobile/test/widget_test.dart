@@ -279,7 +279,7 @@ void main() {
                 children: tab == 1
                     ? [
                         AgentPicker(
-                          agents: const {'fatma': 'Fatma'},
+                          agents: const {'ece': 'Ece'},
                           selected: const {},
                           onChanged: (_, _) {},
                           onOpen: () {},
@@ -321,13 +321,13 @@ void main() {
       await tester.tap(find.text('Katılımcı seç'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('Fatma'), findsOneWidget);
+      expect(find.text('Ece'), findsOneWidget);
     },
   );
 
   testWidgets('participant selection stays in the checklist', (tester) async {
     final selected = <String>{};
-    const agents = {'fatma': 'Fatma'};
+    const agents = {'ece': 'Ece'};
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -358,7 +358,7 @@ void main() {
     );
     await tester.tap(find.text('Katılımcı seç'));
     await tester.pumpAndSettle();
-    expect(find.text('Fatma'), findsNothing);
+    expect(find.text('Ece'), findsNothing);
     await tester.tap(find.text('Katılımcı seç'));
     await tester.pumpAndSettle();
     expect(

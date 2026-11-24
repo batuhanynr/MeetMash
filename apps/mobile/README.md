@@ -47,17 +47,15 @@ The bundled synthetic calendars cover November 10, 2026. For a fixture run use t
 
 ### Sign in with a MeetMesh email and password
 
-Use a dedicated M2 hub for the Google test accounts. Give each person a distinct agent ID. For example, use `batuhan` and `fatma`. Each person creates a secondary calendar named **MeetMash Takvimim** in their own Google account. Add the consenting accounts as OAuth test users and register `http://127.0.0.1:8791/google/callback` as an authorized redirect URI for the web OAuth client. Keep the downloaded client JSON at `~/.config/meetmesh/google-oauth-web.json` (mode `600`), or set `MEETMESH_GOOGLE_OAUTH_FILE` to its private path.
+Use a dedicated M2 hub for the Google test accounts. Give each person a distinct agent ID. For example, use `agent-a` and `agent-b`. Each person creates a secondary calendar named **MeetMash Takvimim** in their own Google account. Add the consenting accounts as OAuth test users and register `http://127.0.0.1:8791/google/callback` as an authorized redirect URI for the web OAuth client. Keep the downloaded client JSON at `~/.config/meetmesh/google-oauth-web.json` (mode `600`), or set `MEETMESH_GOOGLE_OAUTH_FILE` to its private path.
 
 On the Mac, run the setup command for each person and open the URL it prints. The person approves access from the matching Google account. Setup selects the owned secondary calendar with the exact name above. It saves that calendar's ID and the offline Google authorization on the Mac. A new person's generated MeetMesh password is written to `~/.config/meetmesh/meetmesh-password-<agent-id>.txt` (mode `600`). Share it privately with that person. Running setup again renews Google authorization and keeps their MeetMesh password.
 
 ```sh
 export MEETMESH_ACCOUNTS_FILE="$HOME/.config/meetmesh/calendar-accounts.json"
-node scripts/connect-calendar.ts batuhan batuhan@example.com Batuhan
-node scripts/connect-calendar.ts fatma fatma@example.com Fatma
+node scripts/connect-calendar.ts agent-a person-a@example.com Ada
+node scripts/connect-calendar.ts agent-b person-b@example.com Ece
 ```
-
-Run `node scripts/seed-test-calendars.ts` with this catalog to fill the linked `batuhan` and `fatma` demo calendars through December 31. Re-running verifies existing demo events using stable IDs.
 
 Run `node scripts/setup-mock-calendars.ts` to add Ege and Deniz to the same managed hub and prepare their synthetic calendars under `.state/m5-calendars/mock-agents`. Restart the hub after setup. In two terminals, choose `DEMO_AGENT=ege` or `DEMO_AGENT=deniz` and run the command below with the same `MEETMESH_DATA_HOST` and `CERT_DIR` as the hub. Re-run setup and restart both mock agents if you add a Google test account later.
 

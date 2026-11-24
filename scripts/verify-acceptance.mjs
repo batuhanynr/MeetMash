@@ -4,7 +4,7 @@ import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, 
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
-const phases = ['software', 'm4-link', 'm4-round', 'm4-network', 'dart-linux', 'm5-network', 'intent', 'retrieval', 'preview'];
+const phases = ['software', 'm4-link', 'm4-round', 'm4-network', 'dart-linux', 'm5-network', 'intent', 'preview'];
 const { values } = parseArgs({
   options: {
     session: { type: 'string' },
@@ -133,7 +133,6 @@ function step(phase, out) {
       return { command: ['sh', 'scripts/mobile-build-agent.sh', 'linux', arch, join(out, 'dart-agent')], env, artifacts: ['dart-agent'] };
     }
     case 'intent':
-    case 'retrieval':
       return { command: [node, 'scripts/intelligence/evaluate.ts', phase], env, artifacts: [phase + '.json'] };
     case 'preview':
       return { command: ['npm', 'run', 'demo:m5', '--', '--preview'], env, artifacts: ['preview-meeting.json'] };
